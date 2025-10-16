@@ -1,0 +1,169 @@
+#!/usr/bin/env node
+
+import { readFile, readdir, stat } from 'fs/promises';
+import { createHash } from 'crypto';
+import { join, basename } from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// Colors for terminal output
+const colors = {
+  reset: '\x1b[0m',
+  red: '\x1b[31m',
+  green: '\x1b[32m',
+  yellow: '\x1b[33m',
+  blue: '\x1b[34m',
+  cyan: '\x1b[36m'
+};
+
+function log(message, color = 'reset') {
+  console.log(`${colors[color]}${message}${colors.reset}`);
+}
+
+async function computeHash(filepath) {
+  const content = await readFile(filepath);
+  return createHash('sha512').update(content).digest('hex');
+}
+
+async function getFileSize(filepath) {
+  const stats = await stat(filepath);
+  return stats.size;
+}
+
+async function verifyImmutablePack() {
+  const functionsDir = join(__dirname, '..', 'functions');
+  const manifestPath = join(functionsDir, 'assets', 'rules', 'manifest.json');
+  const rulesDir = join(functionsDir, 'assets', 'rules');
+  const treatyDir = join(functionsDir, 'assets', 'treaty');
+
+  log('🔍 Verifying immutable rules and treaties...', 'cyan');
+  log('');
+
+  // Check if manifest exists
+  try {
+    await stat(manifestPath);
+  } catch (error) {
+    log('❌ ERROR: Manifest file not found at ' + manifestPath, 'red');
+    process.exit(1);
+  }
+
+  // Read manifest
+  const manifestContent = await readFile(manifestPath, 'utf-8');
+  const manifest = JSON.parse(manifestContent);
+
+  log('📋 Checking files against manifest...', 'blue');
+  let errors = 0;
+  const unexpectedFiles = [];
+
+  // Check for unexpected files in rules directory
+  log('🔍 Checking for unexpected files in rules directory...', 'blue');
+  const rulesFiles = await readdir(rulesDir);
+  for (const filename of rulesFiles) {
+    if (filename === 'manifest.json' || filename === 'gift_rules_CHANGELOG.md') {
+      continue;
+    }
+    
+    const fileInManifest = manifest.files.some(f => f.name === filename);
+    if (!fileInManifest) {
+      unexpectedFiles.push(filename);
+      errors++;
+    }
+  }
+
+  // Check for unexpected files in treaty directory
+  log('🔍 Checking for unexpected files in treaty directory...', 'blue');
+  try {
+    const treatyFiles = await readdir(treatyDir);
+    for (const filename of treatyFiles) {
+      const manifestName = `treaty/${filename}`;
+      const fileInManifest = manifest.files.some(f => f.name === manifestName);
+      if (!fileInManifest) {
+        unexpectedFiles.push(manifestName);
+        errors++;
+      }
+    }
+  } catch (error) {
+    // Treaty directory might not exist, that's okay
+  }
+
+  if (unexpectedFiles.length > 0) {
+    log('❌ ERROR: Found unexpected files not in manifest:', 'red');
+    unexpectedFiles.forEach(file => log(`  - ${file}`, 'red'));
+    log('', 'reset');
+    log('📝 To add these files to the manifest, run: npm run generate-manifest', 'yellow');
+  }
+
+  // Verify hashes for files in manifest
+  log('🔐 Verifying file hashes...', 'blue');
+
+  for (const fileEntry of manifest.files) {
+    const { name, sha512: expectedHash, size: expectedSize } = fileEntry;
+
+    // Determine full path
+    let filepath;
+    if (name.startsWith('treaty/')) {
+      filepath = join(functionsDir, 'assets', name);
+    } else {
+      filepath = join(rulesDir, name);
+    }
+
+    // Check if file exists
+    try {
+      await stat(filepath);
+    } catch (error) {
+      log(`❌ ERROR: File ${name} listed in manifest but not found at ${filepath}`, 'red');
+      errors++;
+      continue;
+    }
+
+    // Compute actual hash and size
+    const actualHash = await computeHash(filepath);
+    const actualSize = await getFileSize(filepath);
+
+    // Verify hash
+    if (actualHash !== expectedHash) {
+      log(`❌ ERROR: Hash mismatch for ${name}`, 'red');
+      log(`   Expected: ${expectedHash}`, 'red');
+      log(`   Actual:   ${actualHash}`, 'red');
+      errors++;
+    }
+
+    // Verify size
+    if (actualSize !== expectedSize) {
+      log(`⚠️  WARNING: Size mismatch for ${name} (expected: ${expectedSize}, actual: ${actualSize})`, 'yellow');
+    }
+  }
+
+  log('');
+
+  if (errors > 0) {
+    log(`❌ Verification failed with ${errors} error(s)`, 'red');
+    log('', 'reset');
+    log('⚠️  IMMUTABLE RULES VIOLATION DETECTED ⚠️', 'yellow');
+    log('', 'reset');
+    log('The rules and treaties in this repository are immutable by design.', 'reset');
+    log('Any changes to these files MUST be reflected in the manifest.', 'reset');
+    log('', 'reset');
+    log('If you need to add or modify files:', 'reset');
+    log('  1. Make your changes to the rule/treaty files', 'reset');
+    log('  2. Run: npm run generate-manifest', 'reset');
+    log('  3. Commit both the file changes AND the updated manifest', 'reset');
+    log('', 'reset');
+    log('If the manifest was manually edited, this is a serious violation.', 'reset');
+    log('The manifest should ONLY be generated by the generate-manifest script.', 'reset');
+    process.exit(1);
+  }
+
+  log('✅ All rules and treaties verified successfully!', 'green');
+  log('✅ Manifest integrity confirmed!', 'green');
+}
+
+// Run verification
+verifyImmutablePack().catch(error => {
+  log('❌ Error during verification: ' + error.message, 'red');
+  console.error(error);
+  process.exit(1);
+});

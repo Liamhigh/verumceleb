@@ -1,0 +1,21 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Check if any immutable files have changed
+CHANGED_FILES=$(git diff --cached --name-only | grep -E '^functions/assets/(rules|treaty)/')
+
+if [ -n "$CHANGED_FILES" ]; then
+  echo "🔍 Immutable files detected in commit. Verifying integrity..."
+  npm run verify-immutable
+  
+  if [ $? -ne 0 ]; then
+    echo ""
+    echo "❌ Pre-commit hook failed!"
+    echo "⚠️  Cannot commit changes to immutable files without manifest update."
+    echo ""
+    echo "Did you run 'npm run generate-manifest' after making changes?"
+    exit 1
+  fi
+  
+  echo "✅ Immutable pack verification passed!"
+fi

@@ -1,0 +1,150 @@
+name: Immutable Rules Check
+
+on:
+  pull_request:
+    paths:
+      - 'functions/assets/rules/**'
+      - 'functions/assets/treaty/**'
+  push:
+    branches:
+      - main
+    paths:
+      - 'functions/assets/rules/**'
+      - 'functions/assets/treaty/**'
+
+jobs:
+  verify-immutable-pack:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          
+      - name: Verify manifest integrity
+        working-directory: functions
+        run: |
+          echo "🔍 Verifying immutable rules and treaties..."
+          
+          # Function to compute SHA-512 hash
+          compute_hash() {
+            local file=$1
+            shasum -a 512 "$file" | awk '{print $1}'
+          }
+          
+          # Function to get file size
+          get_size() {
+            local file=$1
+            stat -f%z "$file" 2>/dev/null || stat -c%s "$file" 2>/dev/null
+          }
+          
+          MANIFEST="assets/rules/manifest.json"
+          RULES_DIR="assets/rules"
+          TREATY_DIR="assets/treaty"
+          
+          if [ ! -f "$MANIFEST" ]; then
+            echo "❌ ERROR: Manifest file not found at $MANIFEST"
+            exit 1
+          fi
+          
+          echo "📋 Checking files against manifest..."
+          
+          # Read manifest and check each file
+          ERRORS=0
+          UNEXPECTED_FILES=""
+          
+          # Check for unexpected files in rules directory (excluding manifest.json and CHANGELOG)
+          echo "🔍 Checking for unexpected files in rules directory..."
+          for file in "$RULES_DIR"/*; do
+            filename=$(basename "$file")
+            if [ "$filename" != "manifest.json" ] && [ "$filename" != "gift_rules_CHANGELOG.md" ]; then
+              # Check if file is in manifest
+              if ! grep -q "\"name\": \"$filename\"" "$MANIFEST"; then
+                UNEXPECTED_FILES="$UNEXPECTED_FILES\n  - $filename"
+                ERRORS=$((ERRORS + 1))
+              fi
+            fi
+          done
+          
+          # Check for unexpected files in treaty directory
+          echo "🔍 Checking for unexpected files in treaty directory..."
+          for file in "$TREATY_DIR"/*; do
+            filename="treaty/$(basename "$file")"
+            if ! grep -q "\"name\": \"$filename\"" "$MANIFEST"; then
+              UNEXPECTED_FILES="$UNEXPECTED_FILES\n  - $filename"
+              ERRORS=$((ERRORS + 1))
+            fi
+          done
+          
+          if [ -n "$UNEXPECTED_FILES" ]; then
+            echo "❌ ERROR: Found unexpected files not in manifest:$UNEXPECTED_FILES"
+            echo ""
+            echo "📝 To add these files to the manifest, run: npm run generate-manifest"
+          fi
+          
+          # Verify hashes for files in manifest
+          echo "🔐 Verifying file hashes..."
+          
+          # Parse manifest and check each file
+          jq -r '.files[] | @json' "$MANIFEST" | while IFS= read -r file_entry; do
+            name=$(echo "$file_entry" | jq -r '.name')
+            expected_hash=$(echo "$file_entry" | jq -r '.sha512')
+            expected_size=$(echo "$file_entry" | jq -r '.size')
+            
+            # Determine full path
+            if [[ "$name" == treaty/* ]]; then
+              filepath="assets/$name"
+            else
+              filepath="$RULES_DIR/$name"
+            fi
+            
+            if [ ! -f "$filepath" ]; then
+              echo "❌ ERROR: File $name listed in manifest but not found at $filepath"
+              ERRORS=$((ERRORS + 1))
+              continue
+            fi
+            
+            # Compute actual hash and size
+            actual_hash=$(compute_hash "$filepath")
+            actual_size=$(get_size "$filepath")
+            
+            # Verify hash
+            if [ "$actual_hash" != "$expected_hash" ]; then
+              echo "❌ ERROR: Hash mismatch for $name"
+              echo "   Expected: $expected_hash"
+              echo "   Actual:   $actual_hash"
+              ERRORS=$((ERRORS + 1))
+            fi
+            
+            # Verify size
+            if [ "$actual_size" != "$expected_size" ]; then
+              echo "⚠️  WARNING: Size mismatch for $name (expected: $expected_size, actual: $actual_size)"
+            fi
+          done
+          
+          if [ $ERRORS -gt 0 ]; then
+            echo ""
+            echo "❌ Verification failed with $ERRORS error(s)"
+            echo ""
+            echo "⚠️  IMMUTABLE RULES VIOLATION DETECTED ⚠️"
+            echo ""
+            echo "The rules and treaties in this repository are immutable by design."
+            echo "Any changes to these files MUST be reflected in the manifest."
+            echo ""
+            echo "If you need to add or modify files:"
+            echo "  1. Make your changes to the rule/treaty files"
+            echo "  2. Run: npm run generate-manifest"
+            echo "  3. Commit both the file changes AND the updated manifest"
+            echo ""
+            echo "If the manifest was manually edited, this is a serious violation."
+            echo "The manifest should ONLY be generated by the generate-manifest script."
+            exit 1
+          fi
+          
+          echo ""
+          echo "✅ All rules and treaties verified successfully!"
+          echo "✅ Manifest integrity confirmed!"
