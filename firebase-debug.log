@@ -1,0 +1,83 @@
+[debug] [2025-10-16T05:21:33.158Z] ----------------------------------------------------------------------
+[debug] [2025-10-16T05:21:33.166Z] Command:       C:\nvm4w\nodejs\node.exe C:\nvm4w\nodejs\node_modules\firebase-tools\lib\bin\firebase.js emulators:start
+[debug] [2025-10-16T05:21:33.167Z] CLI Version:   14.19.1
+[debug] [2025-10-16T05:21:33.168Z] Platform:      win32
+[debug] [2025-10-16T05:21:33.169Z] Node Version:  v20.17.0
+[debug] [2025-10-16T05:21:33.169Z] Time:          Thu Oct 16 2025 07:21:33 GMT+0200 (South Africa Standard Time)
+[debug] [2025-10-16T05:21:33.170Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-10-16T05:21:34.496Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-10-16T05:21:34.498Z] > authorizing via signed-in user (liamhigh78@gmail.com)
+[info] i  emulators: Starting emulators: functions, hosting, extensions {"metadata":{"emulator":{"name":"hub"},"message":"Starting emulators: functions, hosting, extensions"}}
+[debug] [2025-10-16T05:21:34.513Z] Checked if tokens are valid: false, expires at: 1760592534922
+[debug] [2025-10-16T05:21:34.515Z] Checked if tokens are valid: false, expires at: 1760592534922
+[debug] [2025-10-16T05:21:34.516Z] > refreshing access token with scopes: []
+[debug] [2025-10-16T05:21:34.524Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-10-16T05:21:34.524Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-10-16T05:21:35.441Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-10-16T05:21:35.442Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-10-16T05:21:35.487Z] >>> [apiv2][query] GET https://cloudresourcemanager.googleapis.com/v1/projects/gitverum [none]
+[debug] [2025-10-16T05:21:37.396Z] <<< [apiv2][status] GET https://cloudresourcemanager.googleapis.com/v1/projects/gitverum 200
+[debug] [2025-10-16T05:21:37.396Z] <<< [apiv2][body] GET https://cloudresourcemanager.googleapis.com/v1/projects/gitverum {"projectNumber":"76093225100","projectId":"gitverum","lifecycleState":"ACTIVE","name":"gitverum","labels":{"firebase":"enabled","firebase-core":"disabled"},"createTime":"2025-08-13T00:12:39.552892Z"}
+[debug] [2025-10-16T05:21:37.436Z] [logging] Logging Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2025-10-16T05:21:37.436Z] [hosting] Hosting Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2025-10-16T05:21:37.437Z] assigned listening specs for emulators {"user":{"hub":[{"address":"127.0.0.1","family":"IPv4","port":4400},{"address":"::1","family":"IPv6","port":4400}],"ui":[{"address":"127.0.0.1","family":"IPv4","port":4000},{"address":"::1","family":"IPv6","port":4000}],"logging":[{"address":"127.0.0.1","family":"IPv4","port":4500}],"hosting":[{"address":"127.0.0.1","family":"IPv4","port":5000}]},"metadata":{"message":"assigned listening specs for emulators"}}
+[debug] [2025-10-16T05:21:37.450Z] Emulator locator file path: C:\Users\Gary\AppData\Local\Temp\hub-gitverum.json
+[debug] [2025-10-16T05:21:37.452Z] [hub] writing locator at C:\Users\Gary\AppData\Local\Temp\hub-gitverum.json
+[debug] [2025-10-16T05:21:37.481Z] [Extensions] Started Extensions emulator, this is a noop.
+[debug] [2025-10-16T05:21:37.506Z] [functions] Functions Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2025-10-16T05:21:37.506Z] [eventarc] Eventarc Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2025-10-16T05:21:37.507Z] [tasks] Cloud Tasks Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2025-10-16T05:21:37.507Z] late-assigned ports for functions and eventarc emulators {"user":{"hub":[{"address":"127.0.0.1","family":"IPv4","port":4400},{"address":"::1","family":"IPv6","port":4400}],"ui":[{"address":"127.0.0.1","family":"IPv4","port":4000},{"address":"::1","family":"IPv6","port":4000}],"logging":[{"address":"127.0.0.1","family":"IPv4","port":4500}],"hosting":[{"address":"127.0.0.1","family":"IPv4","port":5000}],"functions":[{"address":"127.0.0.1","family":"IPv4","port":5001}],"eventarc":[{"address":"127.0.0.1","family":"IPv4","port":9299}],"tasks":[{"address":"127.0.0.1","family":"IPv4","port":9499}]},"metadata":{"message":"late-assigned ports for functions and eventarc emulators"}}
+[warn] !  functions: The following emulators are not running, calls to these services from the Functions emulator will affect production: apphosting, auth, firestore, database, pubsub, storage, dataconnect {"metadata":{"emulator":{"name":"functions"},"message":"The following emulators are not running, calls to these services from the Functions emulator will affect production: \u001b[1mapphosting, auth, firestore, database, pubsub, storage, dataconnect\u001b[22m"}}
+[debug] [2025-10-16T05:21:37.656Z] defaultcredentials: writing to file C:\Users\Gary\AppData\Roaming\firebase\liamhigh78_gmail_com_application_default_credentials.json
+[debug] [2025-10-16T05:21:37.663Z] Setting GAC to C:\Users\Gary\AppData\Roaming\firebase\liamhigh78_gmail_com_application_default_credentials.json {"metadata":{"emulator":{"name":"functions"},"message":"Setting GAC to C:\\Users\\Gary\\AppData\\Roaming\\firebase\\liamhigh78_gmail_com_application_default_credentials.json"}}
+[debug] [2025-10-16T05:21:37.665Z] Checked if tokens are valid: true, expires at: 1760595694442
+[debug] [2025-10-16T05:21:37.665Z] Checked if tokens are valid: true, expires at: 1760595694442
+[debug] [2025-10-16T05:21:37.666Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/gitverum/adminSdkConfig [none]
+[debug] [2025-10-16T05:21:38.688Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/gitverum/adminSdkConfig 200
+[debug] [2025-10-16T05:21:38.688Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/gitverum/adminSdkConfig {"projectId":"gitverum","storageBucket":"gitverum.firebasestorage.app"}
+[debug] [2025-10-16T05:21:38.728Z] Checked if tokens are valid: true, expires at: 1760595694442
+[debug] [2025-10-16T05:21:38.728Z] Checked if tokens are valid: true, expires at: 1760595694442
+[debug] [2025-10-16T05:21:38.730Z] >>> [apiv2][query] GET https://firebasehosting.googleapis.com/v1beta1/projects/gitverum/sites 
+[debug] [2025-10-16T05:21:40.777Z] <<< [apiv2][status] GET https://firebasehosting.googleapis.com/v1beta1/projects/gitverum/sites 200
+[debug] [2025-10-16T05:21:40.777Z] <<< [apiv2][body] GET https://firebasehosting.googleapis.com/v1beta1/projects/gitverum/sites {"sites":[{"name":"projects/gitverum/sites/gitverum","defaultUrl":"https://gitverum.web.app","appId":"1:76093225100:web:0687636eaf5a544ed963a9","type":"DEFAULT_SITE"},{"name":"projects/gitverum/sites/verum78","defaultUrl":"https://verum78.web.app","appId":"1:76093225100:web:779ae18297621054d963a9","type":"USER_SITE"},{"name":"projects/gitverum/sites/verumomnisapp","defaultUrl":"https://verumomnisapp.web.app","appId":"1:76093225100:web:37ab875ec998d66ad963a9","type":"USER_SITE"}]}
+[debug] [2025-10-16T05:21:40.778Z] Checked if tokens are valid: true, expires at: 1760595694442
+[debug] [2025-10-16T05:21:40.778Z] Checked if tokens are valid: true, expires at: 1760595694442
+[debug] [2025-10-16T05:21:40.779Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/gitverum/webApps/1:76093225100:web:0687636eaf5a544ed963a9/config [none]
+[debug] [2025-10-16T05:21:41.420Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/gitverum/webApps/1:76093225100:web:0687636eaf5a544ed963a9/config 200
+[debug] [2025-10-16T05:21:41.420Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/gitverum/webApps/1:76093225100:web:0687636eaf5a544ed963a9/config {"projectId":"gitverum","appId":"1:76093225100:web:0687636eaf5a544ed963a9","storageBucket":"gitverum.firebasestorage.app","apiKey":"AIzaSyD0qDboziZn0KnDO4yOPoGejKCkIF68wSs","authDomain":"gitverum.firebaseapp.com","messagingSenderId":"76093225100","measurementId":"G-T3PXPKK51L","projectNumber":"76093225100","version":"2"}
+[debug] [2025-10-16T05:21:41.477Z] Checked if tokens are valid: true, expires at: 1760595694442
+[debug] [2025-10-16T05:21:41.477Z] Checked if tokens are valid: true, expires at: 1760595694442
+[debug] [2025-10-16T05:21:41.478Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/gitverum [none]
+[debug] [2025-10-16T05:21:41.834Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/gitverum 200
+[debug] [2025-10-16T05:21:41.835Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/gitverum {"projectId":"gitverum","projectNumber":"76093225100","displayName":"gitverum","name":"projects/gitverum","resources":{"hostingSite":"gitverum"},"state":"ACTIVE","etag":"1_f51138d6-4c73-415a-a6c4-9634d5590f51"}
+[debug] [2025-10-16T05:21:41.838Z] Specified "public" directory "public" does not exist; Deploy to Hosting site "verum78" may fail or be empty.
+[info] i  hosting[verum78]: Serving hosting files from: public {"metadata":{"emulator":{"name":"hosting"},"message":"Serving hosting files from: \u001b[1mpublic\u001b[22m"}}
+[info] +  hosting[verum78]: Local server: http://127.0.0.1:5000 {"metadata":{"emulator":{"name":"hosting"},"message":"Local server: \u001b[4m\u001b[1mhttp://127.0.0.1:5000\u001b[22m\u001b[24m"}}
+[debug] [2025-10-16T05:21:42.200Z] [Extensions] Connecting Extensions emulator, this is a noop.
+[info] i  functions: Watching "C:\Users\Gary\functions" for Cloud Functions... {"metadata":{"emulator":{"name":"functions"},"message":"Watching \"C:\\Users\\Gary\\functions\" for Cloud Functions..."}}
+[error] !!  functions: Failed to load function definition from source: FirebaseError: could not deploy functions because the "functions" directory was not found. Please create it or specify a different source directory in firebase.json {"metadata":{"emulator":{"name":"functions"},"message":"Failed to load function definition from source: FirebaseError: could not deploy functions because the \u001b[1m\"functions\"\u001b[22m directory was not found. Please create it or specify a different source directory in firebase.json"}}
+[debug] [2025-10-16T05:21:42.312Z] Could not find VSCode notification endpoint: FetchError: request to http://localhost:40001/vscode/notify failed, reason: . If you are not running the Firebase Data Connect VSCode extension, this is expected and not an issue.
+[info] 
+┌─────────────────────────────────────────────────────────────┐
+│ ✔  All emulators ready! It is now safe to connect your app. │
+│ i  View Emulator UI at http://127.0.0.1:4000/               │
+└─────────────────────────────────────────────────────────────┘
+
+┌────────────┬────────────────┬──────────────────────────────────┐
+│ Emulator   │ Host:Port      │ View in Emulator UI              │
+├────────────┼────────────────┼──────────────────────────────────┤
+│ Functions  │ 127.0.0.1:5001 │ http://127.0.0.1:4000/functions  │
+├────────────┼────────────────┼──────────────────────────────────┤
+│ Hosting    │ 127.0.0.1:5000 │ n/a                              │
+├────────────┼────────────────┼──────────────────────────────────┤
+│ Extensions │ 127.0.0.1:5001 │ http://127.0.0.1:4000/extensions │
+└────────────┴────────────────┴──────────────────────────────────┘
+  Emulator Hub host: 127.0.0.1 port: 4400
+  Other reserved ports: 4500
+┌─────────────────────────┬───────────────┬─────────────────────┐
+│ Extension Instance Name │ Extension Ref │ View in Emulator UI │
+└─────────────────────────┴───────────────┴─────────────────────┘
+Issues? Report them at https://github.com/firebase/firebase-tools/issues and attach the *-debug.log files.
+ 
