@@ -51,7 +51,7 @@ The **core innovation** is the immutable rules pack system in `functions/assets/
 ```bash
 # In functions/ directory
 npm ci
-npm start  # Starts local Firebase emulator
+firebase emulators:start  # Starts local Firebase emulator
 
 # For mobile development
 cd capacitor-app
