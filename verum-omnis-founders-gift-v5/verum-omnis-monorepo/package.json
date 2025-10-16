@@ -1,0 +1,13 @@
+{
+  "name": "verum-omnis-repo",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "verify:immutable": "node scripts/verify-immutable-pack.mjs",
+    "manifest:gen": "node scripts/generate-manifest.mjs",
+    "prepare": "husky install"
+  },
+  "devDependencies": {
+    "husky": "^9.0.0"
+  }
+}
