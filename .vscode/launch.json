@@ -9,6 +9,13 @@
             "request": "launch",
             "type": "chrome",
             "url": "http://localhost:8080",
+            "webRoot": "/web${cwd}"
+        },
+        {
+            "name": "Launch Chrome",
+            "request": "launch",
+            "type": "chrome",
+            "url": "http://localhost:8080",
             "webRoot": "${workspaceFolder}/web${cwd}"
         },
         {
@@ -25,7 +32,6 @@
             "type": "chrome",
             "webRoot": "${workspaceFolder}/web"
         },
-
         {
             "type": "vscode-chat-replay",
             "request": "launch",

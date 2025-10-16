@@ -32,7 +32,7 @@ function sha512File(fp){ const h=crypto.createHash('sha512'); h.update(fs.readFi
 // ---- API ----
 app.get('/v1/verify', (_req,res)=>{ res.json({ ok:true, pack:'founders-release', time:new Date().toISOString() }); });
 app.post('/v1/contradict', async (req,res)=>{ const { text }=req.body||{}; if(!text) return res.status(400).json({ok:false,error:'missing_text'}); res.json({ ok:true, result:{ findings:[], score:{contradiction:0} } }); });
-app.post('/v1/anchor', (req,res)=>{ const { hash }=req.body||{}; if(!hash) return res.status(400).json({ok:false,error:'invalid_hash'}); const r={ ok:true, hash, issuedAt:new Date().toISOString() }; putReceipt(hash,r); res.json(r); });
+app.post('/v1/anchor', async (req,res)=>{ const { hash }=req.body||{}; if(!hash) return res.status(400).json({ok:false,error:'invalid_hash'}); const r={ ok:true, hash, issuedAt:new Date().toISOString() }; try{ await putReceipt(hash,r); res.json(r); }catch(e){ res.status(500).json({ok:false,error:'receipt_failed'}); } });
 app.post('/v1/seal', async (req,res)=>{ const { hash, title, notes }=req.body||{}; if(!hash) return res.status(400).json({ok:false,error:'invalid_hash'});
   const logoPath = path.join(path.dirname(new URL(import.meta.url).pathname),'..','web','assets','logo.png');
   const pdf = await makeSealedPdf({ hash, title, notes, logoPath }); const tmp='/tmp/vo.pdf'; const ws=fs.createWriteStream(tmp); pdf.pipe(ws); ws.on('finish',()=>{ res.setHeader('Content-Type','application/pdf'); res.sendFile(tmp,()=>fs.unlinkSync(tmp)); }); });
