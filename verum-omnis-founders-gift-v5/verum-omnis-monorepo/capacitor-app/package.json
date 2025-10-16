@@ -3,11 +3,13 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "mkdir -p www && cp -r ../web/* ./www/"
+    "build": "if not exist www mkdir www && xcopy ..\\web\\* www /E /Y"
   },
   "dependencies": {
     "@capacitor/android": "^6.1.0",
-    "@capacitor/cli": "^6.1.0",
     "@capacitor/core": "^6.1.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.4.3"
   }
 }
