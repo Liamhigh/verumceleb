@@ -1,0 +1,1 @@
+export default { appId:'foundation.verumglobal.app', appName:'Verum Omnis', webDir:'www', server:{ url:'https://YOUR_HOST', cleartext:false } }

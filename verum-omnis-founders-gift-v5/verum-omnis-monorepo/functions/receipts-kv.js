@@ -1,0 +1,1 @@
+const kv=new Map();export function putReceipt(h,r){kv.set(h,r)}export function getReceipt(h){return kv.get(h)||null}

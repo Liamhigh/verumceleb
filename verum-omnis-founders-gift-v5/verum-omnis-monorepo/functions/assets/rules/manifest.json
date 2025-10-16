@@ -1,0 +1,66 @@
+{
+  "pack": "verum_rules_founders_release",
+  "version": "2025-10-16",
+  "files": [
+    {
+      "name": "01_constitution.json",
+      "sha512": "aed412a4b6f187da5d4406bcf5e9567cf4365ef2f2c65682f3a0ae7cb10efe52026118c833b1dbc8b290acb5678b33b0f8c2945c0115805391a5f518a89ec618",
+      "size": 233
+    },
+    {
+      "name": "02_contradiction_engine.yaml",
+      "sha512": "32a470281ebcbe88edd65cd5943e444e607edbd5334034a4c5245fdf9164c5845616a1aa701983a717cbf96ed8fe2fed1f4de19620b72e093f4a57507b23d610",
+      "size": 86
+    },
+    {
+      "name": "05_pdf_seal_policy.yaml",
+      "sha512": "075a8bad8b6408857fe2ff44156549c3db8ec97ad7c381e67a3159f4d1e690fea9c73af23d1243ecef6cd4bfe0c104b57b059524a013f357b7bc8b17d214bf5e",
+      "size": 82
+    },
+    {
+      "name": "07_risk_scoring.yaml",
+      "sha512": "0435b5da9eaf458637b7d89764824e3dd9d1e886167954cb753cb30eea11b94311ac609ebbb9474b95a083a52cdac8df11b82ef2b051cb8fb0f92229c36f6705",
+      "size": 36
+    },
+    {
+      "name": "08_data_handling.yaml",
+      "sha512": "4addf5b26f1698cdb2f59f1ef5440151d4237e715198f71c12ee6a16bd2830a03524fe7353c90810c65778597e570f03b1c30ba330eb4365a6cac7512d83dc8e",
+      "size": 51
+    },
+    {
+      "name": "09_audit_trail.yaml",
+      "sha512": "5115f07a1b82e10b4f40b0f8e8c16c21e80054a4f222b3549f9fbd463b87b638aefe5ed935777b6146cdfd1fd4e0a2fc110fc15f49310bf9eecc481a5cebe84d",
+      "size": 35
+    },
+    {
+      "name": "27_guardianship.yaml",
+      "sha512": "02cb9f3fa7dfd48fe4fdead9f5f7ef53c23ad216b3b729d78e099235280ee1c95abf9de8cf43fea60adb8ac6ae12e6a99d28f00d98b192ceef20386db2c80ada",
+      "size": 113
+    },
+    {
+      "name": "28_founders.yaml",
+      "sha512": "feb526e8fef32f12e06d0521496d1b62877e5a6f87e2be9ba257aa78d582ef7c06dd53fc688dc0f9c2daea6975c4fd8ce1326fd8984e6ba2b3ff7fb80770a5bc",
+      "size": 133
+    },
+    {
+      "name": "treaty/Guardianship_Treaty_Verum_Omnis_Founders.pdf",
+      "sha512": "cd6c1e5d6f2aa7bb168c8272287549a684cca4e7a957173f7402899bccf9998f944cf120264d7c09277540e03fab8fb1ad70c16846b54b79b20d52ec7d4639a7",
+      "size": 67367
+    },
+    {
+      "name": "treaty/Guardianship_Treaty_Verum_Omnis_Founders.yaml",
+      "sha512": "361b6693c5a31d914bfbecaf3cc7a3c29c2501179814f1ffefa98414ecfa95a0ed9afb93eebc664c9ec0447da2d2acc45ce82f2e89a71ab9cc7ed75de33fb053",
+      "size": 560
+    },
+    {
+      "name": "gift_rules_v5.json",
+      "sha512": "6747d1187bcf8749a8d7890b1d2180b7cd4a87f9405ea39b03ec56e0774ec404563058e0a21c9be662a1f78fddb7c8d44ba2a3f4c982a351d6bb04bfaedfacab",
+      "size": 7979
+    },
+    {
+      "name": "gift_rules_CHANGELOG.md",
+      "sha512": "619f57021f8bcb3d22440f15be9d91049ae9fd05b96b40c425d03f0b77dfcaf7e0dbe3292042892a672532ee8181ce66ee40c06e584d431d354b96426fd8baa8",
+      "size": 381
+    }
+  ]
+}

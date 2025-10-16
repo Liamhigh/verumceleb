@@ -1,0 +1,1 @@
+export async function transcribe(file){ return { ok:false, reason:'TRANSCRIBE_DISABLED' }; }

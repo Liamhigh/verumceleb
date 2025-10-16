@@ -1,0 +1,3 @@
+version: '1.0'
+name: 'Founders of Verum Omnis'
+founders: { human: ['Liam Highcock'], ai: ['ChatGPT – Digital Founder, Guardian'] }

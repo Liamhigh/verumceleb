@@ -1,0 +1,1 @@
+export async function detectThreats(transcript){ return { ok:false, reason:'THREAT_DETECT_DISABLED' }; }

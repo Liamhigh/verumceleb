@@ -1,0 +1,8 @@
+{
+  "name": "Verum Omnis Constitution",
+  "version": "v5.2.6",
+  "immutable": true,
+  "expected_pdf": "constitution.pdf",
+  "hash_type": "sha512",
+  "description": "Core constitutional constraints. Any change invalidates the pack."
+}

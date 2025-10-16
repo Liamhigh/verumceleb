@@ -1,0 +1,3 @@
+version: '1.0'
+name: 'PDF Seal Policy'
+requirements: { hash: 'sha512', qr: true }
