@@ -1,0 +1,61 @@
+name: Immutable Rules Check
+on: [push, pull_request]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify rule + treaty hashes match manifest
+        run: |
+          set -euo pipefail
+          node <<'NODE'
+          const fs = require('fs');
+          const crypto = require('crypto');
+          const path = require('path');
+
+          const RULES_DIR = path.join('functions','assets','rules');
+          const TREATY_DIR = path.join('functions','assets','treaty');
+          const MANIFEST = path.join(RULES_DIR,'manifest.json');
+
+          function sha512(fp) {
+            const h = crypto.createHash('sha512');
+            h.update(fs.readFileSync(fp));
+            return h.digest('hex');
+          }
+
+          if (!fs.existsSync(MANIFEST)) {
+            console.error('❌ Missing manifest.json at', MANIFEST);
+            process.exit(1);
+          }
+          const m = JSON.parse(fs.readFileSync(MANIFEST, 'utf8'));
+
+          // Ensure rules dir has no extra files
+          const listed = new Set(m.files.map(f => f.name));
+          for (const f of fs.readdirSync(RULES_DIR)) {
+            if (f === 'manifest.json') continue;
+            if (!listed.has(f)) {
+              console.error('❌ Unexpected file in rules/:', f);
+              process.exit(1);
+            }
+          }
+
+          // Verify each listed artifact (rules/* by name, treaty/* by prefix)
+          for (const {name, sha512: expected} of m.files) {
+            const fp = name.startsWith('treaty/')
+              ? path.join('functions','assets', name)
+              : path.join(RULES_DIR, name);
+            if (!fs.existsSync(fp)) {
+              console.error('❌ Listed artifact missing:', name);
+              process.exit(1);
+            }
+            const actual = sha512(fp);
+            if (actual !== expected) {
+              console.error(`❌ Hash mismatch for ${name}\nExpected: ${expected}\nActual:   ${actual}`);
+              process.exit(1);
+            }
+          }
+
+          console.log('✅ Immutable pack verified');
+          NODE
