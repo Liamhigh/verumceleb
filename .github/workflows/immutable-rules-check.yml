@@ -1,0 +1,25 @@
+name: Immutable Rules Check
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+
+jobs:
+  verify-immutable-pack:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Verify Immutable Pack
+        run: |
+          cd verum-omnis-founders-gift-v5/verum-omnis-monorepo/functions
+          node ../../../scripts/verify-immutable-pack.mjs
