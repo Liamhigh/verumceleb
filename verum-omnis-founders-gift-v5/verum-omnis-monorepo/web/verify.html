@@ -1,20 +1,139 @@
-<!doctype html><html><head>
-<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Verify & Seal</title><link rel="stylesheet" href="/assets/app.css"/></head>
-<body><div class="container"><div class="card">
-<h1>Verify & Seal</h1>
-<div class="row"><textarea id="txt" rows="6" style="width:100%" placeholder="Paste text to scan for contradictions…"></textarea></div>
-<div class="row"><button onclick="contradict()">Scan for Contradictions</button><button class="pill" onclick="verify()">Verify Constitution</button></div>
-<pre id="out" style="white-space:pre-wrap"></pre>
-<hr/>
-<div class="row"><input id="hash" placeholder="SHA-512 (hex)"/><button onclick="anchor()">Anchor</button><button onclick="seal()">Seal → PDF</button></div>
-</div></div>
-<script>
-const BASE = location.origin + "/api";
-async function verify(){ const r=await fetch(BASE+"/v1/verify"); out.textContent=JSON.stringify(await r.json(),null,2); }
-async function contradict(){ const text=document.getElementById('txt').value; const r=await fetch(BASE+"/v1/contradict",{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text,meta:{},timeline:[]})}); out.textContent=JSON.stringify(await r.json(),null,2); }
-async function anchor(){ const hash=document.getElementById('hash').value; const r=await fetch(BASE+"/v1/anchor",{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({hash})}); out.textContent=JSON.stringify(await r.json(),null,2); }
-async function seal(){ const hash=document.getElementById('hash').value; const r=await fetch(BASE+"/v1/seal",{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({hash,title:"Verum Omnis Seal",notes:"Founders Release"})}); if(r.ok){ const b=await r.blob(); const u=URL.createObjectURL(b); window.open(u,"_blank"); } else { out.textContent=await r.text(); } }
-const out=document.getElementById('out');
-</script>
-</body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Verify & Seal • Verum Omnis</title>
+  <link rel="stylesheet" href="/assets/app.css"/>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header style="text-align:center;padding:20px 0;">
+      <a href="/"><img src="/assets/logo_white.png" alt="Verum Omnis" style="max-width:300px;width:100%;height:auto;"/></a>
+    </header>
+
+    <div class="card">
+      <h1>Verify & Seal</h1>
+      
+      <!-- Contradiction Scan Section -->
+      <div style="margin-bottom:32px;">
+        <h2 style="font-size:1.2rem;">Scan for Contradictions</h2>
+        <div class="row" style="flex-direction:column;">
+          <textarea id="txt" rows="6" placeholder="Paste text to scan for contradictions…"></textarea>
+        </div>
+        <div class="row" style="margin-top:12px;">
+          <button onclick="contradict()">Scan for Contradictions</button>
+          <button class="pill" onclick="verify()">Verify Constitution</button>
+        </div>
+      </div>
+
+      <!-- Output Section -->
+      <pre id="out" style="white-space:pre-wrap;min-height:100px;"></pre>
+
+      <hr/>
+
+      <!-- Seal & Anchor Section -->
+      <div>
+        <h2 style="font-size:1.2rem;">Seal & Anchor</h2>
+        <div class="row" style="margin-top:12px;">
+          <input id="hash" placeholder="SHA-512 hash (hex)" style="flex:1;"/>
+          <button onclick="anchor()">Anchor</button>
+          <button onclick="seal()">Seal → PDF</button>
+        </div>
+        <p style="color:var(--muted);font-size:0.9rem;margin-top:12px;">
+          Enter a SHA-512 hash to anchor it on chain or generate a sealed PDF with logo, watermark, and QR code.
+        </p>
+      </div>
+    </div>
+
+    <!-- Back Link -->
+    <div style="text-align:center;margin-top:24px;">
+      <a href="/" style="color:var(--muted);">← Back to Home</a>
+    </div>
+  </div>
+
+  <script>
+    const BASE = location.origin + "/api";
+    const out = document.getElementById('out');
+    
+    async function verify() { 
+      out.textContent = "Verifying constitution...";
+      try {
+        const r = await fetch(BASE + "/v1/verify");
+        out.textContent = JSON.stringify(await r.json(), null, 2);
+      } catch (e) {
+        out.textContent = "Error: " + e.message;
+      }
+    }
+    
+    async function contradict() { 
+      const text = document.getElementById('txt').value;
+      if (!text.trim()) {
+        out.textContent = "Please enter some text to scan.";
+        return;
+      }
+      out.textContent = "Scanning for contradictions...";
+      try {
+        const r = await fetch(BASE + "/v1/contradict", {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({text, meta: {}, timeline: []})
+        });
+        out.textContent = JSON.stringify(await r.json(), null, 2);
+      } catch (e) {
+        out.textContent = "Error: " + e.message;
+      }
+    }
+    
+    async function anchor() { 
+      const hash = document.getElementById('hash').value;
+      if (!hash.trim()) {
+        out.textContent = "Please enter a hash to anchor.";
+        return;
+      }
+      out.textContent = "Anchoring hash...";
+      try {
+        const r = await fetch(BASE + "/v1/anchor", {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({hash})
+        });
+        out.textContent = JSON.stringify(await r.json(), null, 2);
+      } catch (e) {
+        out.textContent = "Error: " + e.message;
+      }
+    }
+    
+    async function seal() { 
+      const hash = document.getElementById('hash').value;
+      if (!hash.trim()) {
+        out.textContent = "Please enter a hash to seal.";
+        return;
+      }
+      out.textContent = "Generating sealed PDF...";
+      try {
+        const r = await fetch(BASE + "/v1/seal", {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            hash,
+            title: "Verum Omnis Seal",
+            notes: "Founders Release"
+          })
+        });
+        if (r.ok) { 
+          const b = await r.blob();
+          const u = URL.createObjectURL(b);
+          window.open(u, "_blank");
+          out.textContent = "PDF opened in new window.";
+        } else { 
+          out.textContent = await r.text();
+        }
+      } catch (e) {
+        out.textContent = "Error: " + e.message;
+      }
+    }
+  </script>
+</body>
+</html>

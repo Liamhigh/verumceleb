@@ -1,8 +1,63 @@
-<!doctype html><html><head>
-<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Legal & Treaty</title><link rel="stylesheet" href="/assets/app.css"/></head>
-<body><div class="container"><div class="card">
-<h1>Legal & Treaty</h1>
-<p>The <strong>Guardianship Treaty – Verum Omnis Founders</strong> is sealed and loaded by the runtime.</p>
-<p>Any attempt to alter or remove it will cause the backend to refuse startup.</p>
-</div></div></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Legal & Treaty • Verum Omnis</title>
+  <link rel="stylesheet" href="/assets/app.css"/>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header style="text-align:center;padding:20px 0;">
+      <a href="/"><img src="/assets/logo_white.png" alt="Verum Omnis" style="max-width:300px;width:100%;height:auto;"/></a>
+    </header>
+
+    <div class="card">
+      <h1>Legal & Treaty</h1>
+      
+      <div style="margin:24px 0;">
+        <h2 style="font-size:1.2rem;">Guardianship Treaty</h2>
+        <p>The <strong>Guardianship Treaty – Verum Omnis Founders</strong> is cryptographically sealed and loaded by the runtime.</p>
+        <p>Any attempt to alter or remove it will cause the backend to refuse startup.</p>
+      </div>
+
+      <div style="margin:24px 0;">
+        <h2 style="font-size:1.2rem;">Constitutional Immutability</h2>
+        <p>All constitutional rules are verified using SHA-512 hashes at cold start. This ensures:</p>
+        <ul>
+          <li>Rules cannot be tampered with</li>
+          <li>All deployments enforce identical governance</li>
+          <li>Audit trails are cryptographically verifiable</li>
+          <li>Constitutional amendments require formal hash anchoring</li>
+        </ul>
+      </div>
+
+      <div style="margin:24px 0;">
+        <h2 style="font-size:1.2rem;">Privacy Guarantee</h2>
+        <p>This system is designed with privacy at its core:</p>
+        <ul>
+          <li><strong>Stateless:</strong> No personally identifiable information (PII) is stored</li>
+          <li><strong>Hash-only receipts:</strong> Only cryptographic hashes are recorded</li>
+          <li><strong>Device-first:</strong> Files stay on your device unless you explicitly anchor hashes</li>
+          <li><strong>Zero telemetry:</strong> No tracking, no analytics, no surveillance</li>
+        </ul>
+      </div>
+
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:20px;margin-top:24px;">
+        <p style="text-align:center;font-size:1.1rem;margin:0;">
+          ✔ <strong>Patent Pending Verum Omnis</strong>
+        </p>
+        <p style="text-align:center;color:var(--muted);font-size:0.9rem;margin:8px 0 0 0;">
+          Hash first. Truth always.
+        </p>
+      </div>
+    </div>
+
+    <!-- Back Link -->
+    <div style="text-align:center;margin-top:24px;">
+      <a href="/" style="color:var(--muted);">← Back to Home</a>
+    </div>
+  </div>
+</body>
+</html>
