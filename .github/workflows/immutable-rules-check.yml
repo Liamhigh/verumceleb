@@ -1,0 +1,29 @@
+name: Immutable Rules Check
+
+on:
+  pull_request:
+    paths:
+      - 'verum-omnis-founders-gift-v5/verum-omnis-monorepo/functions/assets/rules/**'
+      - 'verum-omnis-founders-gift-v5/verum-omnis-monorepo/functions/assets/treaty/**'
+  push:
+    branches:
+      - main
+    paths:
+      - 'verum-omnis-founders-gift-v5/verum-omnis-monorepo/functions/assets/rules/**'
+      - 'verum-omnis-founders-gift-v5/verum-omnis-monorepo/functions/assets/treaty/**'
+
+jobs:
+  verify-immutable-pack:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          
+      - name: Verify manifest integrity
+        run: node verum-omnis-founders-gift-v5/verum-omnis-monorepo/scripts/verify-immutable-pack.mjs
