@@ -10,10 +10,11 @@ capacitor-app/ios/App/build/
 
 # Temporary and test files
 *.tmp
-*tmp*
-*test*.pdf
-test-*.js
+tmp-*.js
 tmp-*.pdf
+*test*.pdf
+# Keep test-api.js - it's our test suite
+!test-api.js
 
 # Firebase
 .firebase/
