@@ -2,6 +2,12 @@
 
 A stateless, hash-first forensic stack with cryptographically sealed documents and immutable governance.
 
+## 📚 Documentation
+
+- **[PRODUCT_SPEC.md](./PRODUCT_SPEC.md)** - Comprehensive product specification with screens, features, and technical contracts
+- **[TESTING.md](./TESTING.md)** - Testing guide for local and CI/CD environments
+- **[.github/copilot-instructions.md](../../.github/copilot-instructions.md)** - AI coding agent instructions
+
 ## Quick Start
 
 ### Prerequisites
