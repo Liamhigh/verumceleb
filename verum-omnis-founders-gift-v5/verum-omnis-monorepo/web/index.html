@@ -1,23 +1,68 @@
-<!doctype html><html><head>
-<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Verum Omnis • Founders Release</title>
-<link rel="stylesheet" href="/assets/app.css"/></head>
-<body><div class="container">
-  <div class="card">
-    <h1>Verum Omnis • Founders Release</h1>
-    <p>This build locks the constitution, rulepack, and <strong>Guardianship Treaty</strong> forever.</p>
-    <ul>
-      <li><a href="/verify.html">Verify & Seal</a></li>
-      <li><a href="/legal.html">Legal & Treaty</a></li>
-    </ul>
-    <p class="muted">You can safely change this UI at any time. Immutable rules are guarded at runtime & in CI.</p>
-  </div>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Verum Omnis • Founders Release</title>
+  <link rel="stylesheet" href="/assets/app.css"/>
+</head>
+<body>
+  <div class="container">
+    <!-- Header with Logo -->
+    <header style="text-align:center;padding:40px 0 20px 0;">
+      <img src="/assets/logo_white.png" alt="Verum Omnis Logo" style="max-width:400px;width:100%;height:auto;"/>
+      <p style="font-size:1.2rem;color:var(--muted);margin-top:10px;">Hash first. Truth always.</p>
+    </header>
 
-    <h2>Logo Gallery</h2>
-    <div class="row">
-      <img src="/assets/logo_black.png" alt="Black" style="max-height:60px;background:#fff;padding:8px;border-radius:10px"/>
-      <img src="/assets/logo_blue.png" alt="Blue" style="max-height:60px;background:#fff;padding:8px;border-radius:10px"/>
-      <img src="/assets/logo_white.png" alt="White" style="max-height:60px;background:#fff;padding:8px;border-radius:10px"/>
+    <!-- Main Card -->
+    <div class="card">
+      <h1 style="text-align:center;margin-bottom:20px;">Founders Release</h1>
+      <p style="text-align:center;font-size:1.1rem;">This build locks the constitution, rulepack, and <strong>Guardianship Treaty</strong> forever.</p>
+      
+      <!-- Action Buttons -->
+      <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin:30px 0;">
+        <a href="/verify.html" style="display:inline-block;padding:12px 24px;background:var(--accent);color:#fff;text-decoration:none;border-radius:8px;font-weight:600;">Verify & Seal</a>
+        <a href="/legal.html" style="display:inline-block;padding:12px 24px;background:var(--card);color:var(--ink);text-decoration:none;border-radius:8px;border:1px solid var(--border);font-weight:600;">Legal & Treaty</a>
+      </div>
+      
+      <p style="text-align:center;color:var(--muted);margin-top:30px;font-size:0.9rem;">You can safely change this UI at any time. Immutable rules are guarded at runtime & in CI.</p>
     </div>
-    
-</div></body></html>
+
+    <!-- Features Section -->
+    <div class="card" style="margin-top:24px;">
+      <h2>Key Features</h2>
+      <ul style="line-height:1.8;">
+        <li><strong>Constitutional Immutability:</strong> Cryptographically verified rules that cannot be tampered with</li>
+        <li><strong>Hash-First Architecture:</strong> Privacy-preserving, stateless design with SHA-512 verification</li>
+        <li><strong>PDF Sealing:</strong> Generate sealed documents with logos, watermarks, and QR codes</li>
+        <li><strong>Blockchain Anchoring:</strong> Optional timestamping on public chains</li>
+      </ul>
+    </div>
+
+    <!-- Logo Gallery -->
+    <div class="card" style="margin-top:24px;">
+      <h2>Brand Assets</h2>
+      <div class="row" style="align-items:center;justify-content:center;">
+        <div style="text-align:center;padding:16px;">
+          <img src="/assets/logo_black.png" alt="Black Logo" style="max-height:80px;background:#fff;padding:16px;border-radius:10px;"/>
+          <p style="margin-top:8px;font-size:0.85rem;color:var(--muted);">Black on White</p>
+        </div>
+        <div style="text-align:center;padding:16px;">
+          <img src="/assets/logo_blue.png" alt="Blue Logo" style="max-height:80px;background:#fff;padding:16px;border-radius:10px;"/>
+          <p style="margin-top:8px;font-size:0.85rem;color:var(--muted);">Blue on White</p>
+        </div>
+        <div style="text-align:center;padding:16px;">
+          <img src="/assets/logo_white.png" alt="White Logo" style="max-height:80px;background:var(--card);padding:16px;border-radius:10px;border:1px solid var(--border);"/>
+          <p style="margin-top:8px;font-size:0.85rem;color:var(--muted);">White on Dark</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer style="text-align:center;padding:40px 0 20px 0;color:var(--muted);font-size:0.9rem;">
+      <p>✔ Patent Pending Verum Omnis</p>
+      <p>Stateless • Privacy-First • Cryptographically Verified</p>
+    </footer>
+  </div>
+</body>
+</html>
