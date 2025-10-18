@@ -5,7 +5,7 @@ const config: CapacitorConfig = {
   appName: 'Verum Omnis',
   webDir: 'www',
   server: {
-	url: 'https://YOUR_HOST',
+	url: 'https://gitverum.web.app',
 	cleartext: false
   }
 };
