@@ -5,6 +5,16 @@
   "engines": {
     "node": "20"
   },
+  "files": [
+    "assets/",
+    "index.js",
+    "pdf/",
+    "receipts-kv.js",
+    "video/",
+    "config.video.json",
+    "generate-batch-seals.js",
+    "test-api.js"
+  ],
   "dependencies": {
     "express": "^4.21.1",
     "firebase-functions": "^6.0.1",
