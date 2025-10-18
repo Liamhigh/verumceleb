@@ -1,0 +1,50 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Build outputs
+functions/seals/*.pdf
+capacitor-app/www/
+capacitor-app/android/app/build/
+capacitor-app/ios/App/build/
+
+# Temporary and test files
+*.tmp
+*tmp*
+*test*.pdf
+test-*.js
+tmp-*.pdf
+
+# Firebase
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Capacitor
+capacitor-app/.capacitor/
+capacitor-app/android/.gradle/
+capacitor-app/android/local.properties
+capacitor-app/android/.idea/
+capacitor-app/ios/Pods/
+capacitor-app/ios/App.xcworkspace/xcuserdata/
