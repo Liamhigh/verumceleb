@@ -49,8 +49,7 @@ app.use((req, res, next) => {
 // ---- Immutable Rules & Treaty Guard (cold start) ----
 function sha512File(fp){ const h=crypto.createHash('sha512'); h.update(fs.readFileSync(fp)); return h.digest('hex'); }
 if(!skipImmutable){
-  try{
-    (function verifyImmutablePack(){
+  (function verifyImmutablePack(){
     const rulesDir = path.join(path.dirname(new URL(import.meta.url).pathname), 'assets', 'rules');
     const treatyDir = path.join(path.dirname(new URL(import.meta.url).pathname), 'assets', 'treaty');
     const manifestPath = path.join(rulesDir, 'manifest.json');
@@ -70,12 +69,7 @@ if(!skipImmutable){
       if (!listed.has(f)) throw new Error('Unexpected file in rules: '+f);
     }
     log.info('Immutable pack OK');
-    })();
-  }catch(e){
-    // Don't crash on cold-start if manifest or artifacts are temporarily missing.
-    // Log a warning so operators can restore the immutable pack and then re-lock.
-    console.warn('Immutable verify skipped:', e && e.message ? e.message : e);
-  }
+  })();
 }else{
   log.warn('Immutable pack verification skipped');
 }
