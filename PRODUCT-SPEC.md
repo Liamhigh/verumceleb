@@ -273,15 +273,239 @@ CTA: **Start Verification** • Secondary: **For Institutions**
 
 ## 13) What to hand builders now (checklist)
 
-* [ ] Implement screens per sections A–F.
-* [ ] Enforce file type matrix & limits.
-* [ ] Implement local SHA-512 + streaming to avoid memory spikes.
-* [ ] Implement sealing renderer with exact placements + QR.
-* [ ] Wire `/assistant` modes; keep responses hash-indexed & stateless.
-* [ ] Write receipts to Firestore (server only); show locally.
-* [ ] Add landing page copy blocks verbatim; wire CTAs.
-* [ ] Add accessibility + reduced motion + high contrast checks.
-* [ ] Run the QA/Acceptance list above.
+### ✅ Completed Items (Founders Release)
+
+* [x] **Add landing page copy blocks verbatim; wire CTAs** - Landing page (`index.html`) implemented with all specified sections: hero, how it works, why it's safe, 9-brain consensus, for institutions, FAQ, and footer with proper CTAs.
+* [x] **Implement sealing renderer with exact placements + QR** - PDF sealing implemented in `functions/pdf/seal-template.js` with logo placement, QR code generation, and SHA-512 display.
+* [x] **Write receipts to Firestore (server only); show locally** - Receipt storage implemented in `functions/receipts-kv.js` with Firestore persistence and in-memory fallback.
+* [x] **Basic verify interface** - `verify.html` provides file upload, text analysis, hash anchoring, and PDF sealing functionality.
+* [x] **Implement local SHA-512** - Browser-based SHA-512 hashing implemented using Web Crypto API (`crypto.subtle.digest`).
+* [x] **Core API endpoints** - `/v1/verify`, `/v1/anchor`, `/v1/seal`, `/v1/contradict` endpoints implemented.
+* [x] **Immutable pack verification** - Cold start verification of constitutional rules with SHA-512 checking.
+* [x] **Legal & Treaty page** - `legal.html` displays governance documents and constitutional framework.
+
+### 🚧 Partial / Enhancement Needed
+
+* [~] **Implement screens per sections A–F** - Basic web screens done (Landing, Verify, Legal). Mobile app screens (Receipts, Policy, Help) and native features need implementation in Capacitor app.
+* [~] **Enforce file type matrix & limits** - File upload accepts files but doesn't strictly enforce the type matrix from section 2 (pdf, docx, png, jpg, mp4, etc.) or the 250 MB limit with proper user feedback.
+* [~] **Implement local SHA-512 + streaming to avoid memory spikes** - Basic SHA-512 works but loads entire file into memory via `arrayBuffer()`. Large files (>100 MB) may cause performance issues. Needs chunked/streaming implementation.
+
+### 📋 Remaining Work
+
+* [ ] **Wire `/assistant` modes** - The `/assistant` endpoint mentioned in section 9 is not implemented. Currently using direct endpoints (`/v1/contradict`, `/v1/seal`, etc.) instead of unified assistant interface with mode parameter.
+* [ ] **Add accessibility + reduced motion + high contrast checks** - No explicit accessibility features: missing `prefers-reduced-motion` CSS, high contrast mode detection, ARIA labels for interactive elements, or keyboard navigation enhancements.
+* [ ] **Run the QA/Acceptance list above** - Systematic testing per section 12 criteria needed:
+  - Hash same file twice validation
+  - Sealed PDF hash verification
+  - QR scan receipt validation
+  - Offline mode testing
+  - Large file (200 MB) performance testing
+
+### 📱 Future Phases (Post-Founders Release)
+
+* [ ] **Mobile-native features** - Camera integration, biometric auth, offline receipt sync
+* [ ] **Enhanced UI** - Screen A (Verify Home) with full file type icons, B (Seal PDF result preview), C (Anchor modal), D (Receipts list), E (Policy viewer), F (Help/FAQ)
+* [ ] **Video processing activation** - Enable video endpoints when ready (currently disabled via `config.video.json`)
+* [ ] **Batch operations** - Multi-file sealing from `generate-batch-seals.js`
+* [ ] **Authentication** - API key system for institutional users
+
+---
+
+**Implementation Status**: Founders Release feature-complete for core functionality. Additional items are enhancements for production deployment and mobile apps.
+
+---
+
+## 14) Implementation Notes (Current State)
+
+### What Works Now (Founders Release v1)
+
+**✅ Core Functionality:**
+- **Landing page** (`web/index.html`): All specified sections implemented - hero, how it works, safety features, 9-brain consensus, institutions, FAQ
+- **Verification interface** (`web/verify.html`): File upload (drag-drop + picker), text contradiction analysis, hash display, anchoring, PDF sealing
+- **API backend** (`functions/index.js`): Express app with 4 endpoints deployed as Firebase Function `api2`
+- **PDF generation** (`functions/pdf/seal-template.js`): Creates sealed PDFs with logo, SHA-512, QR code using pdfkit
+- **Receipt storage** (`functions/receipts-kv.js`): Firestore persistence with in-memory fallback
+- **Immutable rules** (`functions/assets/rules/`): 12 constitutional files with SHA-512 verification on cold start
+- **Legal page** (`web/legal.html`): Displays governance documents and treaty
+
+**✅ Technical Stack:**
+- Frontend: Vanilla JS + HTML5 + CSS (no framework dependency)
+- Backend: Node.js 20 ESM, Express, Firebase Functions v2
+- Database: Firestore (with fallback to in-memory Map)
+- PDF: pdfkit, QR: qrcode library
+- Deployment: Firebase Hosting + Functions (project: `gitverum`)
+
+**✅ Security:**
+- Client-side SHA-512 hashing via Web Crypto API
+- No file uploads (hash-only API calls)
+- Stateless architecture (no PII stored)
+- Constitutional immutability enforced
+- CORS + Helmet security headers
+
+### Known Limitations
+
+**⚠️ Performance:**
+- Large files (>100 MB) load entirely into memory via `arrayBuffer()` 
+- No streaming hash computation implemented yet
+- May cause browser tab freezing on slow devices
+
+**⚠️ Validation:**
+- File type checking is lenient (accepts any file)
+- No enforcement of 250 MB limit with user-friendly errors
+- Missing file extension validation against supported matrix
+
+**⚠️ Mobile:**
+- Capacitor app shell exists but lacks native features
+- No camera integration for mobile scanning
+- No offline receipt synchronization
+- iOS project not yet configured
+
+**⚠️ Accessibility:**
+- No `prefers-reduced-motion` CSS queries
+- Missing ARIA labels on interactive elements
+- No high contrast mode detection
+- Keyboard navigation not explicitly tested
+
+**⚠️ User Experience:**
+- No progress indicators for large file hashing
+- Limited error messages (generic failures)
+- No retry logic for failed API calls
+- Receipt list UI not implemented (only verify page)
+
+### API Differences from Spec
+
+**Section 9 specifies:**
+```json
+POST /assistant
+{ "mode":"verify|policy|receipt|anchor|notice", "hash":"<sha512>" }
+```
+
+**Current implementation uses:**
+```javascript
+POST /v1/contradict  // text analysis
+POST /v1/anchor      // hash anchoring  
+POST /v1/seal        // PDF generation
+GET  /v1/verify      // health check
+```
+
+**Rationale:** Direct endpoints provide clearer semantics and easier testing during Founders Release. The unified `/assistant` endpoint can wrap these in a future update.
+
+### Asset Status
+
+**Logos:** Located in `web/assets/`. Current files are 1x1 pixel placeholders (68 bytes each):
+- `logo.png`, `logo_black.png`, `logo_blue.png`, `logo_white.png`
+- `logo1.png`, `logo2.png`, `logo3.png`
+
+**Action needed:** Replace with actual Verum Omnis 3D logo assets (recommended: SVG for web, PNG @2x/@3x for mobile).
+
+**Favicons:** Missing `favicon-32.png` and `favicon-16.png` referenced in `index.html`.
+
+### Testing Coverage
+
+**✅ Automated tests** (`functions/test-api.js`):
+- Immutable pack verification
+- Manifest structure validation
+- PDF sealing function
+- Receipt storage (get/put)
+- Video config check
+- Critical asset presence
+
+**❌ Missing tests:**
+- Client-side hash computation accuracy
+- Large file handling (>100 MB)
+- Cross-browser compatibility
+- Mobile responsiveness
+- Offline mode functionality
+- QR code scanning from generated PDFs
+
+### Migration Path for Section 13 Items
+
+**For "Screens A-F" implementation:**
+1. Create `receipts.html` (Screen D) - list of past verifications
+2. Create `policy.html` (Screen E) - constitution viewer with diff
+3. Enhance `verify.html` (Screens A-B) - add risk scoring UI
+4. Build Capacitor screens in `capacitor-app/www/`
+5. Add native camera plugin for mobile
+
+**For streaming SHA-512:**
+```javascript
+// Replace current implementation
+async function computeFileHashStreaming(file) {
+  const chunkSize = 64 * 1024 * 1024; // 64 MB chunks
+  let offset = 0;
+  const hasher = /* use streaming hash library or polyfill */;
+  
+  while (offset < file.size) {
+    const chunk = file.slice(offset, offset + chunkSize);
+    const buffer = await chunk.arrayBuffer();
+    hasher.update(new Uint8Array(buffer));
+    offset += chunkSize;
+    
+    // Update progress: Math.floor((offset / file.size) * 100)
+  }
+  
+  return hasher.digest('hex');
+}
+```
+
+**For file type enforcement:**
+```javascript
+const ALLOWED_TYPES = {
+  'application/pdf': 250,      // MB
+  'image/png': 250,
+  'image/jpeg': 250,
+  'video/mp4': 250,
+  // ... rest from section 2
+};
+
+function validateFile(file) {
+  const maxSizeMB = ALLOWED_TYPES[file.type];
+  if (!maxSizeMB) {
+    throw new Error(`Unsupported file type: ${file.type}`);
+  }
+  if (file.size > maxSizeMB * 1024 * 1024) {
+    throw new Error(`File too large (max ${maxSizeMB} MB)`);
+  }
+}
+```
+
+**For accessibility:**
+```css
+/* Add to app.css */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (prefers-contrast: high) {
+  :root {
+    --text: #ffffff;
+    --background: #000000;
+    --accent: #0080ff;
+  }
+}
+```
+
+### Deployment Checklist
+
+**Before production launch:**
+- [ ] Replace placeholder logos with actual branding
+- [ ] Add favicon files
+- [ ] Implement file type/size validation with user feedback
+- [ ] Add streaming hash for files >50 MB
+- [ ] Test with real 200 MB video file
+- [ ] Add error boundaries and retry logic
+- [ ] Implement rate limiting on API endpoints
+- [ ] Set up monitoring (Firebase Performance, Error Reporting)
+- [ ] Create privacy policy page (referenced in footer)
+- [ ] Add analytics (privacy-respecting, hash-only events)
+- [ ] Test QR codes from sealed PDFs on mobile devices
+- [ ] Run full QA/Acceptance checklist from section 12
+- [ ] Security audit of constitutional rules update process
+- [ ] Load testing (concurrent users, large files)
+- [ ] Cross-browser testing (Chrome, Firefox, Safari, Edge)
 
 ---
 
