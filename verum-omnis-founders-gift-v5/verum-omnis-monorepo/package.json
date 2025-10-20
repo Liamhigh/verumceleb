@@ -1,0 +1,14 @@
+{
+  "name": "verum-omnis-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "verify-immutable": "node scripts/verify-immutable-pack.mjs",
+    "generate-manifest": "node scripts/generate-manifest.mjs",
+    "prepare": "husky || true"
+  },
+  "devDependencies": {
+    "husky": "^9.0.0"
+  }
+}
