@@ -6,7 +6,7 @@ import { makeSealedPdf } from './pdf/seal-template.js'; import { getReceipt, put
 const log = pino({ level: 'info' });
 const NODE_ENV = process.env.NODE_ENV || 'development';
 // Set your actual hosting domain via PROJECT_HOST env var or replace the default below
-const PROJECT_HOST = process.env.PROJECT_HOST || 'https://<your-host>.web.app';
+const PROJECT_HOST = process.env.PROJECT_HOST || 'https://verumdone.web.app';
 const ALLOWED_ORIGINS = [
   PROJECT_HOST,
   PROJECT_HOST.replace('.web.app', '.firebaseapp.com')
@@ -16,6 +16,9 @@ const ALLOWED_ORIGINS = [
 if (NODE_ENV === 'production' && process.env.SKIP_IMMUTABLE_VERIFY) {
   throw new Error('SKIP_IMMUTABLE_VERIFY must not be set in production');
 }
+
+// Allow tests/dev to skip immutable verification via env var
+const skipImmutable = process.env.SKIP_IMMUTABLE_VERIFY === '1';
 
 export const app = express();
 app.use(express.json({ limit: '4mb' }));
@@ -116,7 +119,7 @@ app.post('/v1/assistant', async (req,res)=>{
 
 app.get('/v1/notice', (_req,res)=>{ res.json({ ok:true, notice:{ citizen:'Free forever. Truth belongs to the people.', institution:'Free trial. Licensing fees: 20% fraud recovery or contract terms.' } }); });
 
-export const api2 = onRequest({ region:'us-central1' }, app);
+export const api = onRequest({ region:'us-central1' }, app);
 
 
 // ---- Video endpoints (present but disabled by default) ----

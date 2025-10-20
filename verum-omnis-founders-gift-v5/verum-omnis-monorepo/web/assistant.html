@@ -71,6 +71,15 @@
   const devBase = `http://127.0.0.1:5001/${PROJECT}/us-central1/api`;
   const prodBase = location.origin + '/api';
   window.VO_API_BASE = isLocal ? devBase : prodBase;
+  // Add a small non-blocking banner when in local dev so devs know the API target
+  if (isLocal) {
+    document.addEventListener('DOMContentLoaded', () => {
+      const b = document.createElement('div');
+      b.style.cssText = 'position:fixed;bottom:8px;right:8px;background:#111;border:1px solid #333;color:#eee;padding:6px 10px;border-radius:8px;font:12px/1.2 system-ui;z-index:9999;opacity:.9';
+      b.textContent = 'VO DEV API: ' + window.VO_API_BASE;
+      document.body.appendChild(b);
+    });
+  }
 })();
 
 // Backwards compatible alias
