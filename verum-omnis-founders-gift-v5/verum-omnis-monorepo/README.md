@@ -4,34 +4,65 @@ A stateless, hash-first forensic stack with cryptographically sealed documents a
 
 ## 📚 Documentation
 
+- **[LOCALHOST_GUIDE.md](./LOCALHOST_GUIDE.md)** - **START HERE** - Complete guide for running the app locally
 - **[PRODUCT_SPEC.md](./PRODUCT_SPEC.md)** - Comprehensive product specification with screens, features, and technical contracts
 - **[TESTING.md](./TESTING.md)** - Testing guide for local and CI/CD environments
 - **[.github/copilot-instructions.md](../../.github/copilot-instructions.md)** - AI coding agent instructions
 
 ## Quick Start
 
-### Prerequisites
-- Node.js 20
-- Firebase CLI: `npm install -g firebase-tools`
-- Java 21 (for Android builds)
+### ⚡ Fastest Way (Frontend Only)
 
-### Local Development
+**Option 1: Using the startup script**
 
 ```bash
 # Navigate to the project
 cd verum-omnis-founders-gift-v5/verum-omnis-monorepo
 
-# Install dependencies
+# Run the startup script
+./start-local.sh
+```
+
+**Option 2: Direct command**
+
+No installation needed! Just run:
+
+```bash
+# Navigate to the project
+cd verum-omnis-founders-gift-v5/verum-omnis-monorepo
+
+# Start the development server
+python3 -m http.server 5000 --directory web
+```
+
+**Access:** http://localhost:5000
+
+### 🔧 Full Stack Development
+
+For API functions and Firestore:
+
+**Prerequisites:**
+- Node.js 20
+- Firebase CLI: `npm install -g firebase-tools`
+- Java 21 (for Android builds)
+
+```bash
+# Navigate to the project
+cd verum-omnis-founders-gift-v5/verum-omnis-monorepo
+
+# Install dependencies (first time only)
 cd functions && npm install && cd ..
 
-# Start local emulators
+# Start Firebase emulators
 firebase emulators:start
 ```
 
-Access:
+**Access:**
 - **Web UI**: http://localhost:5000
-- **API**: http://localhost:5001/api2/v1/verify
+- **API**: http://localhost:5001/gitverum/us-central1/api2/v1/verify
 - **Emulator UI**: http://localhost:4000
+
+📖 **See [LOCALHOST_GUIDE.md](./LOCALHOST_GUIDE.md) for detailed instructions and troubleshooting.**
 
 ### Deploy to Firebase
 
