@@ -1,7 +1,50 @@
 import express from 'express'; import { onRequest } from 'firebase-functions/v2/https'; import cors from 'cors'; import helmet from 'helmet';
 import fs from 'fs'; import path from 'path'; import crypto from 'crypto'; import pino from 'pino';
 import { makeSealedPdf } from './pdf/seal-template.js'; import { getReceipt, putReceipt } from './receipts-kv.js';
-const log=pino({level:'info'}); const skipImmutable=process.env.SKIP_IMMUTABLE_VERIFY==='1'; export const app=express(); app.use(express.json({limit:'4mb'})); app.use(helmet({contentSecurityPolicy:false})); app.use(cors({ origin: true }));
+
+// ---------- ENV & HARDENING ----------
+const log = pino({ level: 'info' });
+const NODE_ENV = process.env.NODE_ENV || 'development';
+// Set your actual hosting domain via PROJECT_HOST env var or replace the default below
+const PROJECT_HOST = process.env.PROJECT_HOST || 'https://verumdone.web.app';
+const ALLOWED_ORIGINS = [
+  PROJECT_HOST,
+  PROJECT_HOST.replace('.web.app', '.firebaseapp.com')
+];
+
+// In production, never skip immutable verification
+if (NODE_ENV === 'production' && process.env.SKIP_IMMUTABLE_VERIFY) {
+  throw new Error('SKIP_IMMUTABLE_VERIFY must not be set in production');
+}
+
+// Allow tests/dev to skip immutable verification via env var
+const skipImmutable = process.env.SKIP_IMMUTABLE_VERIFY === '1';
+
+export const app = express();
+app.use(express.json({ limit: '4mb' }));
+app.use(helmet({ contentSecurityPolicy: false }));
+
+// Strict CORS in production, permissive in dev to allow local testing
+const corsOptions = NODE_ENV === 'production'
+  ? {
+      origin: (origin, cb) => {
+        if (!origin) return cb(null, true); // allow curl/postman
+        const ok = ALLOWED_ORIGINS.includes(origin);
+        cb(ok ? null : new Error('CORS blocked'), ok);
+      },
+      credentials: false,
+    }
+  : { origin: true };
+
+app.use(cors(corsOptions));
+
+// Small security headers
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('Referrer-Policy', 'no-referrer');
+  res.setHeader('Permissions-Policy', 'microphone=(), camera=()');
+  next();
+});
 
 // ---- Immutable Rules & Treaty Guard (cold start) ----
 function sha512File(fp){ const h=crypto.createHash('sha512'); h.update(fs.readFileSync(fp)); return h.digest('hex'); }
@@ -76,7 +119,7 @@ app.post('/v1/assistant', async (req,res)=>{
 
 app.get('/v1/notice', (_req,res)=>{ res.json({ ok:true, notice:{ citizen:'Free forever. Truth belongs to the people.', institution:'Free trial. Licensing fees: 20% fraud recovery or contract terms.' } }); });
 
-export const api2 = onRequest({ region:'us-central1' }, app);
+export const api = onRequest({ region:'us-central1' }, app);
 
 
 // ---- Video endpoints (present but disabled by default) ----
