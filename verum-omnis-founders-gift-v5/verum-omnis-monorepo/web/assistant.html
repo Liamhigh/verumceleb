@@ -2,60 +2,318 @@
 <meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Verum Assistant</title><link rel="stylesheet" href="/assets/app.css"/></head>
 <body>
-<div class="container">
-  <div class="card" style="margin-top:40px">
-    <h1>Verum Assistant</h1>
-    <p class="muted">Stateless forensic AI interface. Choose a mode below.</p>
-    
-    <div class="row" style="margin-top:24px">
-      <label style="display:block;width:100%">
-        <strong>Mode:</strong>
-        <select id="mode" style="width:100%;padding:8px;margin-top:8px;background:var(--card);color:var(--ink);border:1px solid var(--border);border-radius:4px">
-          <option value="verify">verify - Health check</option>
-          <option value="policy">policy - Get constitution + manifest</option>
-          <option value="anchor">anchor - Request blockchain anchor</option>
-          <option value="receipt">receipt - Retrieve receipt by hash</option>
-          <option value="notice">notice - Get licensing terms</option>
-        </select>
-      </label>
+
+<!-- Header -->
+<header class="chat-header">
+  <div class="container">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div style="display:flex;align-items:center;gap:12px">
+        <img src="/assets/logo_white.png" alt="Verum" style="height:32px"/>
+        <h1 style="margin:0;font-size:1.25rem">Verum Assistant</h1>
+      </div>
+      <a href="/" style="color:var(--muted);text-decoration:none">← Home</a>
     </div>
-    
-    <div class="row" style="margin-top:16px">
-      <input id="hash" placeholder="SHA-512 hash (required for anchor/receipt)" style="flex:1;padding:8px;background:var(--card);color:var(--ink);border:1px solid var(--border);border-radius:4px"/>
+  </div>
+</header>
+
+<!-- Chat Container -->
+<div class="chat-container">
+  <div class="chat-messages" id="messages">
+    <div class="message assistant">
+      <div class="message-avatar">
+        <img src="/assets/logo_blue.png" alt="AI"/>
+      </div>
+      <div class="message-content">
+        <strong>Verum AI</strong>
+        <p>Hello! I'm your legal AI assistant. I can help you:</p>
+        <ul>
+          <li>Verify and seal documents with SHA-512 hashing</li>
+          <li>Detect contradictions in statements</li>
+          <li>Generate forensic PDF seals with QR codes</li>
+          <li>Anchor receipts to blockchain</li>
+        </ul>
+        <p>Upload a document or ask me anything!</p>
+      </div>
     </div>
-    
-    <div class="row" style="margin-top:16px">
-      <button onclick="callAssistant()" class="btn btn-primary">Execute</button>
-      <a href="/" class="btn btn-secondary">← Back to Home</a>
+  </div>
+  
+  <!-- Input Area -->
+  <div class="chat-input-container">
+    <div class="container">
+      <div class="chat-input">
+        <input type="file" id="fileInput" style="display:none" accept=".pdf,.png,.jpg,.jpeg,.txt,.doc,.docx" multiple/>
+        <button class="chat-btn-icon" onclick="document.getElementById('fileInput').click()" title="Upload file">
+          📎
+        </button>
+        <input type="text" id="userInput" placeholder="Type a message or upload a document..." />
+        <button class="chat-btn-send" onclick="sendMessage()">
+          Send
+        </button>
+      </div>
+      <div id="uploadedFiles" class="uploaded-files"></div>
     </div>
-    
-    <pre id="out" style="white-space:pre-wrap;margin-top:24px;background:var(--bg);padding:16px;border-radius:8px;max-height:500px;overflow:auto"></pre>
   </div>
 </div>
 
 <script>
 const BASE = location.origin + "/api";
-const out = document.getElementById('out');
+const messagesContainer = document.getElementById('messages');
+const userInput = document.getElementById('userInput');
+const fileInput = document.getElementById('fileInput');
+const uploadedFilesDiv = document.getElementById('uploadedFiles');
+let uploadedFiles = [];
 
-async function callAssistant(){
-  const mode = document.getElementById('mode').value;
-  const hash = document.getElementById('hash').value.trim();
+// Handle file selection
+fileInput.addEventListener('change', (e) => {
+  uploadedFiles = Array.from(e.target.files);
+  displayUploadedFiles();
+});
+
+function displayUploadedFiles() {
+  if (uploadedFiles.length === 0) {
+    uploadedFilesDiv.innerHTML = '';
+    return;
+  }
+  uploadedFilesDiv.innerHTML = uploadedFiles.map((f, i) => 
+    `<span class="file-tag">📄 ${f.name} <button onclick="removeFile(${i})">×</button></span>`
+  ).join('');
+}
+
+function removeFile(index) {
+  uploadedFiles.splice(index, 1);
+  displayUploadedFiles();
+}
+
+function addMessage(content, isUser = false) {
+  const msgDiv = document.createElement('div');
+  msgDiv.className = `message ${isUser ? 'user' : 'assistant'}`;
   
-  const payload = { mode };
-  if(hash) payload.hash = hash;
+  if (!isUser) {
+    msgDiv.innerHTML = `
+      <div class="message-avatar">
+        <img src="/assets/logo_blue.png" alt="AI"/>
+      </div>
+      <div class="message-content">
+        <strong>Verum AI</strong>
+        ${content}
+      </div>
+    `;
+  } else {
+    msgDiv.innerHTML = `
+      <div class="message-content">
+        <strong>You</strong>
+        ${content}
+      </div>
+      <div class="message-avatar user-avatar">👤</div>
+    `;
+  }
   
-  try{
-    const r = await fetch(BASE + '/v1/assistant', {
+  messagesContainer.appendChild(msgDiv);
+  messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+async function processFiles(files) {
+  for (const file of files) {
+    addMessage(`<p>Processing <strong>${file.name}</strong>...</p>`);
+    
+    // Calculate SHA-512
+    const arrayBuffer = await file.arrayBuffer();
+    const hashBuffer = await crypto.subtle.digest('SHA-512', arrayBuffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    
+    // Show hash
+    addMessage(`
+      <p>✅ File hashed successfully</p>
+      <p><strong>SHA-512:</strong> <code style="word-break:break-all;font-size:0.85em">${hash}</code></p>
+      <p>Would you like me to:</p>
+      <button class="inline-btn" onclick="anchorHash('${hash}')">🔗 Anchor to blockchain</button>
+      <button class="inline-btn" onclick="sealDocument('${hash}', '${file.name}')">📜 Generate seal PDF</button>
+    `);
+  }
+}
+
+async function anchorHash(hash) {
+  addMessage(`<p>⏳ Anchoring hash to blockchain...</p>`);
+  
+  try {
+    const r = await fetch(BASE + '/v1/anchor', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+      body: JSON.stringify({ hash })
     });
     
     const data = await r.json();
-    out.textContent = JSON.stringify(data, null, 2);
-  }catch(e){
-    out.textContent = 'Error: ' + e.message;
+    if (data.ok) {
+      addMessage(`
+        <p>✅ Hash anchored successfully!</p>
+        <p><strong>Receipt:</strong></p>
+        <pre style="background:var(--bg);padding:8px;border-radius:4px;font-size:0.85em">${JSON.stringify(data, null, 2)}</pre>
+      `);
+    } else {
+      addMessage(`<p>❌ Anchor failed: ${data.error}</p>`);
+    }
+  } catch (e) {
+    addMessage(`<p>❌ Error: ${e.message}</p>`);
   }
 }
+
+async function sealDocument(hash, filename) {
+  addMessage(`<p>⏳ Generating forensic seal PDF...</p>`);
+  
+  try {
+    const r = await fetch(BASE + '/v1/seal', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        hash, 
+        title: filename || 'Document Seal',
+        notes: 'Generated via Verum Assistant'
+      })
+    });
+    
+    if (r.ok) {
+      const blob = await r.blob();
+      const url = URL.createObjectURL(blob);
+      addMessage(`
+        <p>✅ Seal PDF generated!</p>
+        <a href="${url}" download="verum-seal-${hash.substring(0, 8)}.pdf" class="inline-btn">⬇️ Download Sealed PDF</a>
+      `);
+    } else {
+      const err = await r.text();
+      addMessage(`<p>❌ Seal generation failed: ${err}</p>`);
+    }
+  } catch (e) {
+    addMessage(`<p>❌ Error: ${e.message}</p>`);
+  }
+}
+
+async function handleTextMessage(text) {
+  const lower = text.toLowerCase();
+  
+  // Check for contradiction detection request
+  if (lower.includes('contradict') || lower.includes('check') || lower.includes('verify text')) {
+    addMessage(`<p>⏳ Scanning for contradictions...</p>`);
+    
+    try {
+      const r = await fetch(BASE + '/v1/contradict', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text, meta: {}, timeline: [] })
+      });
+      
+      const data = await r.json();
+      if (data.ok) {
+        const findings = data.result.findings || [];
+        if (findings.length === 0) {
+          addMessage(`<p>✅ No contradictions detected.</p>`);
+        } else {
+          addMessage(`
+            <p>⚠️ Found ${findings.length} potential contradiction(s):</p>
+            <pre style="background:var(--bg);padding:8px;border-radius:4px;font-size:0.85em">${JSON.stringify(findings, null, 2)}</pre>
+          `);
+        }
+      }
+    } catch (e) {
+      addMessage(`<p>❌ Error: ${e.message}</p>`);
+    }
+    return;
+  }
+  
+  // Check for constitution/policy request
+  if (lower.includes('constitution') || lower.includes('policy') || lower.includes('rules')) {
+    addMessage(`<p>⏳ Fetching constitutional policy...</p>`);
+    
+    try {
+      const r = await fetch(BASE + '/v1/assistant', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mode: 'policy' })
+      });
+      
+      const data = await r.json();
+      if (data.ok) {
+        addMessage(`
+          <p>✅ Constitution retrieved:</p>
+          <pre style="background:var(--bg);padding:8px;border-radius:4px;font-size:0.85em;max-height:300px;overflow:auto">${JSON.stringify(data.constitution, null, 2)}</pre>
+          <p><strong>Manifest version:</strong> ${data.manifest.version}</p>
+        `);
+      }
+    } catch (e) {
+      addMessage(`<p>❌ Error: ${e.message}</p>`);
+    }
+    return;
+  }
+  
+  // Check for licensing/pricing info
+  if (lower.includes('price') || lower.includes('cost') || lower.includes('free') || lower.includes('licensing')) {
+    addMessage(`<p>⏳ Fetching licensing information...</p>`);
+    
+    try {
+      const r = await fetch(BASE + '/v1/notice');
+      const data = await r.json();
+      if (data.ok) {
+        addMessage(`
+          <p>💰 <strong>Licensing Terms:</strong></p>
+          <p><strong>Citizens:</strong> ${data.notice.citizen}</p>
+          <p><strong>Institutions:</strong> ${data.notice.institution}</p>
+        `);
+      }
+    } catch (e) {
+      addMessage(`<p>❌ Error: ${e.message}</p>`);
+    }
+    return;
+  }
+  
+  // Default response
+  addMessage(`
+    <p>I can help you with:</p>
+    <ul>
+      <li><strong>Document verification:</strong> Upload a file to generate SHA-512 hash</li>
+      <li><strong>Contradiction detection:</strong> Say "check for contradictions" with your text</li>
+      <li><strong>Constitution:</strong> Ask about "policy" or "rules"</li>
+      <li><strong>Licensing:</strong> Ask about "pricing" or "licensing"</li>
+    </ul>
+  `);
+}
+
+async function sendMessage() {
+  const text = userInput.value.trim();
+  
+  if (!text && uploadedFiles.length === 0) return;
+  
+  // Show user message
+  if (text) {
+    addMessage(`<p>${text}</p>`, true);
+  }
+  
+  if (uploadedFiles.length > 0) {
+    addMessage(`<p>📎 Uploaded ${uploadedFiles.length} file(s)</p>`, true);
+  }
+  
+  userInput.value = '';
+  
+  // Process files first
+  if (uploadedFiles.length > 0) {
+    await processFiles(uploadedFiles);
+    uploadedFiles = [];
+    uploadedFilesDiv.innerHTML = '';
+    fileInput.value = '';
+  }
+  
+  // Then process text
+  if (text) {
+    await handleTextMessage(text);
+  }
+}
+
+// Enter key to send
+userInput.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+});
 </script>
+
 </body></html>
