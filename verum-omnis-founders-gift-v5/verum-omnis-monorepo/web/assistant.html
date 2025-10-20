@@ -1,0 +1,61 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Verum Assistant</title><link rel="stylesheet" href="/assets/app.css"/></head>
+<body>
+<div class="container">
+  <div class="card" style="margin-top:40px">
+    <h1>Verum Assistant</h1>
+    <p class="muted">Stateless forensic AI interface. Choose a mode below.</p>
+    
+    <div class="row" style="margin-top:24px">
+      <label style="display:block;width:100%">
+        <strong>Mode:</strong>
+        <select id="mode" style="width:100%;padding:8px;margin-top:8px;background:var(--card);color:var(--ink);border:1px solid var(--border);border-radius:4px">
+          <option value="verify">verify - Health check</option>
+          <option value="policy">policy - Get constitution + manifest</option>
+          <option value="anchor">anchor - Request blockchain anchor</option>
+          <option value="receipt">receipt - Retrieve receipt by hash</option>
+          <option value="notice">notice - Get licensing terms</option>
+        </select>
+      </label>
+    </div>
+    
+    <div class="row" style="margin-top:16px">
+      <input id="hash" placeholder="SHA-512 hash (required for anchor/receipt)" style="flex:1;padding:8px;background:var(--card);color:var(--ink);border:1px solid var(--border);border-radius:4px"/>
+    </div>
+    
+    <div class="row" style="margin-top:16px">
+      <button onclick="callAssistant()" class="btn btn-primary">Execute</button>
+      <a href="/" class="btn btn-secondary">← Back to Home</a>
+    </div>
+    
+    <pre id="out" style="white-space:pre-wrap;margin-top:24px;background:var(--bg);padding:16px;border-radius:8px;max-height:500px;overflow:auto"></pre>
+  </div>
+</div>
+
+<script>
+const BASE = location.origin + "/api";
+const out = document.getElementById('out');
+
+async function callAssistant(){
+  const mode = document.getElementById('mode').value;
+  const hash = document.getElementById('hash').value.trim();
+  
+  const payload = { mode };
+  if(hash) payload.hash = hash;
+  
+  try{
+    const r = await fetch(BASE + '/v1/assistant', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    
+    const data = await r.json();
+    out.textContent = JSON.stringify(data, null, 2);
+  }catch(e){
+    out.textContent = 'Error: ' + e.message;
+  }
+}
+</script>
+</body></html>

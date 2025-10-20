@@ -39,6 +39,43 @@ app.post('/v1/seal', async (req,res)=>{ const { hash, title, notes }=req.body||{
   const logoPath = path.join(path.dirname(new URL(import.meta.url).pathname),'..','web','assets','logo.png');
   const pdf = await makeSealedPdf({ hash, title, notes, logoPath }); const tmp='/tmp/vo.pdf'; const ws=fs.createWriteStream(tmp); pdf.pipe(ws); ws.on('finish',()=>{ res.setHeader('Content-Type','application/pdf'); res.sendFile(tmp,()=>fs.unlinkSync(tmp)); }); });
 
+// ---- Assistant Endpoint (unified interface) ----
+app.post('/v1/assistant', async (req,res)=>{
+  const { mode, hash }=req.body||{};
+  if(!mode) return res.status(400).json({ok:false,error:'missing_mode'});
+  
+  switch(mode){
+    case 'verify':
+      return res.json({ ok:true, pack:'founders-release', time:new Date().toISOString(), model_hash:'sha512-placeholder', rule_hash:'sha512-placeholder' });
+    
+    case 'policy':
+      const manifestPath = path.join(path.dirname(new URL(import.meta.url).pathname),'assets','rules','manifest.json');
+      const constitutionPath = path.join(path.dirname(new URL(import.meta.url).pathname),'assets','rules','01_constitution.json');
+      const manifest = JSON.parse(fs.readFileSync(manifestPath,'utf8'));
+      const constitution = JSON.parse(fs.readFileSync(constitutionPath,'utf8'));
+      return res.json({ ok:true, constitution, manifest });
+    
+    case 'anchor':
+      if(!hash) return res.status(400).json({ok:false,error:'hash_required_for_anchor'});
+      const anchorReceipt={ ok:true, hash, issuedAt:new Date().toISOString(), anchor_request:'pending', txid:null };
+      try{ await putReceipt(hash,anchorReceipt); return res.json(anchorReceipt); }catch(e){ return res.status(500).json({ok:false,error:'anchor_failed'}); }
+    
+    case 'receipt':
+      if(!hash) return res.status(400).json({ok:false,error:'hash_required_for_receipt'});
+      const receipt = await getReceipt(hash);
+      if(!receipt) return res.status(404).json({ok:false,error:'receipt_not_found'});
+      return res.json({ ok:true, receipt });
+    
+    case 'notice':
+      return res.json({ ok:true, notice:{ citizen:'Free forever. Truth belongs to the people.', institution:'Free trial. Licensing fees: 20% fraud recovery or contract terms.' } });
+    
+    default:
+      return res.status(400).json({ok:false,error:'invalid_mode',valid_modes:['verify','policy','anchor','receipt','notice']});
+  }
+});
+
+app.get('/v1/notice', (_req,res)=>{ res.json({ ok:true, notice:{ citizen:'Free forever. Truth belongs to the people.', institution:'Free trial. Licensing fees: 20% fraud recovery or contract terms.' } }); });
+
 export const api2 = onRequest({ region:'us-central1' }, app);
 
 
