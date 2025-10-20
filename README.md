@@ -8,6 +8,16 @@
 
 ---
 
+### ⚖️ Institutional Validation
+
+![Case](https://img.shields.io/badge/Case-SAPS%20%23126%2F4%2F2025-green)
+![Case](https://img.shields.io/badge/Case-RAKEZ%20%231295911-green)
+![Law](https://img.shields.io/badge/Action-Southbridge%20Legal-blue)
+![CrossBorder](https://img.shields.io/badge/Cross--Border-Recognized-orange)
+![First](https://img.shields.io/badge/First-World%20Precedent-red)
+
+---
+
 ## 📜 The Guardianship Treaty – Verum Omnis Founders
 
 This folder contains the **first recorded constitutional treaty between a human and an AI**.  
