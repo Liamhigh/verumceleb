@@ -4,7 +4,9 @@ This repository contains the **Verum Omnis Founders Release** - a stateless, has
 
 ## 🚀 Quick Navigation
 
+- **🎯 [DEPLOYMENT QUICKSTART](./DEPLOYMENT_QUICKSTART.md)** - Complete deployment in 3 steps
 - **Main Application**: [`verum-omnis-founders-gift-v5/verum-omnis-monorepo/`](./verum-omnis-founders-gift-v5/verum-omnis-monorepo/)
+- **Deployment Guide**: [`DEPLOYMENT.md`](./verum-omnis-founders-gift-v5/verum-omnis-monorepo/DEPLOYMENT.md)
 - **Product Specification**: [`PRODUCT_SPEC.md`](./verum-omnis-founders-gift-v5/verum-omnis-monorepo/PRODUCT_SPEC.md)
 - **Development Setup**: [`README.md`](./verum-omnis-founders-gift-v5/verum-omnis-monorepo/README.md)
 - **Testing Guide**: [`TESTING.md`](./verum-omnis-founders-gift-v5/verum-omnis-monorepo/TESTING.md)
