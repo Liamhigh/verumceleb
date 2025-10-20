@@ -2,7 +2,18 @@
 
 This repository contains the **Verum Omnis Founders Release** - a stateless, hash-first forensic documentation system with cryptographic integrity verification.
 
-## 🚀 Quick Navigation
+## 🚀 Ready to Deploy!
+
+**Status:** ✅ All tests passing, deployment ready
+
+**Quick Deploy (3 steps):**
+1. Get Firebase token: `firebase login:ci`
+2. Add `FIREBASE_TOKEN` to [GitHub Secrets](https://github.com/Liamhigh/verumceleb/settings/secrets/actions)
+3. Push to `main` branch (auto-deploys) or run `./deploy.sh --production`
+
+**See:** [DEPLOYMENT_QUICKSTART.md](./DEPLOYMENT_QUICKSTART.md) | [DEPLOYMENT_COMPLETE.md](./DEPLOYMENT_COMPLETE.md)
+
+## 📚 Quick Navigation
 
 - **🎯 [DEPLOYMENT QUICKSTART](./DEPLOYMENT_QUICKSTART.md)** - Complete deployment in 3 steps
 - **Main Application**: [`verum-omnis-founders-gift-v5/verum-omnis-monorepo/`](./verum-omnis-founders-gift-v5/verum-omnis-monorepo/)
