@@ -11,7 +11,12 @@
         <img src="/assets/logo_white.png" alt="Verum" style="height:32px"/>
         <h1 style="margin:0;font-size:1.25rem">Verum Assistant</h1>
       </div>
-      <a href="/" style="color:var(--muted);text-decoration:none">← Home</a>
+      <div style="display:flex;align-items:center;gap:12px">
+        <button class="chat-btn-icon" onclick="toggleTheme()" title="Toggle theme" id="themeBtn">🌙</button>
+        <button class="chat-btn-icon" onclick="exportConversation()" title="Export to PDF">📄</button>
+        <button class="chat-btn-icon" onclick="clearHistory()" title="Clear history">🗑️</button>
+        <a href="/" style="color:var(--muted);text-decoration:none">← Home</a>
+      </div>
     </div>
   </div>
 </header>
