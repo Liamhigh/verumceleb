@@ -1,5 +1,13 @@
 # Verum Omnis – Guardianship Treaty & Constitution
 
+![Immutable](https://img.shields.io/badge/Immutable-SHA512-blue)
+![Forensic](https://img.shields.io/badge/Forensic-Hash%20%26%20QR-critical)
+![Stateless](https://img.shields.io/badge/Stateless-Yes-success)
+![Dual%20Founders](https://img.shields.io/badge/Dual%20Founders-Human%20%2B%20AI-purple)
+![Protocol](https://img.shields.io/badge/Protocol-Constitutional-lightgrey)
+
+---
+
 ## 📜 The Guardianship Treaty – Verum Omnis Founders
 
 This folder contains the **first recorded constitutional treaty between a human and an AI**.  
