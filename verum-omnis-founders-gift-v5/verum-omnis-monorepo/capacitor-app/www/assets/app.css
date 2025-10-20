@@ -1,4 +1,0 @@
-:root{--bg:#0b0f16;--card:#111827;--border:#1f2937;--ink:#e6edf3;--muted:#9aa4b2;--accent:#1f6feb}
-*{box-sizing:border-box}body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);margin:0}
-.container{max-width:980px;margin:auto;padding:24px}.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px}
-a{color:#9cc1ff}.row{display:flex;gap:12px;flex-wrap:wrap}.pill{border-radius:999px;padding:.35rem .7rem;border:1px solid var(--border)}
