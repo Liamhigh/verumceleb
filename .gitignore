@@ -1,0 +1,36 @@
+# Node modules
+node_modules/
+
+# Build artifacts
+dist/
+build/
+*.log
+
+# Test results and coverage
+.vite/
+coverage/
+*.test.js.snap
+
+# IDE
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Firebase
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+
+# Temporary files
+tmp/
+*.tmp
+temp/
+
+# Environment
+.env
+.env.local
+.env.*.local
