@@ -6,6 +6,7 @@ A stateless, hash-first forensic stack with cryptographically sealed documents a
 
 - **[PRODUCT_SPEC.md](./PRODUCT_SPEC.md)** - Comprehensive product specification with screens, features, and technical contracts
 - **[TESTING.md](./TESTING.md)** - Testing guide for local and CI/CD environments
+- **[docs/PRODUCTION_DEPLOYMENT.md](./docs/PRODUCTION_DEPLOYMENT.md)** - Production runbook and monitoring checklist
 - **[.github/copilot-instructions.md](../../.github/copilot-instructions.md)** - AI coding agent instructions
 
 ## Quick Start

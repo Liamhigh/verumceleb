@@ -18,6 +18,22 @@ cd verum-omnis-founders-gift-v5/verum-omnis-monorepo/functions
 node test-api.js
 ```
 
+### Full End-to-End Flow
+
+With the Firebase emulators running, execute the automated end-to-end smoke test:
+
+```bash
+cd verum-omnis-founders-gift-v5/verum-omnis-monorepo
+node tests/e2e/run-e2e.js --base http://localhost:5001/api2
+```
+
+The script will:
+- ✅ Confirm health endpoint and immutable pack verification
+- ✅ Anchor a newly generated SHA-512 hash
+- ✅ Generate a sealed PDF and ensure content integrity
+- ✅ Exercise the contradiction endpoint stub
+- ✅ Clean up temporary artifacts
+
 This tests:
 - ✅ Immutable pack verification
 - ✅ Manifest structure integrity
@@ -45,7 +61,7 @@ Access points:
 With emulators running:
 
 ```bash
-# Health check
+# Health check (same endpoint used by the automated script)
 curl http://localhost:5001/api2/v1/verify
 
 # Anchor a hash
