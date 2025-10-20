@@ -5,6 +5,8 @@ const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
   console.log(`Functions API listening on http://localhost:${PORT}`);
   console.log('Endpoints:');
+  console.log('  GET  /health');
+  console.log('  POST /chat');
   console.log('  GET  /v1/verify');
   console.log('  POST /v1/contradict');
   console.log('  POST /v1/anchor');
