@@ -32,6 +32,8 @@ if(!skipImmutable){
 }
 
 // ---- API ----
+app.get('/health', (_req,res)=>{ res.json({ ok:true, status:'healthy', service:'verum-omnis-api', version:'1.0.0', time:new Date().toISOString() }); });
+app.post('/chat', async (req,res)=>{ const { message }=req.body||{}; if(!message) return res.status(400).json({ok:false,error:'missing_message'}); res.json({ ok:true, reply:`You said: "${message}". Verum Omnis Chat is ready.`, timestamp:new Date().toISOString() }); });
 app.get('/v1/verify', (_req,res)=>{ res.json({ ok:true, pack:'founders-release', time:new Date().toISOString() }); });
 app.post('/v1/contradict', async (req,res)=>{ const { text }=req.body||{}; if(!text) return res.status(400).json({ok:false,error:'missing_text'}); res.json({ ok:true, result:{ findings:[], score:{contradiction:0} } }); });
 app.post('/v1/anchor', async (req,res)=>{ const { hash }=req.body||{}; if(!hash) return res.status(400).json({ok:false,error:'invalid_hash'}); const r={ ok:true, hash, issuedAt:new Date().toISOString() }; try{ await putReceipt(hash,r); res.json(r); }catch(e){ res.status(500).json({ok:false,error:'receipt_failed'}); } });
