@@ -1,0 +1,249 @@
+[debug] [2025-10-20T18:23:55.229Z] ----------------------------------------------------------------------
+[debug] [2025-10-20T18:23:55.231Z] Command:       /usr/local/share/nvm/versions/node/v22.17.0/bin/node /home/codespace/nvm/current/bin/firebase emulators:start --only hosting,functions
+[debug] [2025-10-20T18:23:55.232Z] CLI Version:   14.20.0
+[debug] [2025-10-20T18:23:55.232Z] Platform:      linux
+[debug] [2025-10-20T18:23:55.232Z] Node Version:  v22.17.0
+[debug] [2025-10-20T18:23:55.232Z] Time:          Mon Oct 20 2025 18:23:55 GMT+0000 (Coordinated Universal Time)
+[debug] [2025-10-20T18:23:55.232Z] Env Overrides: GITHUB_API_URL, GITHUB_API_URL
+[debug] [2025-10-20T18:23:55.232Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-10-20T18:23:55.583Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] Failed to authenticate, have you run firebase login?
+[warn] ⚠  emulators: You are not currently authenticated so some features may not work correctly. Please run firebase login to authenticate the CLI. 
+[info] i  emulators: Starting emulators: functions, hosting {"metadata":{"emulator":{"name":"hub"},"message":"Starting emulators: functions, hosting"}}
+[debug] [2025-10-20T18:23:55.615Z] [logging] Logging Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2025-10-20T18:23:55.615Z] [hosting] Hosting Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2025-10-20T18:23:55.615Z] assigned listening specs for emulators {"user":{"hub":[{"address":"127.0.0.1","family":"IPv4","port":4400},{"address":"::1","family":"IPv6","port":4400}],"ui":[{"address":"127.0.0.1","family":"IPv4","port":4000},{"address":"::1","family":"IPv6","port":4000}],"logging":[{"address":"127.0.0.1","family":"IPv4","port":4500}],"hosting":[{"address":"127.0.0.1","family":"IPv4","port":5000}]},"metadata":{"message":"assigned listening specs for emulators"}}
+[debug] [2025-10-20T18:23:55.619Z] Emulator locator file path: /tmp/hub-gitverum.json
+[debug] [2025-10-20T18:23:55.619Z] [hub] writing locator at /tmp/hub-gitverum.json
+[debug] [2025-10-20T18:23:55.632Z] [functions] Functions Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2025-10-20T18:23:55.632Z] [eventarc] Eventarc Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2025-10-20T18:23:55.633Z] [tasks] Cloud Tasks Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2025-10-20T18:23:55.633Z] late-assigned ports for functions and eventarc emulators {"user":{"hub":[{"address":"127.0.0.1","family":"IPv4","port":4400},{"address":"::1","family":"IPv6","port":4400}],"ui":[{"address":"127.0.0.1","family":"IPv4","port":4000},{"address":"::1","family":"IPv6","port":4000}],"logging":[{"address":"127.0.0.1","family":"IPv4","port":4500}],"hosting":[{"address":"127.0.0.1","family":"IPv4","port":5000}],"functions":[{"address":"127.0.0.1","family":"IPv4","port":5001}],"eventarc":[{"address":"127.0.0.1","family":"IPv4","port":9299}],"tasks":[{"address":"127.0.0.1","family":"IPv4","port":9499}]},"metadata":{"message":"late-assigned ports for functions and eventarc emulators"}}
+[warn] ⚠  functions: The following emulators are not running, calls to these services from the Functions emulator will affect production: apphosting, auth, firestore, database, pubsub, storage, dataconnect {"metadata":{"emulator":{"name":"functions"},"message":"The following emulators are not running, calls to these services from the Functions emulator will affect production: \u001b[1mapphosting, auth, firestore, database, pubsub, storage, dataconnect\u001b[22m"}}
+[debug] [2025-10-20T18:23:55.634Z] No OAuth tokens found
+[debug] [2025-10-20T18:23:55.634Z] No OAuth tokens found
+[debug] [2025-10-20T18:23:55.634Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-10-20T18:23:55.635Z] Failed to get Admin SDK config for gitverum, falling back to cache Failed to get Admin SDK for Firebase project gitverum. Please make sure the project exists and your account has permission to access it. {"name":"FirebaseError","children":[],"exit":2,"message":"Failed to get Admin SDK for Firebase project gitverum. Please make sure the project exists and your account has permission to access it.","original":{"name":"FirebaseError","children":[],"exit":1,"message":"Failed to authenticate, have you run \u001b[1mfirebase login\u001b[22m?","original":{},"status":500},"status":500}
+[warn] ⚠  functions: Unable to fetch project Admin SDK configuration, Admin SDK behavior in Cloud Functions emulator may be incorrect. {"metadata":{"emulator":{"name":"functions"},"message":"Unable to fetch project Admin SDK configuration, Admin SDK behavior in Cloud Functions emulator may be incorrect."}}
+[debug] [2025-10-20T18:23:55.648Z] No OAuth tokens found
+[debug] [2025-10-20T18:23:55.648Z] No OAuth tokens found
+[debug] [2025-10-20T18:23:55.649Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-10-20T18:23:55.649Z] Failed to list hosting sites
+[debug] Failed to authenticate, have you run firebase login?
+[debug] [2025-10-20T18:23:55.649Z] No OAuth tokens found
+[debug] [2025-10-20T18:23:55.649Z] No OAuth tokens found
+[debug] [2025-10-20T18:23:55.649Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-10-20T18:23:55.649Z] fetchWebSetup error: FirebaseError: Failed to authenticate, have you run firebase login?
+[warn] ⚠  hosting: Could not fetch web app configuration and there is no cached configuration on this machine. Check your internet connection and make sure you are authenticated. To continue, you must call firebase.initializeApp({...}) in your code before using Firebase. 
+[debug] [2025-10-20T18:23:55.653Z] No OAuth tokens found
+[debug] [2025-10-20T18:23:55.653Z] No OAuth tokens found
+[debug] [2025-10-20T18:23:55.653Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-10-20T18:23:55.653Z] Failed to authenticate, have you run firebase login? (original: Could not load the default credentials. Browse to https://cloud.google.com/docs/authentication/getting-started for more information.)
+[info] i  hosting[gitverum]: Serving hosting files from: web {"metadata":{"emulator":{"name":"hosting"},"message":"Serving hosting files from: \u001b[1mweb\u001b[22m"}}
+[info] ✔  hosting[gitverum]: Local server: http://127.0.0.1:5000 {"metadata":{"emulator":{"name":"hosting"},"message":"Local server: \u001b[4m\u001b[1mhttp://127.0.0.1:5000\u001b[22m\u001b[24m"}}
+[info] i  functions: Watching "/workspaces/verumceleb/verum-omnis-founders-gift-v5/verum-omnis-monorepo/functions" for Cloud Functions... {"metadata":{"emulator":{"name":"functions"},"message":"Watching \"/workspaces/verumceleb/verum-omnis-founders-gift-v5/verum-omnis-monorepo/functions\" for Cloud Functions..."}}
+[debug] [2025-10-20T18:23:55.710Z] Validating nodejs source
+[debug] [2025-10-20T18:23:56.728Z] > [functions] package.json contents: {
+  "name": "verum-web-api",
+  "version": "1.0.0",
+  "type": "module",
+  "engines": {
+    "node": "20"
+  },
+  "scripts": {
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "express": "^4.21.1",
+    "firebase-functions": "^6.0.1",
+    "cors": "^2.8.5",
+    "helmet": "^8.0.0",
+    "js-yaml": "^4.1.0",
+    "pdfkit": "^0.15.0",
+    "qrcode": "^1.5.4",
+    "multer": "^1.4.5-lts.1",
+    "pino": "^9.5.0"
+  },
+  "devDependencies": {
+    "supertest": "^7.0.0",
+    "vitest": "^1.6.0"
+  }
+}
+[debug] [2025-10-20T18:23:56.728Z] Building nodejs source
+[debug] [2025-10-20T18:23:56.728Z] Failed to find version of module node: reached end of search path /workspaces/verumceleb/verum-omnis-founders-gift-v5/verum-omnis-monorepo/functions/node_modules
+[warn] ⚠  functions: Your requested "node" version "20" doesn't match your global version "22". Using node@22 from host. 
+[debug] [2025-10-20T18:23:56.731Z] Could not find functions.yaml. Must use http discovery
+[debug] [2025-10-20T18:23:56.733Z] Found firebase-functions binary at '/workspaces/verumceleb/verum-omnis-founders-gift-v5/verum-omnis-monorepo/functions/node_modules/.bin/firebase-functions'
+[debug] [2025-10-20T18:23:56.738Z] Error: spawn /workspaces/verumceleb/verum-omnis-founders-gift-v5/verum-omnis-monorepo/functions/node_modules/.bin/firebase-functions EACCES
+    at ChildProcess._handle.onexit (node:internal/child_process:285:19)
+    at onErrorNT (node:internal/child_process:483:16)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)
+[error] 
+[error] Error: An unexpected error has occurred.
+[debug] [2025-10-20T18:27:57.344Z] ----------------------------------------------------------------------
+[debug] [2025-10-20T18:27:57.346Z] Command:       /usr/local/share/nvm/versions/node/v22.17.0/bin/node /home/codespace/nvm/current/bin/firebase emulators:start --only hosting,functions
+[debug] [2025-10-20T18:27:57.346Z] CLI Version:   14.20.0
+[debug] [2025-10-20T18:27:57.346Z] Platform:      linux
+[debug] [2025-10-20T18:27:57.347Z] Node Version:  v22.17.0
+[debug] [2025-10-20T18:27:57.347Z] Time:          Mon Oct 20 2025 18:27:57 GMT+0000 (Coordinated Universal Time)
+[debug] [2025-10-20T18:27:57.347Z] Env Overrides: GITHUB_API_URL, GITHUB_API_URL
+[debug] [2025-10-20T18:27:57.347Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-10-20T18:27:57.598Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] Failed to authenticate, have you run firebase login?
+[warn] ⚠  emulators: You are not currently authenticated so some features may not work correctly. Please run firebase login to authenticate the CLI. 
+[info] i  emulators: Starting emulators: functions, hosting {"metadata":{"emulator":{"name":"hub"},"message":"Starting emulators: functions, hosting"}}
+[debug] [2025-10-20T18:27:57.627Z] [logging] Logging Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2025-10-20T18:27:57.628Z] [hosting] Hosting Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2025-10-20T18:27:57.628Z] assigned listening specs for emulators {"user":{"hub":[{"address":"127.0.0.1","family":"IPv4","port":4400},{"address":"::1","family":"IPv6","port":4400}],"ui":[{"address":"127.0.0.1","family":"IPv4","port":4000},{"address":"::1","family":"IPv6","port":4000}],"logging":[{"address":"127.0.0.1","family":"IPv4","port":4500}],"hosting":[{"address":"127.0.0.1","family":"IPv4","port":5000}]},"metadata":{"message":"assigned listening specs for emulators"}}
+[debug] [2025-10-20T18:27:57.632Z] Emulator locator file path: /tmp/hub-gitverum.json
+[warn] ⚠  emulators: It seems that you are running multiple instances of the emulator suite for project gitverum. This may result in unexpected behavior. 
+[debug] [2025-10-20T18:27:57.633Z] [hub] writing locator at /tmp/hub-gitverum.json
+[debug] [2025-10-20T18:27:57.648Z] [functions] Functions Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2025-10-20T18:27:57.648Z] [eventarc] Eventarc Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2025-10-20T18:27:57.648Z] [tasks] Cloud Tasks Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2025-10-20T18:27:57.649Z] late-assigned ports for functions and eventarc emulators {"user":{"hub":[{"address":"127.0.0.1","family":"IPv4","port":4400},{"address":"::1","family":"IPv6","port":4400}],"ui":[{"address":"127.0.0.1","family":"IPv4","port":4000},{"address":"::1","family":"IPv6","port":4000}],"logging":[{"address":"127.0.0.1","family":"IPv4","port":4500}],"hosting":[{"address":"127.0.0.1","family":"IPv4","port":5000}],"functions":[{"address":"127.0.0.1","family":"IPv4","port":5001}],"eventarc":[{"address":"127.0.0.1","family":"IPv4","port":9299}],"tasks":[{"address":"127.0.0.1","family":"IPv4","port":9499}]},"metadata":{"message":"late-assigned ports for functions and eventarc emulators"}}
+[warn] ⚠  functions: The following emulators are not running, calls to these services from the Functions emulator will affect production: apphosting, auth, firestore, database, pubsub, storage, dataconnect {"metadata":{"emulator":{"name":"functions"},"message":"The following emulators are not running, calls to these services from the Functions emulator will affect production: apphosting, auth, firestore, database, pubsub, storage, dataconnect"}}
+[debug] [2025-10-20T18:27:57.651Z] No OAuth tokens found
+[debug] [2025-10-20T18:27:57.651Z] No OAuth tokens found
+[debug] [2025-10-20T18:27:57.651Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-10-20T18:27:57.651Z] Failed to get Admin SDK config for gitverum, falling back to cache Failed to get Admin SDK for Firebase project gitverum. Please make sure the project exists and your account has permission to access it. {"name":"FirebaseError","children":[],"exit":2,"message":"Failed to get Admin SDK for Firebase project gitverum. Please make sure the project exists and your account has permission to access it.","original":{"name":"FirebaseError","children":[],"exit":1,"message":"Failed to authenticate, have you run firebase login?","original":{},"status":500},"status":500}
+[warn] ⚠  functions: Unable to fetch project Admin SDK configuration, Admin SDK behavior in Cloud Functions emulator may be incorrect. {"metadata":{"emulator":{"name":"functions"},"message":"Unable to fetch project Admin SDK configuration, Admin SDK behavior in Cloud Functions emulator may be incorrect."}}
+[debug] [2025-10-20T18:27:57.661Z] No OAuth tokens found
+[debug] [2025-10-20T18:27:57.663Z] No OAuth tokens found
+[debug] [2025-10-20T18:27:57.663Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-10-20T18:27:57.663Z] Failed to list hosting sites
+[debug] Failed to authenticate, have you run firebase login?
+[debug] [2025-10-20T18:27:57.664Z] No OAuth tokens found
+[debug] [2025-10-20T18:27:57.664Z] No OAuth tokens found
+[debug] [2025-10-20T18:27:57.664Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-10-20T18:27:57.664Z] fetchWebSetup error: FirebaseError: Failed to authenticate, have you run firebase login?
+[warn] ⚠  hosting: Could not fetch web app configuration and there is no cached configuration on this machine. Check your internet connection and make sure you are authenticated. To continue, you must call firebase.initializeApp({...}) in your code before using Firebase. 
+[debug] [2025-10-20T18:27:57.670Z] No OAuth tokens found
+[debug] [2025-10-20T18:27:57.670Z] No OAuth tokens found
+[debug] [2025-10-20T18:27:57.670Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-10-20T18:27:57.671Z] Failed to authenticate, have you run firebase login? (original: Could not load the default credentials. Browse to https://cloud.google.com/docs/authentication/getting-started for more information.)
+[info] i  hosting[gitverum]: Serving hosting files from: web {"metadata":{"emulator":{"name":"hosting"},"message":"Serving hosting files from: web"}}
+[info] ✔  hosting[gitverum]: Local server: http://127.0.0.1:5000 {"metadata":{"emulator":{"name":"hosting"},"message":"Local server: http://127.0.0.1:5000"}}
+[info] i  functions: Watching "/workspaces/verumceleb/verum-omnis-founders-gift-v5/verum-omnis-monorepo/functions" for Cloud Functions... {"metadata":{"emulator":{"name":"functions"},"message":"Watching \"/workspaces/verumceleb/verum-omnis-founders-gift-v5/verum-omnis-monorepo/functions\" for Cloud Functions..."}}
+[debug] [2025-10-20T18:27:57.692Z] Validating nodejs source
+[debug] [2025-10-20T18:27:58.267Z] > [functions] package.json contents: {
+  "name": "verum-web-api",
+  "version": "1.0.0",
+  "type": "module",
+  "engines": {
+    "node": "20"
+  },
+  "scripts": {
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "express": "^4.21.1",
+    "firebase-functions": "^6.0.1",
+    "cors": "^2.8.5",
+    "helmet": "^8.0.0",
+    "js-yaml": "^4.1.0",
+    "pdfkit": "^0.15.0",
+    "qrcode": "^1.5.4",
+    "multer": "^1.4.5-lts.1",
+    "pino": "^9.5.0"
+  },
+  "devDependencies": {
+    "supertest": "^7.0.0",
+    "vitest": "^1.6.0"
+  }
+}
+[debug] [2025-10-20T18:27:58.267Z] Building nodejs source
+[debug] [2025-10-20T18:27:58.268Z] Failed to find version of module node: reached end of search path /workspaces/verumceleb/verum-omnis-founders-gift-v5/verum-omnis-monorepo/functions/node_modules
+[warn] ⚠  functions: Your requested "node" version "20" doesn't match your global version "22". Using node@22 from host. 
+[debug] [2025-10-20T18:27:58.277Z] Could not find functions.yaml. Must use http discovery
+[debug] [2025-10-20T18:27:58.279Z] Found firebase-functions binary at '/workspaces/verumceleb/verum-omnis-founders-gift-v5/verum-omnis-monorepo/functions/node_modules/.bin/firebase-functions'
+[info] Serving at port 8628
+
+[info] Firestore receipts enabled
+
+[error] Error: Missing immutable artifact: treaty/Guardianship_Treaty_Verum_Omnis_Founders.pdf
+    at verifyImmutablePack (file:///workspaces/verumceleb/verum-omnis-founders-gift-v5/verum-omnis-monorepo/functions/index.js:63:37)
+    at file:///workspaces/verumceleb/verum-omnis-founders-gift-v5/verum-omnis-monorepo/functions/index.js:72:5
+    at ModuleJobSync.runSync (node:internal/modules/esm/module_job:436:37)
+    at ModuleLoader.importSyncForRequire (node:internal/modules/esm/loader:427:47)
+    at loadESMFromCJS (node:internal/modules/cjs/loader:1561:24)
+    at Module._compile (node:internal/modules/cjs/loader:1712:5)
+    at Object..js (node:internal/modules/cjs/loader:1895:10)
+    at Module.load (node:internal/modules/cjs/loader:1465:32)
+    at Function._load (node:internal/modules/cjs/loader:1282:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+
+[debug] [2025-10-20T18:27:59.054Z] Got response code 400; body Failed to generate manifest from function source: Missing immutable artifact: treaty/Guardianship_Treaty_Verum_Omnis_Founders.pdf
+[error] ⬢  functions: Failed to load function definition from source: FirebaseError: Functions codebase could not be analyzed successfully. It may have a syntax or runtime error {"metadata":{"emulator":{"name":"functions"},"message":"Failed to load function definition from source: FirebaseError: Functions codebase could not be analyzed successfully. It may have a syntax or runtime error"}}
+[debug] [2025-10-20T18:28:03.070Z] Could not find VSCode notification endpoint: FetchError: request to http://localhost:40001/vscode/notify failed, reason: . If you are not running the Firebase Data Connect VSCode extension, this is expected and not an issue.
+[info] 
+┌─────────────────────────────────────────────────────────────┐
+│ ✔  All emulators ready! It is now safe to connect your app. │
+│ i  View Emulator UI at http://127.0.0.1:4000/               │
+└─────────────────────────────────────────────────────────────┘
+
+┌───────────┬────────────────┬─────────────────────────────────┐
+│ Emulator  │ Host:Port      │ View in Emulator UI             │
+├───────────┼────────────────┼─────────────────────────────────┤
+│ Functions │ 127.0.0.1:5001 │ http://127.0.0.1:4000/functions │
+├───────────┼────────────────┼─────────────────────────────────┤
+│ Hosting   │ 127.0.0.1:5000 │ n/a                             │
+└───────────┴────────────────┴─────────────────────────────────┘
+  Emulator Hub host: 127.0.0.1 port: 4400
+  Other reserved ports: 4500
+
+Issues? Report them at https://github.com/firebase/firebase-tools/issues and attach the *-debug.log files.
+ 
+[debug] [2025-10-20T18:30:02.061Z] File /workspaces/verumceleb/verum-omnis-founders-gift-v5/verum-omnis-monorepo/functions/assets/treaty/Guardianship_Treaty_Verum_Omnis_Founders.pdf changed, reloading triggers {"metadata":{"emulator":{"name":"functions"},"message":"File /workspaces/verumceleb/verum-omnis-founders-gift-v5/verum-omnis-monorepo/functions/assets/treaty/Guardianship_Treaty_Verum_Omnis_Founders.pdf changed, reloading triggers"}}
+[debug] [2025-10-20T18:30:03.061Z] Validating nodejs source
+[debug] [2025-10-20T18:30:03.694Z] > [functions] package.json contents: {
+  "name": "verum-web-api",
+  "version": "1.0.0",
+  "type": "module",
+  "engines": {
+    "node": "20"
+  },
+  "scripts": {
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "express": "^4.21.1",
+    "firebase-functions": "^6.0.1",
+    "cors": "^2.8.5",
+    "helmet": "^8.0.0",
+    "js-yaml": "^4.1.0",
+    "pdfkit": "^0.15.0",
+    "qrcode": "^1.5.4",
+    "multer": "^1.4.5-lts.1",
+    "pino": "^9.5.0"
+  },
+  "devDependencies": {
+    "supertest": "^7.0.0",
+    "vitest": "^1.6.0"
+  }
+}
+[debug] [2025-10-20T18:30:03.694Z] Building nodejs source
+[debug] [2025-10-20T18:30:03.694Z] Failed to find version of module node: reached end of search path /workspaces/verumceleb/verum-omnis-founders-gift-v5/verum-omnis-monorepo/functions/node_modules
+[warn] ⚠  functions: Your requested "node" version "20" doesn't match your global version "22". Using node@22 from host. 
+[debug] [2025-10-20T18:30:03.695Z] Could not find functions.yaml. Must use http discovery
+[debug] [2025-10-20T18:30:03.697Z] Found firebase-functions binary at '/workspaces/verumceleb/verum-omnis-founders-gift-v5/verum-omnis-monorepo/functions/node_modules/.bin/firebase-functions'
+[info] Serving at port 8684
+
+[info] Firestore receipts enabled
+
+[error] Error: Missing immutable artifact: treaty/Guardianship_Treaty_Verum_Omnis_Founders.pdf
+    at verifyImmutablePack (file:///workspaces/verumceleb/verum-omnis-founders-gift-v5/verum-omnis-monorepo/functions/index.js:63:37)
+    at file:///workspaces/verumceleb/verum-omnis-founders-gift-v5/verum-omnis-monorepo/functions/index.js:72:5
+    at ModuleJobSync.runSync (node:internal/modules/esm/module_job:436:37)
+    at ModuleLoader.importSyncForRequire (node:internal/modules/esm/loader:427:47)
+    at loadESMFromCJS (node:internal/modules/cjs/loader:1561:24)
+    at Module._compile (node:internal/modules/cjs/loader:1712:5)
+    at Object..js (node:internal/modules/cjs/loader:1895:10)
+    at Module.load (node:internal/modules/cjs/loader:1465:32)
+    at Function._load (node:internal/modules/cjs/loader:1282:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+
+[debug] [2025-10-20T18:30:04.753Z] Got response code 400; body Failed to generate manifest from function source: Missing immutable artifact: treaty/Guardianship_Treaty_Verum_Omnis_Founders.pdf
+[error] ⬢  functions: Failed to load function definition from source: FirebaseError: Functions codebase could not be analyzed successfully. It may have a syntax or runtime error {"metadata":{"emulator":{"name":"functions"},"message":"Failed to load function definition from source: FirebaseError: Functions codebase could not be analyzed successfully. It may have a syntax or runtime error"}}
