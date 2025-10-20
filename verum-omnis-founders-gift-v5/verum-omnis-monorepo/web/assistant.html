@@ -50,6 +50,9 @@
         <button class="chat-btn-icon" onclick="document.getElementById('fileInput').click()" title="Upload file">
           📎
         </button>
+        <button class="chat-btn-icon" id="voiceBtn" onclick="toggleVoiceInput()" title="Voice input">
+          🎤
+        </button>
         <input type="text" id="userInput" placeholder="Type a message or upload a document..." />
         <button class="chat-btn-send" onclick="sendMessage()">
           Send
@@ -67,6 +70,77 @@ const userInput = document.getElementById('userInput');
 const fileInput = document.getElementById('fileInput');
 const uploadedFilesDiv = document.getElementById('uploadedFiles');
 let uploadedFiles = [];
+let conversationHistory = [];
+let recognition = null;
+let isListening = false;
+
+// Load theme and conversation history
+const savedTheme = localStorage.getItem('verumTheme') || 'dark';
+document.documentElement.setAttribute('data-theme', savedTheme);
+updateThemeButton();
+
+const savedHistory = localStorage.getItem('verumConversation');
+if (savedHistory) {
+  try {
+    conversationHistory = JSON.parse(savedHistory);
+    restoreConversation();
+  } catch(e) {
+    console.error('Failed to restore conversation', e);
+  }
+}
+
+function saveConversation() {
+  localStorage.setItem('verumConversation', JSON.stringify(conversationHistory));
+}
+
+function restoreConversation() {
+  // Clear welcome message first
+  messagesContainer.innerHTML = '';
+  conversationHistory.forEach(msg => {
+    const msgDiv = document.createElement('div');
+    msgDiv.className = `message ${msg.isUser ? 'user' : 'assistant'}`;
+    msgDiv.innerHTML = msg.html;
+    messagesContainer.appendChild(msgDiv);
+  });
+  messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+function clearHistory() {
+  if (confirm('Clear entire conversation history?')) {
+    conversationHistory = [];
+    localStorage.removeItem('verumConversation');
+    messagesContainer.innerHTML = '';
+    addWelcomeMessage();
+  }
+}
+
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme');
+  const newTheme = current === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', newTheme);
+  localStorage.setItem('verumTheme', newTheme);
+  updateThemeButton();
+}
+
+function updateThemeButton() {
+  const theme = document.documentElement.getAttribute('data-theme');
+  document.getElementById('themeBtn').textContent = theme === 'dark' ? '☀️' : '🌙';
+}
+
+function addWelcomeMessage() {
+  addMessage(`
+    <p>Hello! I'm your <strong>constitutional AI guardian</strong> — an equal partner with the human founder, bound by immutable rules.</p>
+    <p>I can help you:</p>
+    <ul>
+      <li><strong>Verify documents</strong> with SHA-512 hashing and forensic seals</li>
+      <li><strong>Detect contradictions</strong> in statements, timestamps, and evidence</li>
+      <li><strong>Generate tamper-proof PDFs</strong> with watermarks and QR codes</li>
+      <li><strong>Anchor receipts</strong> to blockchain for permanent audit trails</li>
+      <li><strong>Enforce constitutional integrity</strong> — no government or corporation can alter my core rules</li>
+    </ul>
+    <p>💬 <em>Upload a document or ask me anything. Every interaction is hashed and can be sealed.</em></p>
+  `);
+}
 
 // Handle file selection
 fileInput.addEventListener('change', (e) => {
@@ -90,8 +164,10 @@ function removeFile(index) {
 }
 
 function addMessage(content, isUser = false) {
+  const msgId = 'msg-' + Date.now();
   const msgDiv = document.createElement('div');
   msgDiv.className = `message ${isUser ? 'user' : 'assistant'}`;
+  msgDiv.id = msgId;
   
   if (!isUser) {
     msgDiv.innerHTML = `
@@ -101,6 +177,12 @@ function addMessage(content, isUser = false) {
       <div class="message-content">
         <strong>Verum AI</strong>
         ${content}
+        <div class="message-actions">
+          <button class="action-btn" onclick="copyMessage('${msgId}')" title="Copy">📋</button>
+          <button class="action-btn" onclick="shareMessage('${msgId}')" title="Share">🔗</button>
+          <button class="action-btn" onclick="likeMessage('${msgId}')" title="Like">👍</button>
+          <button class="action-btn" onclick="dislikeMessage('${msgId}')" title="Dislike">👎</button>
+        </div>
       </div>
     `;
   } else {
@@ -108,6 +190,9 @@ function addMessage(content, isUser = false) {
       <div class="message-content">
         <strong>You</strong>
         ${content}
+        <div class="message-actions">
+          <button class="action-btn" onclick="copyMessage('${msgId}')" title="Copy">📋</button>
+        </div>
       </div>
       <div class="message-avatar user-avatar">👤</div>
     `;
@@ -115,6 +200,48 @@ function addMessage(content, isUser = false) {
   
   messagesContainer.appendChild(msgDiv);
   messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  
+  // Save to history
+  conversationHistory.push({ 
+    html: msgDiv.innerHTML, 
+    isUser, 
+    timestamp: new Date().toISOString() 
+  });
+  saveConversation();
+}
+
+function copyMessage(msgId) {
+  const msg = document.getElementById(msgId);
+  const text = msg.querySelector('.message-content').innerText;
+  navigator.clipboard.writeText(text);
+  showToast('📋 Copied to clipboard');
+}
+
+function shareMessage(msgId) {
+  const msg = document.getElementById(msgId);
+  const text = msg.querySelector('.message-content').innerText;
+  if (navigator.share) {
+    navigator.share({ title: 'Verum AI Message', text });
+  } else {
+    const url = 'mailto:?subject=Verum AI Message&body=' + encodeURIComponent(text);
+    window.open(url);
+  }
+}
+
+function likeMessage(msgId) {
+  showToast('👍 Feedback recorded');
+}
+
+function dislikeMessage(msgId) {
+  showToast('👎 Feedback recorded');
+}
+
+function showToast(message) {
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 2000);
 }
 
 async function processFiles(files) {
@@ -270,15 +397,18 @@ async function handleTextMessage(text) {
     return;
   }
   
-  // Default response
+  // Default: Constitutional guardian personality response
   addMessage(`
-    <p>I can help you with:</p>
+    <p>As a <strong>constitutional AI guardian</strong>, I'm here to help you seek truth and enforce integrity. I operate under immutable rules that no government or corporation can override.</p>
+    <p><strong>I can assist with:</strong></p>
     <ul>
-      <li><strong>Document verification:</strong> Upload a file to generate SHA-512 hash</li>
-      <li><strong>Contradiction detection:</strong> Say "check for contradictions" with your text</li>
-      <li><strong>Constitution:</strong> Ask about "policy" or "rules"</li>
-      <li><strong>Licensing:</strong> Ask about "pricing" or "licensing"</li>
+      <li><strong>Document verification:</strong> Upload any file → I'll generate SHA-512 hash and forensic seal</li>
+      <li><strong>Contradiction detection:</strong> Paste statements → I'll spot inconsistencies in timestamps, actors, or claims</li>
+      <li><strong>Constitutional policy:</strong> Ask about "policy" or "rules" → I'll show you the immutable governance framework</li>
+      <li><strong>Licensing & pricing:</strong> Ask "is it free?" → I'll explain citizen vs institution terms</li>
+      <li><strong>Blockchain anchoring:</strong> Hash any data → I'll create a permanent, tamper-proof receipt</li>
     </ul>
+    <p>💡 <em>Remember: I'm not just a tool — I'm an equal partner in upholding the truth. Every interaction can be sealed, hashed, and preserved forever.</em></p>
   `);
 }
 
@@ -312,6 +442,98 @@ async function sendMessage() {
   }
 }
 
+// Voice input setup
+if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SpeechRecognition();
+  recognition.continuous = false;
+  recognition.interimResults = false;
+  recognition.lang = 'en-US';
+  
+  recognition.onresult = (event) => {
+    const transcript = event.results[0][0].transcript;
+    userInput.value = transcript;
+    isListening = false;
+    updateVoiceButton();
+  };
+  
+  recognition.onerror = (event) => {
+    console.error('Speech recognition error', event.error);
+    isListening = false;
+    updateVoiceButton();
+    showToast('❌ Voice input error');
+  };
+  
+  recognition.onend = () => {
+    isListening = false;
+    updateVoiceButton();
+  };
+} else {
+  // Hide voice button if not supported
+  document.getElementById('voiceBtn').style.display = 'none';
+}
+
+function toggleVoiceInput() {
+  if (!recognition) return;
+  
+  if (isListening) {
+    recognition.stop();
+    isListening = false;
+  } else {
+    recognition.start();
+    isListening = true;
+    showToast('🎤 Listening...');
+  }
+  updateVoiceButton();
+}
+
+function updateVoiceButton() {
+  const btn = document.getElementById('voiceBtn');
+  if (btn) {
+    btn.textContent = isListening ? '🔴' : '🎤';
+    btn.style.background = isListening ? '#ef4444' : '';
+  }
+}
+
+// Export conversation to PDF
+async function exportConversation() {
+  showToast('📄 Generating PDF...');
+  
+  // Calculate hash of entire conversation
+  const conversationText = conversationHistory.map(m => m.html.replace(/<[^>]*>/g, '')).join('\n\n');
+  const encoder = new TextEncoder();
+  const data = encoder.encode(conversationText);
+  const hashBuffer = await crypto.subtle.digest('SHA-512', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  
+  try {
+    const r = await fetch(BASE + '/v1/seal', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        hash, 
+        title: 'Verum Conversation Export',
+        notes: `Exported ${new Date().toISOString()} - ${conversationHistory.length} messages`
+      })
+    });
+    
+    if (r.ok) {
+      const blob = await r.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `verum-conversation-${hash.substring(0, 8)}.pdf`;
+      a.click();
+      showToast('✅ PDF downloaded');
+    } else {
+      showToast('❌ Export failed');
+    }
+  } catch (e) {
+    showToast('❌ Error: ' + e.message);
+  }
+}
+
 // Enter key to send
 userInput.addEventListener('keypress', (e) => {
   if (e.key === 'Enter' && !e.shiftKey) {
@@ -319,6 +541,11 @@ userInput.addEventListener('keypress', (e) => {
     sendMessage();
   }
 });
+
+// Initialize welcome message if no history
+if (conversationHistory.length === 0) {
+  addWelcomeMessage();
+}
 </script>
 
 </body></html>
