@@ -247,3 +247,45 @@ Issues? Report them at https://github.com/firebase/firebase-tools/issues and att
 
 [debug] [2025-10-20T18:30:04.753Z] Got response code 400; body Failed to generate manifest from function source: Missing immutable artifact: treaty/Guardianship_Treaty_Verum_Omnis_Founders.pdf
 [error] ⬢  functions: Failed to load function definition from source: FirebaseError: Functions codebase could not be analyzed successfully. It may have a syntax or runtime error {"metadata":{"emulator":{"name":"functions"},"message":"Failed to load function definition from source: FirebaseError: Functions codebase could not be analyzed successfully. It may have a syntax or runtime error"}}
+[debug] [2025-10-20T18:46:45.588Z] File /workspaces/verumceleb/verum-omnis-founders-gift-v5/verum-omnis-monorepo/functions/index.js changed, reloading triggers {"metadata":{"emulator":{"name":"functions"},"message":"File /workspaces/verumceleb/verum-omnis-founders-gift-v5/verum-omnis-monorepo/functions/index.js changed, reloading triggers"}}
+[debug] [2025-10-20T18:46:46.589Z] Validating nodejs source
+[debug] [2025-10-20T18:46:47.549Z] > [functions] package.json contents: {
+  "name": "verum-web-api",
+  "version": "1.0.0",
+  "type": "module",
+  "engines": {
+    "node": "20"
+  },
+  "scripts": {
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "express": "^4.21.1",
+    "firebase-functions": "^6.0.1",
+    "cors": "^2.8.5",
+    "helmet": "^8.0.0",
+    "js-yaml": "^4.1.0",
+    "pdfkit": "^0.15.0",
+    "qrcode": "^1.5.4",
+    "multer": "^1.4.5-lts.1",
+    "pino": "^9.5.0"
+  },
+  "devDependencies": {
+    "supertest": "^7.0.0",
+    "vitest": "^1.6.0"
+  }
+}
+[debug] [2025-10-20T18:46:47.549Z] Building nodejs source
+[debug] [2025-10-20T18:46:47.549Z] Failed to find version of module node: reached end of search path /workspaces/verumceleb/verum-omnis-founders-gift-v5/verum-omnis-monorepo/functions/node_modules
+[warn] ⚠  functions: Your requested "node" version "20" doesn't match your global version "22". Using node@22 from host. 
+[debug] [2025-10-20T18:46:47.553Z] Could not find functions.yaml. Must use http discovery
+[debug] [2025-10-20T18:46:47.557Z] Found firebase-functions binary at '/workspaces/verumceleb/verum-omnis-founders-gift-v5/verum-omnis-monorepo/functions/node_modules/.bin/firebase-functions'
+[info] Serving at port 8164
+
+[info] Firestore receipts enabled
+
+[error] Immutable verify skipped: Missing immutable artifact: treaty/Guardianship_Treaty_Verum_Omnis_Founders.pdf
+
+[debug] [2025-10-20T18:46:49.342Z] Got response from /__/functions.yaml {"endpoints":{"api":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","region":["us-central1"],"labels":{},"httpsTrigger":{},"entryPoint":"api"}},"specVersion":"v1alpha1","requiredAPIs":[],"extensions":{}}
+[info] ✔  functions: Loaded functions definitions from source: api. {"metadata":{"emulator":{"name":"functions"},"message":"Loaded functions definitions from source: api."}}
+[info] ✔  functions[us-central1-api]: http function initialized (http://127.0.0.1:5001/gitverum/us-central1/api). {"metadata":{"emulator":{"name":"functions"},"message":"http function initialized (http://127.0.0.1:5001/gitverum/us-central1/api)."}}
