@@ -14,9 +14,10 @@ function sha512File(fp){ const h=crypto.createHash('sha512'); h.update(fs.readFi
   const listed = new Set(manifest.files.map(f => f.name));
   // Verify hashes and presence
   for (const { name, sha512 } of manifest.files){
-    const isRule = !name.toLowerCase().includes('treaty/');
-    const baseDir = isRule ? rulesDir : path.join(path.dirname(new URL(import.meta.url).pathname));
-    const fp = name.toLowerCase().includes('treaty/') ? path.join(baseDir, name) : path.join(rulesDir, name);
+    const assetsDir = path.join(path.dirname(new URL(import.meta.url).pathname), 'assets');
+    const fp = name.startsWith('treaty/') ? 
+      path.join(assetsDir, name) : 
+      path.join(assetsDir, 'rules', name);
     if (!fs.existsSync(fp)) throw new Error('Missing immutable artifact: '+name);
     const calc = sha512File(fp);
     if (calc !== sha512) throw new Error('Immutable artifact tampered: '+name+' expected='+sha512+' actual='+calc);

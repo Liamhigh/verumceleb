@@ -1,70 +1,95 @@
 # Verum Omnis - AI Coding Agent Instructions
 
-## Architecture Overview
+## 0) North Star
 
-This is a **Firebase-hosted monorepo** implementing an immutable governance system with cryptographic integrity verification. The project consists of three main components:
+* This is **Verum Omnis**: a stateless, hash-first forensic stack. The **frontend(s)** seal docs (logo + watermark + QR + SHA-512) and the **backend** is a thin API (no PII, hash-indexed) that talks to external LLMs only when needed.
+* Always preserve: **SHA-512**, **PDF 1.7**, **logo watermarking**, **"✔ Patent Pending Verum Omnis" block**. Don't "simplify" these.
 
-- **`functions/`** - Firebase Functions API (Node.js 20, Express)
-- **`web/`** - Static frontend hosted via Firebase Hosting
+## 1) Repo Shape (what's here, how it talks)
+
+**Project Structure**: `/workspaces/verumceleb/verum-omnis-founders-gift-v5/verum-omnis-monorepo/`
+
+- **`functions/`** - Firebase Functions v2 (Express app, Node.js 20 ESM)
+- **`web/`** - Static frontend hosted via Firebase Hosting  
 - **`capacitor-app/`** - Cross-platform mobile app wrapper
 
-## Quick Start
+**API Endpoints** (`functions/index.js`):
+- `GET /v1/verify` - Health check
+- `POST /v1/contradict` - Text contradiction analysis (stub)
+- `POST /v1/anchor` - Hash anchoring with receipt storage  
+- `POST /v1/seal` - PDF generation with cryptographic seals
+- Video endpoints: disabled by default via `config.video.json`
 
-To get this app running you just install the `functions/` dependencies with `npm ci`, generate an Ed25519 JWK signing key and set it as the `VOSIGNINGKEY` Firebase secret (along with your optional API keys and allowed origins), add your assets (`vo_logo.png`, constitution, model pack, and rules JSONs), and then deploy functions + hosting with `firebase deploy`. For production you must upgrade the in-memory receipt store to Firestore or another durable KV, follow a strict branch-hash-anchor workflow when updating rule files (so new SHA-512s are anchored and signed), and use Capacitor for mobile by building the web bundle, syncing into Android/iOS, and packaging for the stores. Keep CORS locked to prod domains, enable helmet + rate limits, monitor `/health`, and always emphasize that the system is stateless and hash-first so agents don't break cryptographic integrity.
+## 2) Runtime + Secrets (don't fight the toolchain)
 
-### Critical: Immutable Rules System
+**Current Project ID**: `gitverum` (set in `.firebaserc`)
 
-The **core innovation** is the immutable rules pack system in `functions/assets/rules/` and `functions/assets/treaty/`. 
+* **Node**: Functions must run on **Node 20** with **ESM modules** (`"type": "module"` in package.json)
+* **Dependencies**: Already installed in `functions/node_modules/` 
+* **Deploy**: `firebase deploy --only hosting,functions` (function name: `api2`)
+* **Local test**: `firebase emulators:start` (ports: hosting=5000, functions=5001, UI=4000)
 
-**Never modify files in these directories without understanding the implications:**
-- All files are SHA-512 verified at cold start via `manifest.json`
-- Any hash mismatch causes immediate function failure
-- Extra files in rules directory are blocked
-- This system enforces constitutional immutability
+## 3) Critical: Immutable Rules System
 
-## Key Components & Data Flow
+**Core Innovation**: Files in `functions/assets/rules/` and `functions/assets/treaty/` are **cryptographically locked**.
 
-### API Routes (`functions/index.js`)
-- `/v1/verify` - Health check
-- `/v1/contradict` - Text contradiction analysis (stub)
-- `/v1/anchor` - Hash anchoring with receipt storage
-- `/v1/seal` - PDF generation with cryptographic seals
-
-### Immutable Pack Verification (Cold Start)
+**Critical Verification (Cold Start)**:
 ```javascript
-// This runs on every function cold start
+// This runs on EVERY function cold start in index.js
 (function verifyImmutablePack(){
   // Verifies all files in manifest.json against SHA-512 hashes
   // Blocks deployment if any tampering detected
 })();
 ```
 
-### 🔒 Receipt System (`receipts-kv.js`)
-**CRITICAL TODO**: Current in-memory `Map()` is **not production-grade**. Receipts vanish on cold start, breaking audit trails.
-- **Current state:** Ephemeral storage only
-- **Required for production:** Migrate to Firestore, Cloud SQL, or durable KV store
-- **Risk:** Receipt "disappearance" violates constitutional audit requirements
+**Never modify files in these directories without understanding the implications:**
+- All files are SHA-512 verified at cold start via `manifest.json`
+- Any hash mismatch causes immediate function failure  
+- Extra files in rules directory are blocked
+- This system enforces constitutional immutability
 
-## Development Workflows
+## 4) Current State & Critical Issues
+
+### ✅ **Working**:
+- Functions deployed as `api2` to Firebase (`gitverum` project)
+- Immutable pack verification system functional
+- PDF sealing with SHA-512, QR codes, watermarks
+- Basic web frontend with logo assets
+
+### 🚨 **Critical Missing for Production**:
+
+1. **GitHub Actions CI/CD**: No `.github/workflows/` exists
+   - Need: Firebase deploy workflow with `FIREBASE_TOKEN` secret
+   - Need: Android build/test pipeline
+
+2. **Persistent Receipt Storage**: Current `receipts-kv.js` uses in-memory `Map()`
+   - **Risk**: Receipts vanish on cold start, breaking audit trails
+   - **Required**: Migrate to Firestore or durable KV store
+
+3. **Mobile App Completion**: Capacitor app exists but needs:
+   - Build pipeline: `web/` → `capacitor-app/www/`
+   - Store deployment (Play Store + App Store)
+   - Proper signing keys and asset compliance
+
+## 5) Development Workflows
 
 ### Local Development
 ```bash
-# In functions/ directory
-npm ci
-firebase emulators:start  # Starts local Firebase emulator
+cd /workspaces/verumceleb/verum-omnis-founders-gift-v5/verum-omnis-monorepo
+firebase emulators:start  # Starts local Firebase emulator (ports: hosting=5000, functions=5001, UI=4000)
 
-# For mobile development
+# For mobile development  
 cd capacitor-app
-npm run build  # Copies web/ to www/
-npx cap sync
+npm run build && npx cap sync
 npx cap run android  # or ios
 ```
 
 ### Deployment
-Use the provided GitHub Actions workflow. **Critical requirements:**
-- Set `FIREBASE_TOKEN` secret in repository settings
-- Functions deploy automatically triggers rules verification
-- Hosting serves from `web/` directory
+```bash
+firebase deploy --only hosting,functions  # Deploys both web and functions
+firebase deploy --only functions         # Functions only (api2)
+firebase deploy --only hosting          # Static web only
+```
 
 ### 🎥 Video Features (Future Activation)
 Video endpoints exist as **roadmap items** disabled via `config.video.json`. These are future-activation features, not legacy code:
@@ -77,7 +102,7 @@ To activate when ready:
 2. Implement actual processing logic in `video/` modules
 3. Remove 501 status responses from `index.js`
 
-## Project-Specific Patterns
+## 6) Project-Specific Patterns
 
 ### File Naming Convention
 - `01_constitution.json` - Numbered rules (immutable)
@@ -90,14 +115,14 @@ Functions fail fast on integrity violations. **No graceful degradation** for imm
 ### Security Model
 - Constitutional rules are cryptographically locked
 - PDF seals provide document integrity verification
-- Receipt system provides audit trails
+- Receipt system provides audit trails (now uses Firestore)
 
-## Integration Points
+## 7) Integration Points
 
 ### Firebase Services
 - **Hosting**: Serves `web/` with API rewrites to `/api/**` → `functions`
 - **Functions**: Express app deployed as `api2` function
-- **No Database**: Uses in-memory storage (upgrade needed for production)
+- **Firestore**: Persistent receipt storage (fallback to in-memory if unavailable)
 
 ### 📱 Capacitor Integration
 Mobile app loads web content from Firebase Hosting with **stateless local storage** and **offline hash-first design**.
@@ -117,13 +142,6 @@ Mobile app loads web content from Firebase Hosting with **stateless local storag
 - No server PII storage
 - Offline-capable hash verification
 - Stateless architecture aligned with governance model
-
-## Critical Files to Understand
-
-- `functions/index.js` - Main API and immutable pack verification
-- `functions/assets/rules/manifest.json` - Hash registry for all immutable files
-- `firebase.json` - Hosting configuration with API routing
-- `capacitor-app/capacitor.config.ts` - Mobile app configuration
 
 ## 📜 Rules Governance
 
