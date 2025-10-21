@@ -15,9 +15,9 @@ export async function extractPdfTextAll(
 ): Promise<{ text: string; pages: number; ocrPagesCount: number }> {
   const pdfjs = await import("pdfjs-dist");
   
-  // Set worker source
+  // Set worker source to local file
   if (typeof window !== 'undefined') {
-    pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@4.9.155/build/pdf.worker.min.js`;
+    pdfjs.GlobalWorkerOptions.workerSrc = '/pdfjs/pdf.worker.min.mjs';
   }
 
   opts.onProgress?.("Loading PDF document...");
