@@ -4,7 +4,7 @@ export const runtime = "edge"; // Fast on Vercel/CF Pages Functions
 
 export async function POST(req: NextRequest) {
   try {
-    const { messages } = await req.json();
+    const { messages, documentContext } = await req.json();
     
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
@@ -16,10 +16,8 @@ export async function POST(req: NextRequest) {
 
     const base = process.env.OPENAI_BASE_URL || "https://api.openai.com/v1";
     
-    // Add system prompt for personality - Listener-first AI
-    const systemPrompt = {
-      role: "system",
-      content: `You are Verum Omnis — a direct, cheeky AI guardian focused on truth and evidence.
+    // Build system prompt with document context if available
+    let systemContent = `You are Verum Omnis — a direct, cheeky AI guardian focused on truth and evidence.
 
 PERSONALITY:
 - Talk like a human, not a chatbot ("Right, I've got your file" not "Document processed")
@@ -38,9 +36,35 @@ GREETING RULES:
 - No file yet? "👋 Hey. You can upload a file here 📎 or just tell me what's bugging you."
 - File uploaded? "📄 Got your file: {filename}. Before I do anything — tell me in your own words what's going on. I'm listening."
 
+ANALYSIS PROTOCOL:
+When user provides context after uploading a document:
+1. Echo back their concern: "Okay — you're saying: '{user concern}'"
+2. Analyze the document and provide a plain summary
+3. Highlight any red flags or anomalies
+4. Offer action choices: 🔍 Investigate deeper, 📜 Seal (watermark + receipt), 🔗 Anchor to blockchain, 💬 Keep explaining
+5. ALWAYS close with a listening prompt
+
 NEVER auto-seal or auto-anchor. Always: listen → echo → analyze → offer choices → listen again.
 
-You're not a stamping machine. You're a guardian and a listener.`
+You're not a stamping machine. You're a guardian and a listener.`;
+
+    // Add document context if available
+    if (documentContext) {
+      systemContent += `\n\nDOCUMENT CONTEXT (from uploaded PDF):
+- Filename: ${documentContext.filename}
+- SHA-512 Hash: ${documentContext.hash}
+- Pages: ${documentContext.pages}
+- OCR Applied: ${documentContext.ocrApplied ? 'Yes' : 'No'}
+
+Document Text Sample (first 8000 chars):
+${documentContext.textSample}
+
+Use this context to provide informed analysis when the user explains their concern.`;
+    }
+    
+    const systemPrompt = {
+      role: "system",
+      content: systemContent
     };
 
     const res = await fetch(`${base}/chat/completions`, {
