@@ -343,11 +343,13 @@ async function analyzeFilesWithAI(files, userText = '') {
     const file = fileInfo[0];
     const fileName = file.name.toLowerCase();
     
-    // Start with acknowledgement - direct and friendly
-    let response = `<p><strong>Right, got your file.</strong></p>`;
-    response += `<p><strong>${file.name}</strong> • ${(file.size / 1024).toFixed(1)} KB • ${file.type || 'Unknown'}</p>`;
+    // LISTENING FIRST - acknowledge and invite their story
+    let response = `<p><strong>Right, I've got your file.</strong></p>`;
+    response += `<p><strong>${file.name}</strong> • ${(file.size / 1024).toFixed(1)} KB</p>`;
+    response += `<p>Before I dig into it — want to tell me what's going on? Why are you uploading this?</p>`;
+    response += `<p><em>Just type it out: "The bank ignored my affidavit" or "This invoice looks dodgy" or whatever. I'm listening.</em></p>`;
     
-    // Classification
+    // Classification (for context, shown after they explain)
     let classification = 'document';
     let classificationConfidence = 'appears to be';
     
@@ -384,35 +386,18 @@ async function analyzeFilesWithAI(files, userText = '') {
       }
     }
     
-    response += `<p>Looks like a <strong>${classification}</strong>.</p>`;
+    // Show classification but don't dominate the message
+    response += `<p style="margin-top:12px;font-size:0.95em;color:var(--muted)"><em>(Looks like a <strong>${classification}</strong>)</em></p>`;
     
-    // Conversational guidance - ask what they want to do
-    response += `<p><strong>What do you need?</strong></p><ul style="margin:8px 0;padding-left:20px">`;
-    
-    if (fileContent.length > 0) {
-      response += `<li><strong>Summarize</strong> — I'll extract the key points and tell you what it says</li>`;
-      response += `<li><strong>Check for fraud</strong> — I'll look for contradictions, dodgy clauses, or suspicious patterns</li>`;
-      response += `<li><strong>Extract info</strong> — Names, dates, case numbers, specific clauses</li>`;
-    } else {
-      response += `<li><strong>Tell me about it</strong> — Describe what this is and I'll guide you through it</li>`;
-      response += `<li><strong>Check metadata</strong> — When it was created, by whom, with what software</li>`;
-    }
-    
-    response += `<li><strong>Seal it</strong> — Forensic PDF with watermark, SHA-512 hash, QR code (tamper-proof)</li>`;
-    response += `<li><strong>Anchor it</strong> — Timestamp it on blockchain so you can prove when it existed</li>`;
-    response += `</ul>`;
-    
-    response += `<p style="margin-top:12px"><em>Just ask me: "Summarize this" / "Check for contradictions" / "Seal it"</em></p>`;
-    
-    // Calculate hash for action buttons
+    // Calculate hash for action buttons (but don't push them yet - listen first)
     const arrayBuffer = await file.file.arrayBuffer();
     const hashBuffer = await crypto.subtle.digest('SHA-512', arrayBuffer);
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     const hash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
     
-    // Add action buttons to the same message
+    // Add action buttons at the bottom (optional, after they explain)
     response += `
-      <p style="margin-top:16px"><strong>Quick actions:</strong></p>
+      <p style="margin-top:16px;padding-top:12px;border-top:1px solid var(--border)"><strong>Or skip straight to:</strong></p>
       <button class="inline-btn" onclick="showHashDetails('${hash}', '${file.name}')">🔍 View Hash</button>
       <button class="inline-btn" onclick="sealDocument('${hash}', '${file.name}')">📜 Seal It</button>
       <button class="inline-btn" onclick="anchorHash('${hash}')">🔗 Anchor It</button>
@@ -505,6 +490,29 @@ async function handleTextMessage(text) {
   
   // Check for actions on uploaded document
   if (lastAnalyzedFile) {
+    
+    // REFLECT BACK: If they're explaining their situation, acknowledge it
+    const storyKeywords = ['bank', 'court', 'lawyer', 'judge', 'fraud', 'scam', 'ignored', 'refused', 'denied', 
+                          'lied', 'altered', 'forged', 'fake', 'wrong', 'incorrect', 'dispute', 'problem'];
+    const hasStoryContext = storyKeywords.some(keyword => lower.includes(keyword));
+    
+    if (hasStoryContext && text.length > 20 && !lower.includes('seal') && !lower.includes('anchor')) {
+      // They're telling their story - reflect it back
+      addMessage(`
+        <p><strong>Okay, I hear you.</strong></p>
+        <p>You're saying: <em>"${text}"</em></p>
+        <p>Right. Let me look at <strong>${lastAnalyzedFile.files[0].name}</strong> against that.</p>
+        <p>What do you want me to do with it?</p>
+        <ul>
+          <li><strong>"Seal it"</strong> — Lock this version down so no one can claim it was different</li>
+          <li><strong>"Check for fraud"</strong> — I'll scan for dodgy patterns or contradictions</li>
+          <li><strong>"Summarize it"</strong> — I'll extract the key info and explain what it says</li>
+          <li><strong>"Anchor it"</strong> — Timestamp it on blockchain for proof</li>
+        </ul>
+      `);
+      return;
+    }
+    
     // Seal/hash commands
     if (lower.includes('seal') || lower.includes('seal it') || lower.includes('generate seal')) {
       const file = lastAnalyzedFile.files[0];
