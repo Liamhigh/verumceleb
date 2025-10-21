@@ -674,21 +674,18 @@ async function handleTextMessage(text) {
         <pre style="background:var(--bg);padding:8px;border-radius:4px;font-size:0.85em;max-height:150px;overflow:auto">${lastAnalyzedFile.content.substring(0, 300)}...</pre>`;
       }
     } else if (lastAnalyzedFile.content && lastAnalyzedFile.content.includes('[PDF contains no extractable text')) {
-      response += `but it looks like a scanned PDF (image-based). I can't extract text from images yet.</p>
-      <p><strong>What I can still do:</strong></p>
-      <ul>
-        <li>Generate a SHA-512 hash to fingerprint it</li>
-        <li>Create a sealed PDF certificate with watermarks</li>
-        <li>Anchor the hash to blockchain for permanent proof</li>
-      </ul>
-      <p><em>Tell me what type of document it is (e.g., "it's a legal contract") and I can give you better advice. Or just say "seal it" and I'll make it tamper-proof.</em></p>`;
-    } else {
+      // Get hash for action buttons
+      const arrayBuffer = await file.file.arrayBuffer();
+      const hashBuffer = await crypto.subtle.digest('SHA-512', arrayBuffer);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      const hash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      
       response += `but I couldn't extract the text. This might be a scanned/image-based PDF or a binary file.</p>
       <p><strong>But here's what I know:</strong></p>
       <ul>
-        <li>Name: ${file.name}</li>
-        <li>Size: ${(file.size / 1024).toFixed(1)} KB</li>
-        <li>Type: ${file.type || 'Unknown'}</li>
+        <li><strong>Name:</strong> ${file.name}</li>
+        <li><strong>Size:</strong> ${(file.size / 1024).toFixed(1)} KB</li>
+        <li><strong>Type:</strong> ${file.type || 'application/pdf'}</li>
       </ul>
       <p><strong>What I can do right now:</strong></p>
       <ul>
@@ -696,7 +693,38 @@ async function handleTextMessage(text) {
         <li>Create a sealed PDF certificate with watermarks</li>
         <li>Anchor the hash to blockchain for permanent proof</li>
       </ul>
-      <p><em>Tell me what type of document it is (e.g., "it's a legal contract") and I can give you better advice. Or just say "seal it" and I'll make it tamper-proof.</em></p>`;
+      <p style="margin-top:16px;padding-top:12px;border-top:1px solid var(--border)"><em>Tell me what type of document it is (e.g., "it's a legal contract") and I can give you better advice. Or just say "seal it" and I'll make it tamper-proof.</em></p>
+      <div style="margin-top:12px">
+        <button class="inline-btn" onclick="showHashDetails('${hash}', '${file.name}')">🔍 View Hash</button>
+        <button class="inline-btn" onclick="sealDocument('${hash}', '${file.name}')">📜 Seal It</button>
+        <button class="inline-btn" onclick="anchorHash('${hash}')">🔗 Anchor It</button>
+      </div>`;
+    } else {
+      // Get hash for action buttons
+      const arrayBuffer = await file.file.arrayBuffer();
+      const hashBuffer = await crypto.subtle.digest('SHA-512', arrayBuffer);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      const hash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      
+      response += `but I couldn't extract the text. This might be a scanned/image-based PDF or a binary file.</p>
+      <p><strong>But here's what I know:</strong></p>
+      <ul>
+        <li><strong>Name:</strong> ${file.name}</li>
+        <li><strong>Size:</strong> ${(file.size / 1024).toFixed(1)} KB</li>
+        <li><strong>Type:</strong> ${file.type || 'Unknown'}</li>
+      </ul>
+      <p><strong>What I can do right now:</strong></p>
+      <ul>
+        <li>Generate a SHA-512 hash to fingerprint it</li>
+        <li>Create a sealed PDF certificate with watermarks</li>
+        <li>Anchor the hash to blockchain for permanent proof</li>
+      </ul>
+      <p style="margin-top:16px;padding-top:12px;border-top:1px solid var(--border)"><em>Tell me what type of document it is (e.g., "it's a legal contract") and I can give you better advice. Or just say "seal it" and I'll make it tamper-proof.</em></p>
+      <div style="margin-top:12px">
+        <button class="inline-btn" onclick="showHashDetails('${hash}', '${file.name}')">🔍 View Hash</button>
+        <button class="inline-btn" onclick="sealDocument('${hash}', '${file.name}')">📜 Seal It</button>
+        <button class="inline-btn" onclick="anchorHash('${hash}')">🔗 Anchor It</button>
+      </div>`;
     }
     
     addMessage(response);
