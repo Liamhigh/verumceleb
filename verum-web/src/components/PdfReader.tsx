@@ -45,7 +45,7 @@ export default function PdfReader() {
     try {
       const now = new Date().toISOString();
       const bytes = await makeSealedCoverPdf({ filename: file.name, sha512Hex: hash, when: now });
-      setSealed(bytes);
+      setSealed(new Uint8Array(bytes.buffer.slice(0)));
       setProgress("Sealed PDF ready!");
     } catch (error: any) {
       setProgress("Error: " + error.message);
@@ -145,7 +145,7 @@ export default function PdfReader() {
             {sealed && (
               <button 
                 className="px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white rounded text-xs font-medium transition"
-                onClick={() => download("sealed-cover.pdf", sealed!, "application/pdf")}
+                onClick={() => download("sealed-cover.pdf", sealed as any, "application/pdf")}
               >
                 ⬇️ Download sealed-cover.pdf
               </button>

@@ -67,7 +67,7 @@ export default function Chat() {
                   return copy;
                 });
               }
-            } catch (e) {
+            } catch {
               // Skip invalid JSON
             }
           }
