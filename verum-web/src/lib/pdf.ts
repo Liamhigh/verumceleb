@@ -135,18 +135,17 @@ export async function makeSealedCoverPdf(opts: {
     font,
   });
 
-  // QR Code
+  // QR Code - generate as data URL directly (no canvas needed)
   const QRCode = (await import("qrcode")).default;
-  const canvas = document.createElement("canvas");
-  await new Promise<void>((res, rej) =>
-    QRCode.toCanvas(
-      canvas,
-      opts.sha512Hex,
-      { margin: 0, width: 140 },
-      (e: any) => (e ? rej(e) : res())
-    )
-  );
-  const png = await pdf.embedPng(canvas.toDataURL("image/png"));
+  
+  // Generate QR code as PNG data URL
+  const qrDataUrl = await QRCode.toDataURL(opts.sha512Hex, {
+    margin: 1,
+    width: 140,
+    errorCorrectionLevel: 'M',
+  });
+  
+  const png = await pdf.embedPng(qrDataUrl);
   page.drawImage(png, {
     x: 50,
     y: 500,
