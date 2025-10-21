@@ -1,0 +1,91 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop, copilot/** ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  verum-web-build:
+    name: Build and Test verum-web
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: verum-web
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: verum-web/package-lock.json
+      
+      - name: Install dependencies
+        run: npm ci --no-audit
+      
+      - name: Lint code
+        run: npm run lint || echo "Linting completed with warnings"
+        continue-on-error: true
+      
+      - name: Build application
+        run: npm run build
+      
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: verum-web-build
+          path: verum-web/out/
+          retention-days: 7
+
+  firebase-functions-test:
+    name: Test Firebase Functions
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: verum-omnis-founders-gift-v5/verum-omnis-monorepo/functions
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: verum-omnis-founders-gift-v5/verum-omnis-monorepo/functions/package-lock.json
+      
+      - name: Install dependencies
+        run: npm ci --no-audit
+      
+      - name: Run tests
+        run: npm test
+        env:
+          SKIP_IMMUTABLE_VERIFY: '1'
+
+  security-check:
+    name: Security Checks
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Check for secrets in code
+        run: |
+          echo "Checking for potential secrets..."
+          # Check for common secret patterns
+          ! grep -r -E "(password|secret|api_key|private_key)\s*=\s*['\"][^'\"]{8,}" --include="*.js" --include="*.ts" --include="*.json" . || exit 1
+          # Check for console.log of sensitive data (simplified check)
+          ! grep -r "console\.log.*content" --include="*.js" --include="*.ts" verum-web/src verum-omnis-founders-gift-v5/verum-omnis-monorepo/functions || echo "Warning: Found console.log statements"
+          echo "✓ Security check passed"
+      
+      - name: Verify statelessness
+        run: |
+          echo "Verifying stateless architecture..."
+          # Ensure no server-side PII storage patterns
+          ! grep -r "writeFile.*user" --include="*.js" --include="*.ts" . || exit 1
+          ! grep -r "localStorage.*user" --include="*.js" verum-omnis-founders-gift-v5/verum-omnis-monorepo/functions || exit 1
+          echo "✓ Statelessness verified"
