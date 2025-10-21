@@ -12,6 +12,9 @@
   }
 </script>
 
+<!-- Tesseract.js for OCR on images and scanned PDFs -->
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
 </head>
 <body>
 
@@ -47,14 +50,17 @@
         <ul style="margin:8px 0;padding-left:20px">
           <li><strong>Documents:</strong> PDF, DOCX, TXT, MD, RTF, ODT</li>
           <li><strong>Spreadsheets:</strong> XLSX, CSV, ODS</li>
-          <li><strong>Media Evidence:</strong> Images, Video, Audio (forensic analysis)</li>
+          <li><strong>Media Evidence:</strong> Images (with OCR), Video, Audio (forensic analysis)</li>
           <li><strong>Archives:</strong> ZIP bundles (case files, annexures)</li>
+          <li><strong>Scanned Documents:</strong> OCR automatically runs on image-based PDFs</li>
         </ul>
         <p><strong>What I do:</strong></p>
         <ul style="margin:8px 0;padding-left:20px">
           <li>🔐 <strong>SHA-512 hashing</strong> + blockchain anchoring</li>
+          <li>📖 <strong>Document reading</strong> — Text extraction + OCR for scanned documents/images</li>
           <li>🔍 <strong>Contradiction detection</strong> across documents, timelines, testimony</li>
           <li>📜 <strong>Forensic sealing</strong> — tamper-proof PDFs with watermarks & QR codes</li>
+          <li>⚖️ <strong>Legal case reports</strong> — Structured reports for lawyers with case analysis</li>
           <li>⚠️ <strong>Metadata extraction</strong> + authenticity verification</li>
         </ul>
         <p style="margin-top:12px"><em>Upload evidence. Ask questions. Request sealed outputs. The truth is immutable.</em></p>
@@ -66,7 +72,7 @@
   <div class="chat-input-container">
     <div class="container">
       <div class="chat-input">
-        <input type="file" id="fileInput" style="display:none" accept=".pdf,.png,.jpg,.jpeg,.txt,.doc,.docx" multiple/>
+        <input type="file" id="fileInput" style="display:none" accept=".pdf,.png,.jpg,.jpeg,.txt,.doc,.docx,.zip,.xlsx,.csv,.odt,.rtf,.md" multiple/>
         <button class="chat-btn-icon" onclick="document.getElementById('fileInput').click()" title="Upload file">
           📎
         </button>
@@ -329,19 +335,119 @@ async function extractPdfText(arrayBuffer) {
   const numPages = pdf.numPages;
   
   let textChunks = [];
+  let hasText = false;
   
   // Extract text from all pages
   for (let pageNum = 1; pageNum <= numPages; pageNum++) {
     const page = await pdf.getPage(pageNum);
     const textContent = await page.getTextContent();
     const pageText = textContent.items.map(item => item.str).join(' ');
+    if (pageText.trim().length > 0) {
+      hasText = true;
+    }
     textChunks.push(pageText);
   }
   
   const fullText = textChunks.join('\n\n');
   
+  // If no text found, it's likely a scanned PDF - try OCR
+  if (!hasText || fullText.trim().length < 50) {
+    addMessage(`<p>⚠️ This appears to be a scanned PDF with no extractable text. Running OCR...</p>`);
+    return await extractPdfTextWithOCR(arrayBuffer);
+  }
+  
   // Return text with page count info
   return fullText || '[PDF contains no extractable text - may be scanned/image-based]';
+}
+
+// Extract text from scanned PDF using OCR
+async function extractPdfTextWithOCR(arrayBuffer) {
+  if (typeof pdfjsLib === 'undefined' || typeof Tesseract === 'undefined') {
+    throw new Error('PDF.js or Tesseract library not loaded');
+  }
+  
+  try {
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    const numPages = pdf.numPages;
+    let ocrTexts = [];
+    
+    addMessage(`<p>⏳ Running OCR on ${numPages} page(s)... This may take a minute.</p>`);
+    
+    // Process each page with OCR
+    for (let pageNum = 1; pageNum <= numPages; pageNum++) {
+      const page = await pdf.getPage(pageNum);
+      
+      // Render page to canvas
+      const viewport = page.getViewport({ scale: 2.0 }); // Higher scale for better OCR
+      const canvas = document.createElement('canvas');
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+      const context = canvas.getContext('2d');
+      
+      await page.render({ canvasContext: context, viewport }).promise;
+      
+      // Run Tesseract OCR on the canvas
+      const { data: { text } } = await Tesseract.recognize(
+        canvas,
+        'eng',
+        {
+          logger: (m) => {
+            if (m.status === 'recognizing text') {
+              console.log(`OCR progress page ${pageNum}: ${Math.round(m.progress * 100)}%`);
+            }
+          }
+        }
+      );
+      
+      ocrTexts.push(`--- Page ${pageNum} ---\n${text}`);
+      
+      // Update progress
+      if (numPages > 1) {
+        addMessage(`<p>✅ Completed OCR for page ${pageNum}/${numPages}</p>`);
+      }
+    }
+    
+    const fullText = ocrTexts.join('\n\n');
+    addMessage(`<p>✅ OCR complete! Extracted ${fullText.length} characters of text.</p>`);
+    
+    return fullText || '[OCR completed but no text was detected]';
+  } catch (e) {
+    console.error('OCR failed:', e);
+    return '[OCR extraction failed: ' + e.message + ']';
+  }
+}
+
+// Extract text from image using OCR
+async function extractImageTextWithOCR(file) {
+  if (typeof Tesseract === 'undefined') {
+    throw new Error('Tesseract library not loaded');
+  }
+  
+  try {
+    addMessage(`<p>⏳ Running OCR on image... This may take a moment.</p>`);
+    
+    const { data: { text } } = await Tesseract.recognize(
+      file,
+      'eng',
+      {
+        logger: (m) => {
+          if (m.status === 'recognizing text') {
+            console.log(`OCR progress: ${Math.round(m.progress * 100)}%`);
+          }
+        }
+      }
+    );
+    
+    if (text && text.trim().length > 0) {
+      addMessage(`<p>✅ OCR complete! Extracted ${text.length} characters of text.</p>`);
+      return text;
+    } else {
+      return '[No text detected in image]';
+    }
+  } catch (e) {
+    console.error('Image OCR failed:', e);
+    return '[Image OCR failed: ' + e.message + ']';
+  }
 }
 
 // NEW: Analyze files with AI assistant instead of auto-hashing
@@ -367,7 +473,7 @@ async function analyzeFilesWithAI(files, userText = '') {
         info.content = content;
         fileContent += `\n\n--- ${file.name} ---\n${content}`;
       } else if (file.type.includes('pdf') || file.name.toLowerCase().endsWith('.pdf')) {
-        // Extract PDF text using PDF.js
+        // Extract PDF text using PDF.js (with OCR fallback for scanned PDFs)
         try {
           const arrayBuffer = await file.arrayBuffer();
           const pdfText = await extractPdfText(arrayBuffer);
@@ -377,8 +483,18 @@ async function analyzeFilesWithAI(files, userText = '') {
           console.error('PDF extraction failed:', e);
           info.content = '[PDF - text extraction failed: ' + e.message + ']';
         }
+      } else if (file.type.includes('image') || file.name.match(/\.(jpg|jpeg|png|gif|bmp|tiff)$/i)) {
+        // Extract text from image using OCR
+        try {
+          const imageText = await extractImageTextWithOCR(file);
+          info.content = imageText;
+          fileContent += `\n\n--- ${file.name} (OCR) ---\n${imageText}`;
+        } catch (e) {
+          console.error('Image OCR failed:', e);
+          info.content = '[Image - OCR failed: ' + e.message + ']';
+        }
       } else {
-        info.content = '[Binary file]';
+        info.content = '[Binary file - ' + (file.type || 'unknown type') + ']';
       }
       
       fileInfo.push(info);
@@ -405,37 +521,41 @@ async function analyzeFilesWithAI(files, userText = '') {
     let classification = 'document';
     let classificationConfidence = 'appears to be';
     
-    if (fileContent.length > 0) {
+    if (fileContent.length > 0 && !fileContent.includes('[Binary file') && !fileContent.includes('extraction failed')) {
       const lower = fileContent.toLowerCase();
-      if (lower.includes('affidavit') || lower.includes('sworn statement')) {
+      if (lower.includes('affidavit') || lower.includes('sworn statement') || lower.includes('deponent')) {
         classification = 'legal affidavit';
         classificationConfidence = 'is';
-      } else if (lower.includes('contract') || lower.includes('agreement')) {
+      } else if (lower.includes('contract') || lower.includes('agreement') || lower.includes('party of the first part')) {
         classification = 'legal contract or agreement';
-      } else if (lower.includes('invoice') || lower.includes('receipt')) {
+      } else if (lower.includes('invoice') || lower.includes('receipt') || lower.includes('amount due')) {
         classification = 'financial record (invoice/receipt)';
-      } else if (lower.includes('complaint') || lower.includes('plaintiff')) {
+      } else if (lower.includes('complaint') || lower.includes('plaintiff') || lower.includes('defendant')) {
         classification = 'legal complaint or filing';
       } else if (lower.includes('policy') || lower.includes('terms and conditions')) {
         classification = 'policy document';
       } else if (lower.includes('evidence') || lower.includes('exhibit')) {
         classification = 'legal evidence or exhibit';
+      } else if (lower.includes('case') && (lower.includes('number') || lower.includes('file'))) {
+        classification = 'legal case file';
       } else {
         classification = 'text document';
       }
-    } else if (file.type === 'application/pdf') {
+    } else if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
       // Filename-based classification for PDFs
       if (fileName.includes('affidavit')) {
         classification = 'legal affidavit (PDF)';
       } else if (fileName.includes('contract') || fileName.includes('agreement')) {
         classification = 'legal contract (PDF)';
-      } else if (fileName.includes('doc') || fileName.includes('legal')) {
-        classification = 'legal/administrative PDF';
+      } else if (fileName.includes('case') || fileName.includes('legal')) {
+        classification = 'legal case file (PDF)';
       } else if (fileName.includes('invoice') || fileName.includes('receipt')) {
         classification = 'financial document (PDF)';
       } else {
         classification = 'PDF document';
       }
+    } else if (file.type.includes('image')) {
+      classification = 'image/photo (OCR processed)';
     }
     
     // Show classification but don't dominate the message
@@ -453,6 +573,7 @@ async function analyzeFilesWithAI(files, userText = '') {
       <button class="inline-btn" onclick="showHashDetails('${hash}', '${file.name}')">🔍 View Hash</button>
       <button class="inline-btn" onclick="sealDocument('${hash}', '${file.name}')">📜 Seal It</button>
       <button class="inline-btn" onclick="anchorHash('${hash}')">🔗 Anchor It</button>
+      <button class="inline-btn" onclick="generateCaseReport('${file.name}')">⚖️ Generate Case Report</button>
     `;
     
     addMessage(response);
@@ -506,9 +627,12 @@ async function anchorHash(hash) {
 }
 
 async function sealDocument(hash, filename) {
-  addMessage(`<p>⏳ Generating forensic seal PDF...</p>`);
+  addMessage(`<p>⏳ Generating forensic seal PDF with QR code verification...</p>`);
   
   try {
+    // Generate verification URL for QR code
+    const verificationUrl = `${window.location.origin}/verify.html?hash=${hash}`;
+    
     console.log('Sealing document:', filename, 'hash:', hash, 'to', BASE + '/v1/seal');
     const r = await fetch(BASE + '/v1/seal', {
       method: 'POST',
@@ -516,7 +640,8 @@ async function sealDocument(hash, filename) {
       body: JSON.stringify({ 
         hash, 
         title: filename || 'Document Seal',
-        notes: 'Generated via Verum Assistant'
+        notes: 'Generated via Verum Assistant',
+        qrPayload: verificationUrl
       })
     });
     
@@ -524,7 +649,9 @@ async function sealDocument(hash, filename) {
       const blob = await r.blob();
       const url = URL.createObjectURL(blob);
       addMessage(`
-        <p>✅ Seal PDF generated!</p>
+        <p>✅ Seal PDF generated with QR code!</p>
+        <p><strong>Verification URL:</strong> <code style="font-size:0.85em;word-break:break-all">${verificationUrl}</code></p>
+        <p><em>The QR code in the PDF links to this verification page.</em></p>
         <a href="${url}" download="verum-seal-${hash.substring(0, 8)}.pdf" class="inline-btn">⬇️ Download Sealed PDF</a>
       `);
     } else {
@@ -537,6 +664,228 @@ async function sealDocument(hash, filename) {
   }
 }
 
+// Generate legal case report for lawyers
+window.generateCaseReport = async function(filename) {
+  if (!lastAnalyzedFile) {
+    addMessage(`<p>❌ No document analyzed yet. Please upload a document first.</p>`);
+    return;
+  }
+  
+  addMessage(`<p>⏳ Generating legal case report...</p>`);
+  
+  try {
+    const file = lastAnalyzedFile.files[0];
+    const content = lastAnalyzedFile.content || '';
+    
+    // Extract case information from document
+    const caseInfo = extractCaseInformation(content, file.name);
+    
+    // Calculate document hash
+    const arrayBuffer = await file.file.arrayBuffer();
+    const hashBuffer = await crypto.subtle.digest('SHA-512', arrayBuffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    
+    // Build case report
+    let report = `
+      <div style="background:var(--bg);padding:16px;border-radius:8px;border:1px solid var(--border)">
+        <h3 style="margin-top:0">⚖️ Legal Case Report</h3>
+        
+        <h4>Document Information</h4>
+        <ul>
+          <li><strong>File Name:</strong> ${file.name}</li>
+          <li><strong>File Size:</strong> ${(file.size / 1024).toFixed(2)} KB</li>
+          <li><strong>File Type:</strong> ${file.type || 'Unknown'}</li>
+          <li><strong>Analysis Date:</strong> ${new Date(lastAnalyzedFile.analyzedAt).toLocaleString()}</li>
+          <li><strong>SHA-512 Hash:</strong> <code style="font-size:0.85em;word-break:break-all">${hash}</code></li>
+        </ul>
+        
+        <h4>Case Details</h4>
+        <ul>
+          ${caseInfo.caseNumber ? `<li><strong>Case Number:</strong> ${caseInfo.caseNumber}</li>` : ''}
+          ${caseInfo.parties.length > 0 ? `<li><strong>Parties:</strong> ${caseInfo.parties.join(', ')}</li>` : ''}
+          ${caseInfo.dates.length > 0 ? `<li><strong>Key Dates:</strong> ${caseInfo.dates.join(', ')}</li>` : ''}
+          ${caseInfo.documentType ? `<li><strong>Document Type:</strong> ${caseInfo.documentType}</li>` : ''}
+        </ul>
+        
+        <h4>Content Summary</h4>
+        <p>${caseInfo.summary}</p>
+        
+        <h4>Key Findings</h4>
+        <ul>
+          ${caseInfo.findings.map(f => `<li>${f}</li>`).join('')}
+        </ul>
+        
+        <h4>Forensic Verification</h4>
+        <ul>
+          <li>✅ Document cryptographically hashed (SHA-512)</li>
+          <li>✅ Timestamp recorded: ${new Date().toISOString()}</li>
+          <li>✅ Immutable record maintained</li>
+          <li>🔗 Ready for blockchain anchoring</li>
+        </ul>
+        
+        <div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--border)">
+          <button class="inline-btn" onclick="anchorHash('${hash}')">🔗 Anchor to Blockchain</button>
+          <button class="inline-btn" onclick="sealDocument('${hash}', '${file.name}')">📜 Generate Sealed PDF</button>
+          <button class="inline-btn" onclick="exportCaseReport('${hash}')">💾 Export Report</button>
+        </div>
+      </div>
+    `;
+    
+    addMessage(report);
+    
+  } catch (e) {
+    addMessage(`<p>❌ Error generating case report: ${e.message}</p>`);
+    console.error('Case report error:', e);
+  }
+}
+
+// Extract case information from document content
+function extractCaseInformation(content, filename) {
+  const info = {
+    caseNumber: null,
+    parties: [],
+    dates: [],
+    documentType: 'Unknown',
+    summary: '',
+    findings: []
+  };
+  
+  if (!content || content.includes('[Binary file') || content.includes('extraction failed')) {
+    info.summary = 'Document content could not be extracted. File appears to be binary or extraction failed.';
+    info.findings.push('Document requires manual review');
+    return info;
+  }
+  
+  const lower = content.toLowerCase();
+  
+  // Extract case number (various patterns)
+  const casePatterns = [
+    /case\s+(?:no\.?|number|#)?\s*:?\s*([A-Z0-9\-\/]+)/i,
+    /matter\s+(?:no\.?|number|#)?\s*:?\s*([A-Z0-9\-\/]+)/i,
+    /file\s+(?:no\.?|number|#)?\s*:?\s*([A-Z0-9\-\/]+)/i,
+    /docket\s+(?:no\.?|number|#)?\s*:?\s*([A-Z0-9\-\/]+)/i
+  ];
+  
+  for (const pattern of casePatterns) {
+    const match = content.match(pattern);
+    if (match) {
+      info.caseNumber = match[1];
+      break;
+    }
+  }
+  
+  // Extract parties
+  const partyPatterns = [
+    /plaintiff[s]?\s*:?\s*([A-Za-z\s,&]+?)(?:\n|vs|v\.|against)/i,
+    /defendant[s]?\s*:?\s*([A-Za-z\s,&]+?)(?:\n|$)/i,
+    /applicant[s]?\s*:?\s*([A-Za-z\s,&]+?)(?:\n|vs|v\.)/i,
+    /respondent[s]?\s*:?\s*([A-Za-z\s,&]+?)(?:\n|$)/i
+  ];
+  
+  for (const pattern of partyPatterns) {
+    const match = content.match(pattern);
+    if (match && match[1].trim().length > 0) {
+      info.parties.push(match[1].trim());
+    }
+  }
+  
+  // Extract dates
+  const datePattern = /\b(\d{1,2}[-\/]\d{1,2}[-\/]\d{2,4}|\d{4}[-\/]\d{1,2}[-\/]\d{1,2})\b/g;
+  const dateMatches = content.match(datePattern);
+  if (dateMatches) {
+    info.dates = [...new Set(dateMatches)].slice(0, 5); // Max 5 unique dates
+  }
+  
+  // Determine document type
+  if (lower.includes('affidavit') || lower.includes('sworn statement')) {
+    info.documentType = 'Affidavit / Sworn Statement';
+  } else if (lower.includes('complaint')) {
+    info.documentType = 'Legal Complaint';
+  } else if (lower.includes('contract') || lower.includes('agreement')) {
+    info.documentType = 'Contract / Agreement';
+  } else if (lower.includes('invoice') || lower.includes('receipt')) {
+    info.documentType = 'Financial Document';
+  } else if (lower.includes('evidence') || lower.includes('exhibit')) {
+    info.documentType = 'Evidence / Exhibit';
+  } else if (lower.includes('motion') || lower.includes('petition')) {
+    info.documentType = 'Motion / Petition';
+  } else if (filename.toLowerCase().includes('case')) {
+    info.documentType = 'Case File';
+  }
+  
+  // Generate summary (first 500 chars of readable content)
+  const cleanContent = content.replace(/\s+/g, ' ').trim();
+  if (cleanContent.length > 500) {
+    info.summary = cleanContent.substring(0, 500) + '...';
+  } else {
+    info.summary = cleanContent || 'No content summary available.';
+  }
+  
+  // Generate findings based on content analysis
+  if (info.caseNumber) {
+    info.findings.push(`Case number identified: ${info.caseNumber}`);
+  }
+  if (info.parties.length > 0) {
+    info.findings.push(`${info.parties.length} party/parties identified`);
+  }
+  if (info.dates.length > 0) {
+    info.findings.push(`${info.dates.length} date(s) referenced in document`);
+  }
+  if (lower.includes('fraud') || lower.includes('fraudulent')) {
+    info.findings.push('⚠️ Document contains references to fraud');
+  }
+  if (lower.includes('contradict') || lower.includes('inconsisten')) {
+    info.findings.push('⚠️ Document mentions contradictions or inconsistencies');
+  }
+  if (lower.includes('evidence') || lower.includes('proof')) {
+    info.findings.push('Document contains evidentiary material');
+  }
+  
+  if (info.findings.length === 0) {
+    info.findings.push('Document appears to be standard legal documentation');
+  }
+  
+  return info;
+}
+
+// Export case report as JSON
+window.exportCaseReport = function(hash) {
+  if (!lastAnalyzedFile) {
+    showToast('❌ No case data to export');
+    return;
+  }
+  
+  const file = lastAnalyzedFile.files[0];
+  const content = lastAnalyzedFile.content || '';
+  const caseInfo = extractCaseInformation(content, file.name);
+  
+  const reportData = {
+    metadata: {
+      exportedAt: new Date().toISOString(),
+      verumOmnisVersion: 'v5.2.6',
+      forensicHash: hash
+    },
+    document: {
+      fileName: file.name,
+      fileSize: file.size,
+      fileType: file.type,
+      analyzedAt: lastAnalyzedFile.analyzedAt,
+      sha512Hash: hash
+    },
+    caseDetails: caseInfo
+  };
+  
+  const blob = new Blob([JSON.stringify(reportData, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `case-report-${hash.substring(0, 8)}.json`;
+  a.click();
+  
+  showToast('📥 Case report exported');
+}
+
 async function handleTextMessage(text) {
   const lower = text.toLowerCase();
   
@@ -545,10 +894,10 @@ async function handleTextMessage(text) {
     
     // REFLECT BACK: If they're explaining their situation, acknowledge it
     const storyKeywords = ['bank', 'court', 'lawyer', 'judge', 'fraud', 'scam', 'ignored', 'refused', 'denied', 
-                          'lied', 'altered', 'forged', 'fake', 'wrong', 'incorrect', 'dispute', 'problem'];
+                          'lied', 'altered', 'forged', 'fake', 'wrong', 'incorrect', 'dispute', 'problem', 'case'];
     const hasStoryContext = storyKeywords.some(keyword => lower.includes(keyword));
     
-    if (hasStoryContext && text.length > 20 && !lower.includes('seal') && !lower.includes('anchor')) {
+    if (hasStoryContext && text.length > 20 && !lower.includes('seal') && !lower.includes('anchor') && !lower.includes('report')) {
       // They're telling their story - reflect it back
       addMessage(`
         <p><strong>Okay, I hear you.</strong></p>
@@ -560,8 +909,15 @@ async function handleTextMessage(text) {
           <li><strong>"Check for fraud"</strong> — I'll scan for dodgy patterns or contradictions</li>
           <li><strong>"Summarize it"</strong> — I'll extract the key info and explain what it says</li>
           <li><strong>"Anchor it"</strong> — Timestamp it on blockchain for proof</li>
+          <li><strong>"Generate case report"</strong> — Create a structured legal case report for lawyers</li>
         </ul>
       `);
+      return;
+    }
+    
+    // Case report commands
+    if (lower.includes('case report') || lower.includes('generate report') || lower.includes('legal report')) {
+      await generateCaseReport(lastAnalyzedFile.files[0].name);
       return;
     }
     
@@ -840,13 +1196,15 @@ async function handleTextMessage(text) {
     addMessage(`<p>Yeah, I can read documents. Upload one and I'll tell you what it says.</p>
       <p>Here's what I do:</p>
       <ul>
-        <li>Analyze documents — PDFs, text files, images with text, whatever</li>
+        <li><strong>Read documents</strong> — PDFs (text or scanned), text files, images with OCR</li>
         <li>Tell you if something looks dodgy or has contradictions</li>
+        <li>Generate <strong>legal case reports</strong> for lawyers with document analysis</li>
         <li>Seal them with forensic-grade PDFs (SHA-512, watermarks, QR codes — the full kit)</li>
         <li>Anchor hashes so they're timestamped and tamper-proof</li>
         <li>Explain everything in plain English before I do anything</li>
       </ul>
-      <p>Upload a file and I'll walk you through it. No jargon, no bullshit.</p>`);
+      <p>Upload a file and I'll walk you through it. No jargon, no bullshit.</p>
+      <p><em>Pro tip: Even scanned documents work — I'll run OCR automatically.</em></p>`);
     return;
   }
   

@@ -41,11 +41,20 @@ The system operates under **immutable constitutional rules** enforced by cryptog
 - Explain code, law, or processes step-by-step
 - Keep context across multiple turns
 
-#### File Handling
-1. **Accept uploads** (PDF, images, Word, text, etc.)
-2. **Calculate SHA-512 hash** client-side (browser crypto)
-3. **Return hash + metadata**: `{"ok":true, "sha512":"abc...", "size":12345}`
-4. **Offer actions**: Anchor to blockchain, generate seal PDF
+#### File Handling with OCR
+1. **Accept uploads** (PDF, images, Word, text, scanned documents, etc.)
+2. **Auto-detect document type** and run OCR if needed for scanned/image-based files
+3. **Calculate SHA-512 hash** client-side (browser crypto)
+4. **Extract text content** using PDF.js or Tesseract.js OCR
+5. **Return hash + metadata**: `{"ok":true, "sha512":"abc...", "size":12345, "content":"..."}`
+6. **Offer actions**: Anchor to blockchain, generate seal PDF, create case report
+
+#### Legal Case Reports
+- **Generate structured reports** for lawyers from uploaded legal documents
+- **Auto-extract** case numbers, parties, dates, and key findings
+- **Classify documents** (affidavit, contract, complaint, evidence, etc.)
+- **Export reports** to JSON format for record keeping
+- **Forensic verification** with SHA-512 hashing and timestamps
 
 #### Anchoring & Sealing
 - **"Anchor" button** â†’ Creates blockchain anchor receipt with timestamp
@@ -369,6 +378,7 @@ Justice should be free, accessible, and immutable. This system is not a productâ
 
 - **Chat Design**: See `CHAT_DESIGN.md` for detailed behavioral spec
 - **Implementation**: See `IMPLEMENTATION.md` for setup guide
+- **OCR & Case Reports**: See `OCR_AND_CASE_REPORTS.md` for new features
 - **API Reference**: See `.github/copilot-instructions.md`
 - **Product Spec**: See `functions/PRODUCT_SPEC.MD`
 
