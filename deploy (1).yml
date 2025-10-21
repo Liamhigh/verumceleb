@@ -1,0 +1,41 @@
+name: Deploy Firebase (Hosting + Functions)
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: verum-omnis-founders-gift-v5/verum-omnis-monorepo
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Functions deps
+        run: |
+          cd functions
+          npm ci --no-audit
+
+      - name: Build web (if needed)
+        run: |
+          if [ -f "web/package.json" ]; then
+            cd web && npm ci && npm run build && cd ..
+          fi
+
+      - name: Firebase Deploy (Hosting + Functions)
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          channelId: live
+          projectId: gitverum
+        env:
+          FIREBASE_CLI_EXPERIMENTS: webframeworks
+
