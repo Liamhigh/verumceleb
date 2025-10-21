@@ -246,7 +246,14 @@ function addMessage(content, isUser = false) {
   }
   
   messagesContainer.appendChild(msgDiv);
-  messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  
+  // Auto-scroll to bottom smoothly (with slight delay for rendering)
+  requestAnimationFrame(() => {
+    messagesContainer.scrollTo({
+      top: messagesContainer.scrollHeight,
+      behavior: 'smooth'
+    });
+  });
   
   // Save to history
   conversationHistory.push({ 
