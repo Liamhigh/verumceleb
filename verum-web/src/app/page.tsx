@@ -32,9 +32,20 @@ export default function Home() {
 
       <section id="forensics" className="space-y-4 bg-white dark:bg-slate-800 rounded-xl shadow-lg p-6">
         <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-100">🔍 Forensic PDF Reader</h2>
-        <p className="text-sm text-gray-600 dark:text-gray-400">
-          Client-side text extraction (PDF.js) + optional OCR (Tesseract.js) + SHA-512 hashing
-        </p>
+        <div className="text-sm text-gray-600 dark:text-gray-400 space-y-2">
+          <p>
+            <strong>✅ Client-side document processing:</strong>
+          </p>
+          <ul className="list-disc list-inside ml-2 space-y-1">
+            <li>📖 <strong>Text extraction</strong> using PDF.js (extracts text from native PDF pages)</li>
+            <li>🔍 <strong>OCR</strong> using Tesseract.js (optical character recognition for image-based pages)</li>
+            <li>🔐 <strong>SHA-512 hashing</strong> for document fingerprinting</li>
+            <li>📱 <strong>QR code generation</strong> embedded in sealed PDFs for verification</li>
+          </ul>
+          <p className="text-xs text-blue-600 dark:text-blue-400 mt-2">
+            💡 All processing happens in your browser - no server upload required!
+          </p>
+        </div>
         <PdfReader />
       </section>
 

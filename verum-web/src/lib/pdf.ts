@@ -12,7 +12,7 @@ export async function sha512Hex(buf: ArrayBuffer): Promise<string> {
 export async function extractPdfTextAll(
   buf: ArrayBuffer,
   opts: { ocr?: boolean; onProgress?: (msg: string) => void } = {}
-): Promise<{ text: string; pages: number }> {
+): Promise<{ text: string; pages: number; ocrPagesCount: number }> {
   const pdfjs = await import("pdfjs-dist");
   
   // Set worker source
@@ -39,6 +39,7 @@ export async function extractPdfTextAll(
   }
 
   // OCR for image-based pages
+  let ocrPagesCount = 0;
   if (opts.ocr) {
     const emptyPages = perPage
       .map((t, i) => ({ i, t }))
@@ -46,6 +47,7 @@ export async function extractPdfTextAll(
       .map(({ i }) => i + 1);
 
     if (emptyPages.length > 0) {
+      ocrPagesCount = emptyPages.length;
       opts.onProgress?.(`Running OCR on ${emptyPages.length} image page(s)...`);
       const ocrText = await ocrPages(doc, emptyPages, opts.onProgress);
       for (const { index, text } of ocrText) {
@@ -54,7 +56,7 @@ export async function extractPdfTextAll(
     }
   }
 
-  return { text: perPage.join("\n\n"), pages };
+  return { text: perPage.join("\n\n"), pages, ocrPagesCount };
 }
 
 async function ocrPages(
