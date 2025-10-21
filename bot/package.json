@@ -1,0 +1,14 @@
+{
+  "name": "verum-omnis-bot",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "node handle-comment.js"
+  },
+  "dependencies": {
+    "file-type": "^18.7.0",
+    "pdf-parse": "^1.1.1",
+    "undici": "^6.19.8"
+  }
+}

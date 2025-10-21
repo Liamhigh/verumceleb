@@ -1,0 +1,34 @@
+name: Verum Omnis — Comment Handler
+
+on:
+  issue_comment:
+    types: [created]
+  issues:
+    types: [opened, edited]
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  handle:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install bot deps
+        working-directory: bot
+        run: npm ci
+
+      - name: Run handler
+        working-directory: bot
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          VERUM_CHAIN: ${{ vars.VERUM_CHAIN || 'ethereum' }}
+          VERUM_NETWORK: ${{ vars.VERUM_NETWORK || 'mainnet' }}
+        run: node handle-comment.js
