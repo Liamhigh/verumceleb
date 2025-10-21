@@ -1,7 +1,18 @@
 <!doctype html><html lang="en"><head>
 <meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
 <meta name="description" content="Verum Omnis - Constitutional AI Guardian. Upload documents for forensic analysis, contradiction detection, and tamper-proof sealing with SHA-512 hashing and blockchain anchoring."/>
-<title>Verum Omnis - AI Guardian</title><link rel="stylesheet" href="/assets/app.css"/></head>
+<title>Verum Omnis - AI Guardian</title><link rel="stylesheet" href="/assets/app.css"/>
+
+<!-- PDF.js for client-side PDF text extraction -->
+<script src="https://unpkg.com/pdfjs-dist@4.9.155/build/pdf.min.js"></script>
+<script>
+  // Tell PDF.js where its worker is hosted
+  if (typeof pdfjsLib !== 'undefined') {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = "https://unpkg.com/pdfjs-dist@4.9.155/build/pdf.worker.min.js";
+  }
+</script>
+
+</head>
 <body>
 
 <!-- Header -->
@@ -301,6 +312,31 @@ async function processFiles(files) {
   }
 }
 
+// Extract text from PDF using PDF.js
+async function extractPdfText(arrayBuffer) {
+  if (typeof pdfjsLib === 'undefined') {
+    throw new Error('PDF.js library not loaded');
+  }
+  
+  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+  const numPages = pdf.numPages;
+  
+  let textChunks = [];
+  
+  // Extract text from all pages
+  for (let pageNum = 1; pageNum <= numPages; pageNum++) {
+    const page = await pdf.getPage(pageNum);
+    const textContent = await page.getTextContent();
+    const pageText = textContent.items.map(item => item.str).join(' ');
+    textChunks.push(pageText);
+  }
+  
+  const fullText = textChunks.join('\n\n');
+  
+  // Return text with page count info
+  return fullText || '[PDF contains no extractable text - may be scanned/image-based]';
+}
+
 // NEW: Analyze files with AI assistant instead of auto-hashing
 async function analyzeFilesWithAI(files, userText = '') {
   addMessage(`<p>⏳ Analyzing ${files.length} document(s)...</p>`);
@@ -323,8 +359,17 @@ async function analyzeFilesWithAI(files, userText = '') {
         const content = await file.text();
         info.content = content;
         fileContent += `\n\n--- ${file.name} ---\n${content}`;
-      } else if (file.type.includes('pdf')) {
-        info.content = '[PDF document - content extraction requires server-side processing]';
+      } else if (file.type.includes('pdf') || file.name.toLowerCase().endsWith('.pdf')) {
+        // Extract PDF text using PDF.js
+        try {
+          const arrayBuffer = await file.arrayBuffer();
+          const pdfText = await extractPdfText(arrayBuffer);
+          info.content = pdfText;
+          fileContent += `\n\n--- ${file.name} ---\n${pdfText}`;
+        } catch (e) {
+          console.error('PDF extraction failed:', e);
+          info.content = '[PDF - text extraction failed: ' + e.message + ']';
+        }
       } else {
         info.content = '[Binary file]';
       }
@@ -597,8 +642,9 @@ async function handleTextMessage(text) {
     const file = lastAnalyzedFile.files[0];
     let response = `<p>You uploaded <strong>${file.name}</strong> (${(file.size / 1024).toFixed(1)} KB) `;
     
-    if (lastAnalyzedFile.content && lastAnalyzedFile.content.trim().length > 0) {
-      response += `which is a text-based document. Here's what I can tell you:</p>`;
+    if (lastAnalyzedFile.content && lastAnalyzedFile.content.trim().length > 0 && 
+        !lastAnalyzedFile.content.includes('[PDF contains no extractable text')) {
+      response += `and I've read it. Here's what I found:</p>`;
       
       const content = lastAnalyzedFile.content.toLowerCase();
       
@@ -620,8 +666,17 @@ async function handleTextMessage(text) {
         <p>Content preview (first 300 chars):</p>
         <pre style="background:var(--bg);padding:8px;border-radius:4px;font-size:0.85em;max-height:150px;overflow:auto">${lastAnalyzedFile.content.substring(0, 300)}...</pre>`;
       }
+    } else if (lastAnalyzedFile.content && lastAnalyzedFile.content.includes('[PDF contains no extractable text')) {
+      response += `but it looks like a scanned PDF (image-based). I can't extract text from images yet.</p>
+      <p><strong>What I can still do:</strong></p>
+      <ul>
+        <li>Generate a SHA-512 hash to fingerprint it</li>
+        <li>Create a sealed PDF certificate with watermarks</li>
+        <li>Anchor the hash to blockchain for permanent proof</li>
+      </ul>
+      <p><em>Tell me what type of document it is (e.g., "it's a legal contract") and I can give you better advice. Or just say "seal it" and I'll make it tamper-proof.</em></p>`;
     } else {
-      response += `which is a <strong>PDF or binary file</strong>. I can't read the text inside PDFs directly in your browser yet — need server-side processing for that.</p>
+      response += `but I couldn't extract the text. This might be a scanned/image-based PDF or a binary file.</p>
       <p><strong>But here's what I know:</strong></p>
       <ul>
         <li>Name: ${file.name}</li>
