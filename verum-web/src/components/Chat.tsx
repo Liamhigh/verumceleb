@@ -6,7 +6,23 @@ type Msg = {
   role: "user" | "assistant"; 
   content: string;
   fileInfo?: { name: string; size: number; hash: string };
+  showActions?: boolean;
 };
+
+type QuickAction = {
+  icon: string;
+  label: string;
+  prompt: string;
+};
+
+const QUICK_ACTIONS: QuickAction[] = [
+  { icon: "🔍", label: "Investigate deeper", prompt: "Can you investigate this document more deeply and check for red flags?" },
+  { icon: "📜", label: "Seal", prompt: "Please seal this document with watermark and cryptographic receipt" },
+  { icon: "🔗", label: "Anchor to blockchain", prompt: "Please anchor this document hash to blockchain for permanent proof" },
+  { icon: "⚖️", label: "Compare docs", prompt: "I want to compare this with another document" },
+  { icon: "🧩", label: "Build timeline", prompt: "Help me build a timeline from these documents" },
+  { icon: "💬", label: "Keep explaining", prompt: "Keep explaining what you found" },
+];
 
 export default function Chat() {
   const [msgs, setMsgs] = useState<Msg[]>([]);
@@ -85,6 +101,7 @@ export default function Chat() {
     setLoading(true);
 
     // Mark context as provided after first user message with file
+    const shouldShowActions = uploadedFile && !contextProvided;
     if (uploadedFile && !contextProvided) {
       setContextProvided(true);
     }
@@ -130,7 +147,13 @@ export default function Chat() {
                 setMsgs(prev => {
                   const copy = [...prev];
                   const last = copy[copy.length - 1];
-                  if (last?.role === "assistant") last.content = acc;
+                  if (last?.role === "assistant") {
+                    last.content = acc;
+                    // Show actions after analysis is complete if this was the context response
+                    if (shouldShowActions) {
+                      last.showActions = true;
+                    }
+                  }
                   return copy;
                 });
               }
@@ -152,6 +175,10 @@ export default function Chat() {
     } finally {
       setLoading(false);
     }
+  }
+
+  function handleQuickAction(action: QuickAction) {
+    setInput(action.prompt);
   }
 
   return (
@@ -177,6 +204,20 @@ export default function Chat() {
                 </div>
               )}
             </div>
+            {m.showActions && m.role === "assistant" && !loading && (
+              <div className="mt-2 flex flex-wrap gap-2 justify-start">
+                {QUICK_ACTIONS.map((action, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => handleQuickAction(action)}
+                    className="px-3 py-1.5 text-xs bg-white dark:bg-slate-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-700 transition text-gray-700 dark:text-gray-300"
+                    title={action.prompt}
+                  >
+                    {action.icon} {action.label}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         ))}
       </div>
