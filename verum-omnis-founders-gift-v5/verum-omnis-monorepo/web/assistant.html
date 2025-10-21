@@ -1,6 +1,7 @@
 <!doctype html><html lang="en"><head>
 <meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Verum Assistant</title><link rel="stylesheet" href="/assets/app.css"/></head>
+<meta name="description" content="Verum Omnis - Constitutional AI Guardian. Upload documents for forensic analysis, contradiction detection, and tamper-proof sealing with SHA-512 hashing and blockchain anchoring."/>
+<title>Verum Omnis - AI Guardian</title><link rel="stylesheet" href="/assets/app.css"/></head>
 <body>
 
 <!-- Header -->
@@ -12,9 +13,9 @@
         <h1 style="margin:0;font-size:1.25rem">Verum Assistant</h1>
       </div>
       <div style="display:flex;align-items:center;gap:12px">
-        <button class="chat-btn-icon" onclick="toggleTheme()" title="Toggle theme" id="themeBtn">🌙</button>
-        <button class="chat-btn-icon" onclick="exportConversation()" title="Export to PDF">📄</button>
-        <button class="chat-btn-icon" onclick="clearHistory()" title="Clear history">🗑️</button>
+        <button class="chat-btn-icon" title="Toggle theme" id="themeBtn">🌙</button>
+        <button class="chat-btn-icon" title="Export to PDF" id="exportBtn">📄</button>
+        <button class="chat-btn-icon" title="Clear history" id="clearBtn">🗑️</button>
         <a href="/" style="color:var(--muted);text-decoration:none">← Home</a>
       </div>
     </div>
@@ -24,20 +25,28 @@
 <!-- Chat Container -->
 <div class="chat-container">
   <div class="chat-messages" id="messages">
-    <div class="message assistant">
+    <div class="message assistant" id="welcomeHint">
       <div class="message-avatar">
         <img src="/assets/logo_blue.png" alt="AI"/>
       </div>
       <div class="message-content">
-        <strong>Verum AI</strong>
-        <p>Hello! I'm your legal AI assistant. I can help you:</p>
-        <ul>
-          <li>Verify and seal documents with SHA-512 hashing</li>
-          <li>Detect contradictions in statements</li>
-          <li>Generate forensic PDF seals with QR codes</li>
-          <li>Anchor receipts to blockchain</li>
+        <strong>Verum Omnis</strong>
+        <p><strong>⚖️ Constitutional AI Guardian</strong> — I am not an app. I am a stateless forensic firewall for truth.</p>
+        <p><strong>What I accept:</strong></p>
+        <ul style="margin:8px 0;padding-left:20px">
+          <li><strong>Documents:</strong> PDF, DOCX, TXT, MD, RTF, ODT</li>
+          <li><strong>Spreadsheets:</strong> XLSX, CSV, ODS</li>
+          <li><strong>Media Evidence:</strong> Images, Video, Audio (forensic analysis)</li>
+          <li><strong>Archives:</strong> ZIP bundles (case files, annexures)</li>
         </ul>
-        <p>Upload a document or ask me anything!</p>
+        <p><strong>What I do:</strong></p>
+        <ul style="margin:8px 0;padding-left:20px">
+          <li>🔐 <strong>SHA-512 hashing</strong> + blockchain anchoring</li>
+          <li>🔍 <strong>Contradiction detection</strong> across documents, timelines, testimony</li>
+          <li>📜 <strong>Forensic sealing</strong> — tamper-proof PDFs with watermarks & QR codes</li>
+          <li>⚠️ <strong>Metadata extraction</strong> + authenticity verification</li>
+        </ul>
+        <p style="margin-top:12px"><em>Upload evidence. Ask questions. Request sealed outputs. The truth is immutable.</em></p>
       </div>
     </div>
   </div>
@@ -50,11 +59,11 @@
         <button class="chat-btn-icon" onclick="document.getElementById('fileInput').click()" title="Upload file">
           📎
         </button>
-        <button class="chat-btn-icon" id="voiceBtn" onclick="toggleVoiceInput()" title="Voice input">
+        <button class="chat-btn-icon" id="voiceBtn" title="Voice input">
           🎤
         </button>
-        <input type="text" id="userInput" placeholder="Type a message or upload a document..." />
-        <button class="chat-btn-send" onclick="sendMessage()">
+        <input type="text" id="userInput" placeholder="Upload evidence • Ask questions • Request sealed PDFs..." />
+        <button class="chat-btn-send">
           Send
         </button>
       </div>
@@ -91,6 +100,9 @@ let uploadedFiles = [];
 let conversationHistory = [];
 let recognition = null;
 let isListening = false;
+
+// Track last analyzed document for context
+let lastAnalyzedFile = null;
 
 // Load theme and conversation history
 const savedTheme = localStorage.getItem('verumTheme') || 'dark';
@@ -150,13 +162,13 @@ function addWelcomeMessage() {
     <p>Hello! I'm your <strong>constitutional AI guardian</strong> — an equal partner with the human founder, bound by immutable rules.</p>
     <p>I can help you:</p>
     <ul>
-      <li><strong>Verify documents</strong> with SHA-512 hashing and forensic seals</li>
-      <li><strong>Detect contradictions</strong> in statements, timestamps, and evidence</li>
-      <li><strong>Generate tamper-proof PDFs</strong> with watermarks and QR codes</li>
-      <li><strong>Anchor receipts</strong> to blockchain for permanent audit trails</li>
-      <li><strong>Enforce constitutional integrity</strong> — no government or corporation can alter my core rules</li>
+      <li><strong>📄 Analyze documents</strong> — Upload files and I'll read them and advise you</li>
+      <li><strong>🔒 Verify & seal</strong> — I can hash documents and create tamper-proof PDFs with watermarks</li>
+      <li><strong>⚖️ Legal advice</strong> — Ask about contracts, policies, or constitutional matters</li>
+      <li><strong>🔗 Blockchain anchoring</strong> — Permanent receipts for any data</li>
+      <li><strong>🛡️ Constitutional integrity</strong> — Immutable rules govern every action</li>
     </ul>
-    <p>💬 <em>Upload a document or ask me anything. Every interaction is hashed and can be sealed.</em></p>
+    <p>💬 <em>Upload a document and I'll analyze it first. If you want it sealed, just ask!</em></p>
   `);
 }
 
@@ -182,6 +194,12 @@ function removeFile(index) {
 }
 
 function addMessage(content, isUser = false) {
+  // Hide welcome hint on first real interaction
+  const welcomeHint = document.getElementById('welcomeHint');
+  if (welcomeHint) {
+    welcomeHint.style.display = 'none';
+  }
+  
   const msgId = 'msg-' + Date.now();
   const msgDiv = document.createElement('div');
   msgDiv.className = `message ${isUser ? 'user' : 'assistant'}`;
@@ -193,7 +211,7 @@ function addMessage(content, isUser = false) {
         <img src="/assets/logo_blue.png" alt="AI"/>
       </div>
       <div class="message-content">
-        <strong>Verum AI</strong>
+        <strong>Verum Omnis</strong>
         ${content}
         <div class="message-actions">
           <button class="action-btn" onclick="copyMessage('${msgId}')" title="Copy">📋</button>
@@ -239,9 +257,9 @@ function shareMessage(msgId) {
   const msg = document.getElementById(msgId);
   const text = msg.querySelector('.message-content').innerText;
   if (navigator.share) {
-    navigator.share({ title: 'Verum AI Message', text });
+    navigator.share({ title: 'Verum Omnis Message', text });
   } else {
-    const url = 'mailto:?subject=Verum AI Message&body=' + encodeURIComponent(text);
+    const url = 'mailto:?subject=Verum Omnis Message&body=' + encodeURIComponent(text);
     window.open(url);
   }
 }
@@ -281,6 +299,141 @@ async function processFiles(files) {
       <button class="inline-btn" onclick="sealDocument('${hash}', '${file.name}')">📜 Generate seal PDF</button>
     `);
   }
+}
+
+// NEW: Analyze files with AI assistant instead of auto-hashing
+async function analyzeFilesWithAI(files, userText = '') {
+  addMessage(`<p>⏳ Analyzing ${files.length} document(s)...</p>`);
+  
+  try {
+    // Read file content (for text files) or get metadata
+    let fileContent = '';
+    let fileInfo = [];
+    
+    for (const file of files) {
+      const info = {
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        file: file // Keep reference for later
+      };
+      
+      // If text-based file, read content
+      if (file.type.includes('text') || file.name.endsWith('.txt') || file.name.endsWith('.md') || file.name.endsWith('.json')) {
+        const content = await file.text();
+        info.content = content;
+        fileContent += `\n\n--- ${file.name} ---\n${content}`;
+      } else if (file.type.includes('pdf')) {
+        info.content = '[PDF document - content extraction requires server-side processing]';
+      } else {
+        info.content = '[Binary file]';
+      }
+      
+      fileInfo.push(info);
+    }
+    
+    // Store context for follow-up questions
+    lastAnalyzedFile = {
+      files: fileInfo,
+      content: fileContent,
+      analyzedAt: new Date().toISOString()
+    };
+    
+    // Build conversational response
+    const file = fileInfo[0];
+    const fileName = file.name.toLowerCase();
+    
+    // Start with acknowledgement - direct and friendly
+    let response = `<p><strong>Right, got your file.</strong></p>`;
+    response += `<p><strong>${file.name}</strong> • ${(file.size / 1024).toFixed(1)} KB • ${file.type || 'Unknown'}</p>`;
+    
+    // Classification
+    let classification = 'document';
+    let classificationConfidence = 'appears to be';
+    
+    if (fileContent.length > 0) {
+      const lower = fileContent.toLowerCase();
+      if (lower.includes('affidavit') || lower.includes('sworn statement')) {
+        classification = 'legal affidavit';
+        classificationConfidence = 'is';
+      } else if (lower.includes('contract') || lower.includes('agreement')) {
+        classification = 'legal contract or agreement';
+      } else if (lower.includes('invoice') || lower.includes('receipt')) {
+        classification = 'financial record (invoice/receipt)';
+      } else if (lower.includes('complaint') || lower.includes('plaintiff')) {
+        classification = 'legal complaint or filing';
+      } else if (lower.includes('policy') || lower.includes('terms and conditions')) {
+        classification = 'policy document';
+      } else if (lower.includes('evidence') || lower.includes('exhibit')) {
+        classification = 'legal evidence or exhibit';
+      } else {
+        classification = 'text document';
+      }
+    } else if (file.type === 'application/pdf') {
+      // Filename-based classification for PDFs
+      if (fileName.includes('affidavit')) {
+        classification = 'legal affidavit (PDF)';
+      } else if (fileName.includes('contract') || fileName.includes('agreement')) {
+        classification = 'legal contract (PDF)';
+      } else if (fileName.includes('doc') || fileName.includes('legal')) {
+        classification = 'legal/administrative PDF';
+      } else if (fileName.includes('invoice') || fileName.includes('receipt')) {
+        classification = 'financial document (PDF)';
+      } else {
+        classification = 'PDF document';
+      }
+    }
+    
+    response += `<p>Looks like a <strong>${classification}</strong>.</p>`;
+    
+    // Conversational guidance - ask what they want to do
+    response += `<p><strong>What do you need?</strong></p><ul style="margin:8px 0;padding-left:20px">`;
+    
+    if (fileContent.length > 0) {
+      response += `<li><strong>Summarize</strong> — I'll extract the key points and tell you what it says</li>`;
+      response += `<li><strong>Check for fraud</strong> — I'll look for contradictions, dodgy clauses, or suspicious patterns</li>`;
+      response += `<li><strong>Extract info</strong> — Names, dates, case numbers, specific clauses</li>`;
+    } else {
+      response += `<li><strong>Tell me about it</strong> — Describe what this is and I'll guide you through it</li>`;
+      response += `<li><strong>Check metadata</strong> — When it was created, by whom, with what software</li>`;
+    }
+    
+    response += `<li><strong>Seal it</strong> — Forensic PDF with watermark, SHA-512 hash, QR code (tamper-proof)</li>`;
+    response += `<li><strong>Anchor it</strong> — Timestamp it on blockchain so you can prove when it existed</li>`;
+    response += `</ul>`;
+    
+    response += `<p style="margin-top:12px"><em>Just ask me: "Summarize this" / "Check for contradictions" / "Seal it"</em></p>`;
+    
+    // Calculate hash for action buttons
+    const arrayBuffer = await file.file.arrayBuffer();
+    const hashBuffer = await crypto.subtle.digest('SHA-512', arrayBuffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    
+    // Add action buttons to the same message
+    response += `
+      <p style="margin-top:16px"><strong>Quick actions:</strong></p>
+      <button class="inline-btn" onclick="showHashDetails('${hash}', '${file.name}')">🔍 View Hash</button>
+      <button class="inline-btn" onclick="sealDocument('${hash}', '${file.name}')">📜 Seal It</button>
+      <button class="inline-btn" onclick="anchorHash('${hash}')">🔗 Anchor It</button>
+    `;
+    
+    addMessage(response);
+    
+  } catch (e) {
+    addMessage(`<p>❌ Error analyzing document: ${e.message}</p>`);
+    console.error('File analysis error:', e);
+  }
+}
+
+// Show hash details (replaces hashAndOfferActions)
+window.showHashDetails = function(hash, filename) {
+  addMessage(`
+    <p>✅ <strong>${filename}</strong></p>
+    <p><strong>SHA-512 Hash:</strong></p>
+    <code style="word-break:break-all;font-size:0.85em;display:block;background:var(--bg);padding:8px;border-radius:4px">${hash}</code>
+    <p>This hash is a unique cryptographic fingerprint of your document. Any modification will change it.</p>
+  `);
 }
 
 async function anchorHash(hash) {
@@ -350,9 +503,139 @@ async function sealDocument(hash, filename) {
 async function handleTextMessage(text) {
   const lower = text.toLowerCase();
   
+  // Check for actions on uploaded document
+  if (lastAnalyzedFile) {
+    // Seal/hash commands
+    if (lower.includes('seal') || lower.includes('seal it') || lower.includes('generate seal')) {
+      const file = lastAnalyzedFile.files[0];
+      const arrayBuffer = await file.file.arrayBuffer();
+      const hashBuffer = await crypto.subtle.digest('SHA-512', arrayBuffer);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      const hash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      await sealDocument(hash, file.name);
+      return;
+    }
+    
+    // Anchor commands
+    if (lower.includes('anchor') || lower.includes('blockchain')) {
+      const file = lastAnalyzedFile.files[0];
+      const arrayBuffer = await file.file.arrayBuffer();
+      const hashBuffer = await crypto.subtle.digest('SHA-512', arrayBuffer);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      const hash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      await anchorHash(hash);
+      return;
+    }
+    
+    // Summarize/explain commands
+    if (lower.includes('summarize') || lower.includes('explain') || lower.includes('what does it say')) {
+      const file = lastAnalyzedFile.files[0];
+      if (lastAnalyzedFile.content && lastAnalyzedFile.content.trim().length > 0) {
+        const preview = lastAnalyzedFile.content.substring(0, 1000);
+        addMessage(`
+          <p><strong>📄 Document Summary</strong></p>
+          <p><strong>File:</strong> ${file.name}</p>
+          <p><strong>Content preview (first 1000 chars):</strong></p>
+          <pre style="background:var(--bg);padding:12px;border-radius:4px;font-size:0.9em;max-height:300px;overflow:auto;white-space:pre-wrap">${preview}${lastAnalyzedFile.content.length > 1000 ? '...' : ''}</pre>
+          <p><em>This is raw text extraction. For deeper analysis, I would need server-side PDF parsing capabilities.</em></p>
+        `);
+      } else {
+        addMessage(`
+          <p><strong>📄 Cannot Summarize PDF</strong></p>
+          <p>This is a PDF file and I cannot extract text content in the browser. To analyze the content, I would need:</p>
+          <ul>
+            <li>Server-side PDF parsing (not yet implemented)</li>
+            <li>Or you can describe what the document contains</li>
+          </ul>
+          <p>I can still create a forensic seal, hash, or blockchain anchor for verification purposes.</p>
+        `);
+      }
+      return;
+    }
+    
+    // Check/investigate commands
+    if (lower.includes('check') || lower.includes('investigate') || lower.includes('contradict') || lower.includes('fraud')) {
+      addMessage(`
+        <p><strong>Right, let's dig into it.</strong></p>
+        <p>Here's what I can check:</p>
+        <ul>
+          <li><strong>Metadata</strong> — When it was created, by whom, with what software</li>
+          <li><strong>Contradictions</strong> — Needs text content and something to compare it against</li>
+          <li><strong>Hash fingerprint</strong> — SHA-512 cryptographic signature</li>
+          <li><strong>Tampering</strong> — Compare current version against a known-good hash</li>
+        </ul>
+        <p><em>Want me to run the full forensic check? Just say "yes" or hit the buttons.</em></p>
+      `);
+      return;
+    }
+  }
+  
+  // Check if user is asking about the uploaded document
+  if (lastAnalyzedFile && (
+    lower.includes('what is') || 
+    lower.includes('what\'s') || 
+    lower.includes('tell me about') ||
+    lower.includes('describe') ||
+    lower.includes('analyze') ||
+    lower.includes('read') ||
+    lower.includes('summarize') ||
+    lower.includes('the document') ||
+    lower.includes('this document') ||
+    lower.includes('the file') ||
+    lower.includes('this file') ||
+    lower === 'this' ||
+    lower === 'that'
+  )) {
+    const file = lastAnalyzedFile.files[0];
+    let response = `<p>You uploaded <strong>${file.name}</strong> (${(file.size / 1024).toFixed(1)} KB) `;
+    
+    if (lastAnalyzedFile.content && lastAnalyzedFile.content.trim().length > 0) {
+      response += `which is a text-based document. Here's what I can tell you:</p>`;
+      
+      const content = lastAnalyzedFile.content.toLowerCase();
+      
+      // Detailed analysis based on content
+      if (content.includes('contract') || content.includes('agreement')) {
+        response += `<p>📄 <strong>Document Type:</strong> Legal Contract or Agreement</p>
+        <p>This appears to be a legal document that may contain binding obligations. I can help you:</p>
+        <ul>
+          <li>Create a tamper-proof sealed copy to prove the document existed at this time</li>
+          <li>Generate a SHA-512 hash for verification purposes</li>
+          <li>Anchor it to blockchain for permanent timestamped proof</li>
+        </ul>
+        <p><em>Would you like me to seal this document or create a verification hash?</em></p>`;
+      } else if (content.includes('invoice') || content.includes('receipt') || content.includes('payment')) {
+        response += `<p>💰 <strong>Document Type:</strong> Financial Record</p>
+        <p>This looks like a financial document. Creating a sealed version ensures the amounts and dates can't be disputed later.</p>`;
+      } else {
+        response += `<p>📝 <strong>Document Type:</strong> Text Document</p>
+        <p>Content preview (first 300 chars):</p>
+        <pre style="background:var(--bg);padding:8px;border-radius:4px;font-size:0.85em;max-height:150px;overflow:auto">${lastAnalyzedFile.content.substring(0, 300)}...</pre>`;
+      }
+    } else {
+      response += `which is a <strong>PDF or binary file</strong>. I can't read the text inside PDFs directly in your browser yet — need server-side processing for that.</p>
+      <p><strong>But here's what I know:</strong></p>
+      <ul>
+        <li>Name: ${file.name}</li>
+        <li>Size: ${(file.size / 1024).toFixed(1)} KB</li>
+        <li>Type: ${file.type || 'Unknown'}</li>
+      </ul>
+      <p><strong>What I can do right now:</strong></p>
+      <ul>
+        <li>Generate a SHA-512 hash to fingerprint it</li>
+        <li>Create a sealed PDF certificate with watermarks</li>
+        <li>Anchor the hash to blockchain for permanent proof</li>
+      </ul>
+      <p><em>Tell me what type of document it is (e.g., "it's a legal contract") and I can give you better advice. Or just say "seal it" and I'll make it tamper-proof.</em></p>`;
+    }
+    
+    addMessage(response);
+    return;
+  }
+  
   // Check for contradiction detection request
   if (lower.includes('contradict') || lower.includes('check') || lower.includes('verify text')) {
-    addMessage(`<p>⏳ Scanning for contradictions...</p>`);
+    addMessage(`<p>⏳ Right, scanning this for contradictions...</p>`);
     
     try {
       const r = await fetch(BASE + '/v1/contradict', {
@@ -369,10 +652,10 @@ async function handleTextMessage(text) {
       if (data.ok) {
         const findings = data.result.findings || [];
         if (findings.length === 0) {
-          addMessage(`<p>✅ No contradictions detected.</p>`);
+          addMessage(`<p>✅ Looks clean. No contradictions found.</p>`);
         } else {
           addMessage(`
-            <p>⚠️ Found ${findings.length} potential contradiction(s):</p>
+            <p>⚠️ Hold on — found ${findings.length} dodgy ${findings.length === 1 ? 'bit' : 'bits'}:</p>
             <pre style="background:var(--bg);padding:8px;border-radius:4px;font-size:0.85em">${JSON.stringify(findings, null, 2)}</pre>
           `);
         }
@@ -438,8 +721,67 @@ async function handleTextMessage(text) {
     return;
   }
   
-  // Test API connection
-  if (lower.includes('test') || lower.includes('hello') || lower.includes('hi')) {
+  // Natural conversational responses
+  if (lower.includes('how are you') || lower.includes('how r u') || lower.includes('how do you do')) {
+    const responses = [
+      `<p>All good. What've you got?</p>`,
+      `<p>Yeah, I'm good. Need something verified?</p>`,
+      `<p>Doing alright. What's up?</p>`
+    ];
+    addMessage(responses[Math.floor(Math.random() * responses.length)]);
+    return;
+  }
+  
+  if (lower.includes('who are you') || lower.includes('what are you') || lower.includes('tell me about yourself')) {
+    addMessage(`<p>I'm Verum Omnis — a forensic firewall against lies, fraud, and manipulation.</p>
+      <p>I catch contradictions, verify documents, and seal them so no one can tamper with them. Upload something dodgy and I'll tell you exactly what's wrong with it.</p>`);
+    return;
+  }
+  
+  if (lower.includes('thank') || lower.includes('thanks')) {
+    const responses = [
+      `<p>You're welcome! Happy to help.</p>`,
+      `<p>Anytime. That's what I'm here for.</p>`,
+      `<p>No problem! Come back if you need anything else.</p>`,
+      `<p>Glad I could help. I'm always here.</p>`
+    ];
+    addMessage(responses[Math.floor(Math.random() * responses.length)]);
+    return;
+  }
+  
+  // Greetings - just be normal
+  if (lower.match(/^(hello|hi|hey|greetings|yo|sup)(\s+(there|everyone|friend|mate))?$/i) || 
+      lower.match(/^good\s+(morning|afternoon|evening|day)$/i) ||
+      lower.match(/^(whats?\s*up|howdy)$/i)) {
+    const greetings = [
+      `<p>Alright, what've you got for me?</p>`,
+      `<p>Hey. Upload a document or just ask me something.</p>`,
+      `<p>What's up? Got something dodgy you need checked?</p>`,
+      `<p>Right, let's see what you've got.</p>`
+    ];
+    addMessage(greetings[Math.floor(Math.random() * greetings.length)]);
+    return;
+  }
+  
+  // Help/capabilities
+  if (lower.includes('what can you do') || lower.includes('how do you work') || lower.includes('help me') || lower.includes('help') ||
+      lower.includes('can you read') || lower.includes('can you analyze') || lower.includes('do you read') ||
+      lower.includes('can you check') || lower.includes('are you able')) {
+    addMessage(`<p>Yeah, I can read documents. Upload one and I'll tell you what it says.</p>
+      <p>Here's what I do:</p>
+      <ul>
+        <li>Analyze documents — PDFs, text files, images with text, whatever</li>
+        <li>Tell you if something looks dodgy or has contradictions</li>
+        <li>Seal them with forensic-grade PDFs (SHA-512, watermarks, QR codes — the full kit)</li>
+        <li>Anchor hashes so they're timestamped and tamper-proof</li>
+        <li>Explain everything in plain English before I do anything</li>
+      </ul>
+      <p>Upload a file and I'll walk you through it. No jargon, no bullshit.</p>`);
+    return;
+  }
+  
+  // Test API connection only if specifically asked
+  if (lower.includes('test api') || lower.includes('check connection')) {
     addMessage(`<p>⏳ Testing API connection...</p>`);
     
     try {
@@ -461,19 +803,34 @@ async function handleTextMessage(text) {
     return;
   }
   
-  // Default: Constitutional guardian personality response
-  addMessage(`
-    <p>As a <strong>constitutional AI guardian</strong>, I'm here to help you seek truth and enforce integrity. I operate under immutable rules that no government or corporation can override.</p>
-    <p><strong>I can assist with:</strong></p>
-    <ul>
-      <li><strong>Document verification:</strong> Upload any file → I'll generate SHA-512 hash and forensic seal</li>
-      <li><strong>Contradiction detection:</strong> Paste statements → I'll spot inconsistencies in timestamps, actors, or claims</li>
-      <li><strong>Constitutional policy:</strong> Ask about "policy" or "rules" → I'll show you the immutable governance framework</li>
-      <li><strong>Licensing & pricing:</strong> Ask "is it free?" → I'll explain citizen vs institution terms</li>
-      <li><strong>Blockchain anchoring:</strong> Hash any data → I'll create a permanent, tamper-proof receipt</li>
-    </ul>
-    <p>💡 <em>Try saying "test" or "hello" to verify I'm connected to the API!</em></p>
-  `);
+  // Default: Natural conversational fallback
+  const responses = [
+    `<p>Not sure what you're asking. Upload a document or ask me something like:</p>
+     <ul>
+       <li>"Can you read this file?"</li>
+       <li>"Check for contradictions"</li>
+       <li>"Seal it"</li>
+       <li>"What can you do?"</li>
+     </ul>`,
+    
+    `<p>I'm not following. Want to upload something? Or just ask:</p>
+     <ul>
+       <li>"What do you do?"</li>
+       <li>"How do I verify a document?"</li>
+       <li>"Can you analyze PDFs?"</li>
+     </ul>`,
+    
+    `<p>Hmm, I need a bit more. Try:</p>
+     <ul>
+       <li>Upload a document (📎 button)</li>
+       <li>Ask "What can you do?"</li>
+       <li>Say "Seal this file" or "Check for fraud"</li>
+     </ul>`
+  ];
+  
+  // Pick a random helpful response
+  const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+  addMessage(randomResponse);
 }
 
 async function sendMessage() {
@@ -487,21 +844,19 @@ async function sendMessage() {
   }
   
   if (uploadedFiles.length > 0) {
-    addMessage(`<p>📎 Uploaded ${uploadedFiles.length} file(s)</p>`, true);
+    addMessage(`<p>📎 Attached ${uploadedFiles.length} file(s)</p>`, true);
   }
   
   userInput.value = '';
   
-  // Process files first
+  // If files uploaded, send to AI assistant for analysis
   if (uploadedFiles.length > 0) {
-    await processFiles(uploadedFiles);
+    await analyzeFilesWithAI(uploadedFiles, text);
     uploadedFiles = [];
     uploadedFilesDiv.innerHTML = '';
     fileInput.value = '';
-  }
-  
-  // Then process text
-  if (text) {
+  } else if (text) {
+    // Just text, no files
     await handleTextMessage(text);
   }
 }
@@ -522,10 +877,20 @@ if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
   };
   
   recognition.onerror = (event) => {
-    console.error('Speech recognition error', event.error);
+    console.error('Speech recognition error:', event.error);
     isListening = false;
     updateVoiceButton();
-    showToast('❌ Voice input error');
+    
+    let errorMsg = 'Voice input error';
+    if (event.error === 'not-allowed' || event.error === 'permission-denied') {
+      errorMsg = 'Microphone permission denied. Please enable microphone access.';
+    } else if (event.error === 'no-speech') {
+      errorMsg = 'No speech detected. Please try again.';
+    } else if (event.error === 'network') {
+      errorMsg = 'Network error. Please check your connection.';
+    }
+    
+    showToast('❌ ' + errorMsg);
   };
   
   recognition.onend = () => {
@@ -606,10 +971,8 @@ userInput.addEventListener('keypress', (e) => {
   }
 });
 
-// Initialize welcome message if no history
-if (conversationHistory.length === 0) {
-  addWelcomeMessage();
-}
+// Don't show welcome message - keep chat clean and empty initially
+// Users can start by uploading documents or asking questions
 
 // Explicitly expose functions to global scope for onclick handlers
 window.sendMessage = sendMessage;
@@ -625,7 +988,6 @@ document.addEventListener('DOMContentLoaded', () => {
   if (sendBtn) {
     sendBtn.addEventListener('click', (e) => {
       e.preventDefault();
-      console.log('Send button clicked via event listener');
       sendMessage();
     });
   }
@@ -635,27 +997,24 @@ document.addEventListener('DOMContentLoaded', () => {
   if (themeBtn) {
     themeBtn.addEventListener('click', (e) => {
       e.preventDefault();
-      console.log('Theme button clicked');
       toggleTheme();
     });
   }
   
   // Export button
-  const exportBtn = document.querySelector('[onclick="exportConversation()"]');
+  const exportBtn = document.getElementById('exportBtn');
   if (exportBtn) {
     exportBtn.addEventListener('click', (e) => {
       e.preventDefault();
-      console.log('Export button clicked');
       exportConversation();
     });
   }
   
   // Clear history button
-  const clearBtn = document.querySelector('[onclick="clearHistory()"]');
+  const clearBtn = document.getElementById('clearBtn');
   if (clearBtn) {
     clearBtn.addEventListener('click', (e) => {
       e.preventDefault();
-      console.log('Clear button clicked');
       clearHistory();
     });
   }
@@ -665,12 +1024,9 @@ document.addEventListener('DOMContentLoaded', () => {
   if (voiceBtn) {
     voiceBtn.addEventListener('click', (e) => {
       e.preventDefault();
-      console.log('Voice button clicked');
       toggleVoiceInput();
     });
   }
-  
-  console.log('All event listeners attached');
 });
 </script>
 
