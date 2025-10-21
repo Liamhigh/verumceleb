@@ -105,6 +105,24 @@ a{color:#9cc1ff;text-decoration:none}a:hover{text-decoration:underline}
   .hero-subtitle{font-size:1.25rem}
   .section-title{font-size:1.75rem}
   .mission-quote{font-size:1.5rem}
-  .chat-messages{padding:16px}
-  .message{max-width:100%}
+  .chat-messages{padding:16px 8px}
+  .message{max-width:100%;font-size:0.95rem}
+  .message-avatar{width:32px;height:32px}
+  .message-content{padding:12px}
+  .chat-input-container{padding:12px 0;position:sticky;bottom:0}
+  .chat-input{flex-wrap:nowrap;overflow:visible}
+  .chat-input input[type="text"]{font-size:16px;min-width:0;padding:10px 12px}
+  .chat-btn-icon{width:40px;height:40px;flex-shrink:0}
+  .chat-btn-send{padding:10px 16px;font-size:0.9rem;flex-shrink:0;white-space:nowrap}
+  .chat-header{padding:12px 0}
+  .container{padding:12px}
+  .hero-cta{flex-direction:column;align-items:stretch;max-width:300px;margin:0 auto}
+  .btn{text-align:center}
+}
+
+@media(max-width:480px){
+  .chat-input{gap:4px}
+  .chat-btn-send{padding:10px 12px;font-size:0.85rem}
+  .message-content{font-size:0.9rem}
+  .inline-btn{font-size:0.85rem;padding:6px 12px}
 }

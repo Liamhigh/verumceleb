@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Test onclick</title>
+</head>
+<body>
+  <button onclick="testFunction()">Click Me</button>
+  <div id="output"></div>
+  <script>
+    console.log('Script loaded');
+    function testFunction() {
+      console.log('testFunction called');
+      document.getElementById('output').textContent = 'Button clicked at ' + new Date().toLocaleTimeString();
+      alert('Button works!');
+    }
+    console.log('testFunction defined:', typeof testFunction);
+  </script>
+</body>
+</html>

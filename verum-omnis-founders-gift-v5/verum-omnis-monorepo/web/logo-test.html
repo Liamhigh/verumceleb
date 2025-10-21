@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Logo Test</title>
+  <style>
+    body { background: #1a1a2e; color: white; font-family: sans-serif; padding: 40px; text-align: center; }
+    img { margin: 20px; border: 2px solid #00ff88; }
+    .test-section { margin: 40px 0; padding: 20px; background: rgba(255,255,255,0.1); border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <h1>🧪 Logo Display Test</h1>
+  
+  <div class="test-section">
+    <h2>Logo White (Hero Logo)</h2>
+    <img src="/assets/logo_white.png" alt="Logo White" style="max-width:300px">
+    <p>Size on disk: 1.3MB | Dimensions: 1024x1024px</p>
+  </div>
+
+  <div class="test-section">
+    <h2>All Logos</h2>
+    <div>
+      <img src="/assets/logo.png" alt="Main Logo" style="max-width:200px">
+      <img src="/assets/logo_black.png" alt="Black Logo" style="max-width:200px">
+      <img src="/assets/logo_blue.png" alt="Blue Logo" style="max-width:200px">
+    </div>
+    <div>
+      <img src="/assets/logo1.png" alt="Logo 1" style="max-width:200px">
+      <img src="/assets/logo2.png" alt="Logo 2" style="max-width:200px">
+      <img src="/assets/logo3.png" alt="Logo 3" style="max-width:200px">
+    </div>
+  </div>
+
+  <div class="test-section">
+    <h2>Image Load Test</h2>
+    <p id="status">Testing...</p>
+    <script>
+      const img = new Image();
+      img.onload = () => document.getElementById('status').innerHTML = '✅ Images are loading correctly!';
+      img.onerror = () => document.getElementById('status').innerHTML = '❌ Failed to load image';
+      img.src = '/assets/logo_white.png?' + Date.now();
+    </script>
+  </div>
+
+  <p><a href="/" style="color:#00ff88">← Back to Home</a></p>
+</body>
+</html>

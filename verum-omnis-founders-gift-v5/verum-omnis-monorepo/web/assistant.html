@@ -64,23 +64,22 @@
 </div>
 
 <script>
-// Dev/prod API base auto-detect: uses local functions server during development
-(function(){
-  const PROJECT = 'verumdone'; // <--- set to your Firebase project id or override via env
-  const isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
-  const devBase = `http://127.0.0.1:5001/${PROJECT}/us-central1/api`;
-  const prodBase = location.origin + '/api';
-  window.VO_API_BASE = isLocal ? devBase : prodBase;
-  // Add a small non-blocking banner when in local dev so devs know the API target
-  if (isLocal) {
-    document.addEventListener('DOMContentLoaded', () => {
-      const b = document.createElement('div');
-      b.style.cssText = 'position:fixed;bottom:8px;right:8px;background:#111;border:1px solid #333;color:#eee;padding:6px 10px;border-radius:8px;font:12px/1.2 system-ui;z-index:9999;opacity:.9';
-      b.textContent = 'VO DEV API: ' + window.VO_API_BASE;
-      document.body.appendChild(b);
-    });
-  }
-})();
+// Use the direct Cloud Function URL since hosting rewrite isn't working
+const PROJECT = 'verumdone';
+const isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+const devBase = `http://127.0.0.1:5001/${PROJECT}/us-central1/api`;
+const prodBase = `https://us-central1-${PROJECT}.cloudfunctions.net/api`;
+window.VO_API_BASE = isLocal ? devBase : prodBase;
+
+// Dev banner for local development
+if (isLocal) {
+  document.addEventListener('DOMContentLoaded', () => {
+    const b = document.createElement('div');
+    b.style.cssText = 'position:fixed;bottom:8px;right:8px;background:#111;border:1px solid #333;color:#eee;padding:6px 10px;border-radius:8px;font:12px/1.2 system-ui;z-index:9999;opacity:.9';
+    b.textContent = 'VO DEV API: ' + window.VO_API_BASE;
+    document.body.appendChild(b);
+  });
+}
 
 // Backwards compatible alias
 const BASE = window.VO_API_BASE;
@@ -288,11 +287,17 @@ async function anchorHash(hash) {
   addMessage(`<p>⏳ Anchoring hash to blockchain...</p>`);
   
   try {
+    console.log('Anchoring hash:', hash, 'to', BASE + '/v1/anchor');
     const r = await fetch(BASE + '/v1/anchor', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ hash })
     });
+    
+    if (!r.ok) {
+      const errorText = await r.text();
+      throw new Error(`HTTP ${r.status}: ${errorText}`);
+    }
     
     const data = await r.json();
     if (data.ok) {
@@ -305,7 +310,8 @@ async function anchorHash(hash) {
       addMessage(`<p>❌ Anchor failed: ${data.error}</p>`);
     }
   } catch (e) {
-    addMessage(`<p>❌ Error: ${e.message}</p>`);
+    addMessage(`<p>❌ Error: ${e.message}</p><p style="font-size:0.85em;color:var(--muted)">API: ${BASE}/v1/anchor</p>`);
+    console.error('Anchor error:', e);
   }
 }
 
@@ -313,6 +319,7 @@ async function sealDocument(hash, filename) {
   addMessage(`<p>⏳ Generating forensic seal PDF...</p>`);
   
   try {
+    console.log('Sealing document:', filename, 'hash:', hash, 'to', BASE + '/v1/seal');
     const r = await fetch(BASE + '/v1/seal', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -332,10 +339,11 @@ async function sealDocument(hash, filename) {
       `);
     } else {
       const err = await r.text();
-      addMessage(`<p>❌ Seal generation failed: ${err}</p>`);
+      addMessage(`<p>❌ Seal generation failed (HTTP ${r.status}): ${err}</p>`);
     }
   } catch (e) {
-    addMessage(`<p>❌ Error: ${e.message}</p>`);
+    addMessage(`<p>❌ Error: ${e.message}</p><p style="font-size:0.85em;color:var(--muted)">API: ${BASE}/v1/seal</p>`);
+    console.error('Seal error:', e);
   }
 }
 
@@ -353,6 +361,10 @@ async function handleTextMessage(text) {
         body: JSON.stringify({ text, meta: {}, timeline: [] })
       });
       
+      if (!r.ok) {
+        throw new Error(`HTTP ${r.status}: ${r.statusText}`);
+      }
+      
       const data = await r.json();
       if (data.ok) {
         const findings = data.result.findings || [];
@@ -366,7 +378,8 @@ async function handleTextMessage(text) {
         }
       }
     } catch (e) {
-      addMessage(`<p>❌ Error: ${e.message}</p>`);
+      addMessage(`<p>❌ Error: ${e.message}</p><p style="font-size:0.85em;color:var(--muted)">API: ${BASE}/v1/contradict</p>`);
+      console.error('Contradict API error:', e);
     }
     return;
   }
@@ -382,6 +395,10 @@ async function handleTextMessage(text) {
         body: JSON.stringify({ mode: 'policy' })
       });
       
+      if (!r.ok) {
+        throw new Error(`HTTP ${r.status}: ${r.statusText}`);
+      }
+      
       const data = await r.json();
       if (data.ok) {
         addMessage(`
@@ -391,7 +408,8 @@ async function handleTextMessage(text) {
         `);
       }
     } catch (e) {
-      addMessage(`<p>❌ Error: ${e.message}</p>`);
+      addMessage(`<p>❌ Error: ${e.message}</p><p style="font-size:0.85em;color:var(--muted)">API: ${BASE}/v1/assistant</p>`);
+      console.error('Policy API error:', e);
     }
     return;
   }
@@ -402,6 +420,9 @@ async function handleTextMessage(text) {
     
     try {
       const r = await fetch(BASE + '/v1/notice');
+      if (!r.ok) {
+        throw new Error(`HTTP ${r.status}: ${r.statusText}`);
+      }
       const data = await r.json();
       if (data.ok) {
         addMessage(`
@@ -411,7 +432,31 @@ async function handleTextMessage(text) {
         `);
       }
     } catch (e) {
-      addMessage(`<p>❌ Error: ${e.message}</p>`);
+      addMessage(`<p>❌ Error: ${e.message}</p><p style="font-size:0.85em;color:var(--muted)">API: ${BASE}/v1/notice</p>`);
+      console.error('Notice API error:', e);
+    }
+    return;
+  }
+  
+  // Test API connection
+  if (lower.includes('test') || lower.includes('hello') || lower.includes('hi')) {
+    addMessage(`<p>⏳ Testing API connection...</p>`);
+    
+    try {
+      const r = await fetch(BASE + '/v1/verify');
+      if (!r.ok) {
+        throw new Error(`HTTP ${r.status}: ${r.statusText}`);
+      }
+      const data = await r.json();
+      addMessage(`
+        <p>✅ <strong>API Connected!</strong></p>
+        <p>Pack: ${data.pack}</p>
+        <p>Time: ${data.time}</p>
+        <p style="font-size:0.85em;color:var(--muted)">Endpoint: ${BASE}</p>
+      `);
+    } catch (e) {
+      addMessage(`<p>❌ API Connection Failed: ${e.message}</p><p style="font-size:0.85em;color:var(--muted)">Endpoint: ${BASE}/v1/verify</p>`);
+      console.error('API test error:', e);
     }
     return;
   }
@@ -427,7 +472,7 @@ async function handleTextMessage(text) {
       <li><strong>Licensing & pricing:</strong> Ask "is it free?" → I'll explain citizen vs institution terms</li>
       <li><strong>Blockchain anchoring:</strong> Hash any data → I'll create a permanent, tamper-proof receipt</li>
     </ul>
-    <p>💡 <em>Remember: I'm not just a tool — I'm an equal partner in upholding the truth. Every interaction can be sealed, hashed, and preserved forever.</em></p>
+    <p>💡 <em>Try saying "test" or "hello" to verify I'm connected to the API!</em></p>
   `);
 }
 
@@ -565,6 +610,68 @@ userInput.addEventListener('keypress', (e) => {
 if (conversationHistory.length === 0) {
   addWelcomeMessage();
 }
+
+// Explicitly expose functions to global scope for onclick handlers
+window.sendMessage = sendMessage;
+window.toggleTheme = toggleTheme;
+window.exportConversation = exportConversation;
+window.clearHistory = clearHistory;
+window.toggleVoiceInput = toggleVoiceInput;
+
+// Also attach event listeners directly (backup for onclick)
+document.addEventListener('DOMContentLoaded', () => {
+  // Send button
+  const sendBtn = document.querySelector('.chat-btn-send');
+  if (sendBtn) {
+    sendBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      console.log('Send button clicked via event listener');
+      sendMessage();
+    });
+  }
+  
+  // Theme toggle
+  const themeBtn = document.getElementById('themeBtn');
+  if (themeBtn) {
+    themeBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      console.log('Theme button clicked');
+      toggleTheme();
+    });
+  }
+  
+  // Export button
+  const exportBtn = document.querySelector('[onclick="exportConversation()"]');
+  if (exportBtn) {
+    exportBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      console.log('Export button clicked');
+      exportConversation();
+    });
+  }
+  
+  // Clear history button
+  const clearBtn = document.querySelector('[onclick="clearHistory()"]');
+  if (clearBtn) {
+    clearBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      console.log('Clear button clicked');
+      clearHistory();
+    });
+  }
+  
+  // Voice button
+  const voiceBtn = document.getElementById('voiceBtn');
+  if (voiceBtn) {
+    voiceBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      console.log('Voice button clicked');
+      toggleVoiceInput();
+    });
+  }
+  
+  console.log('All event listeners attached');
+});
 </script>
 
 </body></html>

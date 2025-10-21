@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Chat Debug Test</title>
+  <style>
+    body { background: #1a1a2e; color: white; font-family: monospace; padding: 20px; }
+    button { padding: 10px 20px; margin: 10px; font-size: 16px; cursor: pointer; }
+    #output { background: #111; padding: 20px; border-radius: 8px; margin-top: 20px; white-space: pre-wrap; }
+    .success { color: #00ff88; }
+    .error { color: #ff4444; }
+  </style>
+</head>
+<body>
+  <h1>🧪 Verum Chat Debug Test</h1>
+  
+  <div>
+    <button onclick="testAPIBase()">1. Test API Base URL</button>
+    <button onclick="testVerify()">2. Test /v1/verify</button>
+    <button onclick="testAnchor()">3. Test /v1/anchor</button>
+    <button onclick="testNotice()">4. Test /v1/notice</button>
+  </div>
+  
+  <div id="output">Click buttons above to test...</div>
+
+  <script>
+    const PROJECT = 'verumdone';
+    const BASE = `https://us-central1-${PROJECT}.cloudfunctions.net/api`;
+    const output = document.getElementById('output');
+    
+    function log(msg, isError = false) {
+      output.innerHTML += `\n${isError ? '❌' : '✅'} ${msg}`;
+      output.scrollTop = output.scrollHeight;
+    }
+    
+    function testAPIBase() {
+      output.innerHTML = '';
+      log(`API Base URL: ${BASE}`);
+      log(`Origin: ${location.origin}`);
+      log(`Hostname: ${location.hostname}`);
+    }
+    
+    async function testVerify() {
+      output.innerHTML = 'Testing /v1/verify...\n';
+      try {
+        const url = BASE + '/v1/verify';
+        log(`Fetching: ${url}`);
+        
+        const r = await fetch(url);
+        log(`Status: ${r.status} ${r.statusText}`);
+        
+        const data = await r.json();
+        log(`Response: ${JSON.stringify(data, null, 2)}`);
+        
+        if (data.ok) {
+          log('✅ SUCCESS!', false);
+        } else {
+          log('API returned ok:false', true);
+        }
+      } catch (e) {
+        log(`ERROR: ${e.message}`, true);
+        log(`Stack: ${e.stack}`, true);
+      }
+    }
+    
+    async function testAnchor() {
+      output.innerHTML = 'Testing /v1/anchor...\n';
+      try {
+        const hash = 'test_' + Date.now();
+        const url = BASE + '/v1/anchor';
+        log(`Fetching: ${url}`);
+        log(`Hash: ${hash}`);
+        
+        const r = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ hash })
+        });
+        
+        log(`Status: ${r.status} ${r.statusText}`);
+        
+        const data = await r.json();
+        log(`Response: ${JSON.stringify(data, null, 2)}`);
+        
+        if (data.ok) {
+          log('✅ SUCCESS!', false);
+        } else {
+          log('API returned ok:false', true);
+        }
+      } catch (e) {
+        log(`ERROR: ${e.message}`, true);
+        log(`Stack: ${e.stack}`, true);
+      }
+    }
+    
+    async function testNotice() {
+      output.innerHTML = 'Testing /v1/notice...\n';
+      try {
+        const url = BASE + '/v1/notice';
+        log(`Fetching: ${url}`);
+        
+        const r = await fetch(url);
+        log(`Status: ${r.status} ${r.statusText}`);
+        
+        const data = await r.json();
+        log(`Response: ${JSON.stringify(data, null, 2)}`);
+        
+        if (data.ok) {
+          log('✅ SUCCESS!', false);
+        } else {
+          log('API returned ok:false', true);
+        }
+      } catch (e) {
+        log(`ERROR: ${e.message}`, true);
+        log(`Stack: ${e.stack}`, true);
+      }
+    }
+    
+    // Auto-test on load
+    window.addEventListener('load', () => {
+      setTimeout(testAPIBase, 100);
+    });
+  </script>
+</body>
+</html>
