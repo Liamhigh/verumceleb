@@ -1,0 +1,54 @@
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json.bak
+
+# Build outputs
+dist/
+build/
+*.log
+
+# Firebase
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Vitest
+.vitest/
+**/node_modules/.vite/
+
+# Capacitor
+capacitor-app/www/
+capacitor-app/android/app/build/
+capacitor-app/ios/App/Pods/
+
+# Firebase Functions
+functions/lib/
