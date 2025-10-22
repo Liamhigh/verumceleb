@@ -8,7 +8,7 @@
   "scripts": {
     "verify-immutable": "node ../../../scripts/verify-immutable-pack.mjs",
     "generate-manifest": "node ../../../scripts/generate-manifest.mjs",
-    "prepare": "cd ../../.. && husky install || true",
+    "prepare": "husky",
     "precommit": "npm run verify-immutable"
   },
   "dependencies": {
