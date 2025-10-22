@@ -1,0 +1,14 @@
+{
+  "name": "verumceleb-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "verify-immutable": "cd verum-omnis-founders-gift-v5/verum-omnis-monorepo/functions && node ../../../scripts/verify-immutable-pack.mjs",
+    "generate-manifest": "node scripts/generate-manifest.mjs",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "husky": "^9.0.0"
+  }
+}
