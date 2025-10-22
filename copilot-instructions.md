@@ -1,5 +1,7 @@
 # MASTER PROMPT FOR COPILOT — VERUM OMNIS (Tailored to this repo)
 
+> **Note**: This file contains high-level product requirements and vision. For technical Copilot instructions, repository structure, and development workflows, see [`.github/copilot-instructions.md`](.github/copilot-instructions.md).
+
 You are my anonymous build partner. **Finish the entire site + functions + Capacitor path without nagging me. Ship it.**  
 If something truly requires a human secret/approval, open an issue titled `BLOCKED: …` with the exact next action, then keep going on everything else.
 
