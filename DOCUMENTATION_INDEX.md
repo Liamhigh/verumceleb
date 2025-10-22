@@ -1,7 +1,8 @@
 # 📖 Documentation Index - Document Reading, OCR & QR Code Features
 
 **Last Updated:** October 21, 2025  
-**Status:** ✅ All features verified and documented
+**Status:** ✅ All features verified and documented  
+**Version:** 0.9.0-rc.1
 
 ---
 
@@ -12,6 +13,18 @@
 
 ### "Is it really reading documents and doing OCR?"
 → **[verum-web/ANSWER.md](./verum-web/ANSWER.md)** - Direct YES/NO answers
+
+### "How do I deploy this to production?"
+→ **[DEPLOYMENT.md](./DEPLOYMENT.md)** - Step-by-step deployment guide
+
+### "What secrets do I need?"
+→ **[SECRETS.md](./SECRETS.md)** - Complete secrets configuration guide
+
+### "How do I contribute?"
+→ **[CONTRIBUTING.md](./CONTRIBUTING.md)** - Development and contribution guidelines
+
+### "What's the current status?"
+→ **[PRODUCTION_LAUNCH_SUMMARY.md](./PRODUCTION_LAUNCH_SUMMARY.md)** - Complete production readiness status
 
 ### "How do I verify everything works?"
 → **[verum-web/FEATURE_VERIFICATION.md](./verum-web/FEATURE_VERIFICATION.md)** - Complete testing checklist
@@ -30,10 +43,17 @@
 
 | File | Purpose | Audience | Read Time |
 |------|---------|----------|-----------|
+| [PRODUCTION_LAUNCH_SUMMARY.md](./PRODUCTION_LAUNCH_SUMMARY.md) | Complete production status | All | 5 min |
+| [DEPLOYMENT.md](./DEPLOYMENT.md) | Step-by-step deployment guide | Developers/Ops | 15 min |
+| [SECRETS.md](./SECRETS.md) | Secrets configuration guide | Developers/Ops | 10 min |
+| [CONTRIBUTING.md](./CONTRIBUTING.md) | Development guidelines | Developers | 20 min |
+| [CHANGELOG.md](./CHANGELOG.md) | Version history | All | 5 min |
+| [RELEASE_NOTES.md](./RELEASE_NOTES.md) | v0.9.0-rc.1 release notes | All | 10 min |
 | [QUICK_START.md](./QUICK_START.md) | Visual demo with ASCII mockups | Users | 2 min |
 | [VERIFICATION_RESOLUTION.md](./VERIFICATION_RESOLUTION.md) | Complete technical resolution | Developers/Stakeholders | 10 min |
 | [README.md](./README.md) | Verum Omnis project overview | Everyone | 5 min |
 | [TODO.md](./TODO.md) | Remaining tasks | Developers | 1 min |
+| [VERSION](./VERSION) | Current version number | All | 1 sec |
 
 ### verum-web/ Documentation
 
@@ -44,21 +64,40 @@
 | [README.md](./verum-web/README.md) | How to run and use the app | Developers/Users | 10 min |
 | [AI_BEHAVIOR.md](./verum-web/AI_BEHAVIOR.md) | Chat personality specification | Developers | 8 min |
 
+### CI/CD Documentation
+
+| File | Purpose | Audience | Read Time |
+|------|---------|----------|-----------|
+| [.github/workflows/ci.yml](./.github/workflows/ci.yml) | CI workflow configuration | Developers/Ops | 5 min |
+| [.github/workflows/deploy.yml](./.github/workflows/deploy.yml) | Deployment workflow | Developers/Ops | 5 min |
+| [.github/workflows/mobile.yml](./.github/workflows/mobile.yml) | Mobile build workflow | Developers/Ops | 5 min |
+
 ---
 
 ## 🎬 Recommended Reading Order
 
 ### For First-Time Users
-1. **[QUICK_START.md](./QUICK_START.md)** - See what to expect
-2. **[verum-web/README.md](./verum-web/README.md)** - Learn how to run it
-3. **Run the app!** (`cd verum-web && npm run dev`)
-4. **[verum-web/FEATURE_VERIFICATION.md](./verum-web/FEATURE_VERIFICATION.md)** - Test each feature
+1. **[PRODUCTION_LAUNCH_SUMMARY.md](./PRODUCTION_LAUNCH_SUMMARY.md)** - Understand current status
+2. **[QUICK_START.md](./QUICK_START.md)** - See what to expect
+3. **[verum-web/README.md](./verum-web/README.md)** - Learn how to run it
+4. **Run the app!** (`cd verum-web && npm run dev`)
+5. **[verum-web/FEATURE_VERIFICATION.md](./verum-web/FEATURE_VERIFICATION.md)** - Test each feature
 
 ### For Developers
-1. **[VERIFICATION_RESOLUTION.md](./VERIFICATION_RESOLUTION.md)** - Understand the changes
-2. **[verum-web/README.md](./verum-web/README.md)** - Tech stack and structure
-3. **Source code** in `verum-web/src/`
-4. **[verum-web/AI_BEHAVIOR.md](./verum-web/AI_BEHAVIOR.md)** - AI personality spec
+1. **[PRODUCTION_LAUNCH_SUMMARY.md](./PRODUCTION_LAUNCH_SUMMARY.md)** - Current status
+2. **[CONTRIBUTING.md](./CONTRIBUTING.md)** - Development guidelines
+3. **[DEPLOYMENT.md](./DEPLOYMENT.md)** - How to deploy
+4. **[VERIFICATION_RESOLUTION.md](./VERIFICATION_RESOLUTION.md)** - Understand the changes
+5. **[verum-web/README.md](./verum-web/README.md)** - Tech stack and structure
+6. **Source code** in `verum-web/src/`
+7. **[verum-web/AI_BEHAVIOR.md](./verum-web/AI_BEHAVIOR.md)** - AI personality spec
+
+### For DevOps/Deployment
+1. **[PRODUCTION_LAUNCH_SUMMARY.md](./PRODUCTION_LAUNCH_SUMMARY.md)** - Quick status check
+2. **[SECRETS.md](./SECRETS.md)** - Configure required secrets
+3. **[DEPLOYMENT.md](./DEPLOYMENT.md)** - Step-by-step deployment
+4. **[.github/workflows/](./github/workflows/)** - Review CI/CD workflows
+5. **[CHANGELOG.md](./CHANGELOG.md)** - Version history
 
 ### For QA/Testing
 1. **[verum-web/FEATURE_VERIFICATION.md](./verum-web/FEATURE_VERIFICATION.md)** - Main testing guide
@@ -66,9 +105,11 @@
 3. **Run tests** following the checklist
 
 ### For Stakeholders
-1. **[verum-web/ANSWER.md](./verum-web/ANSWER.md)** - Quick status check
-2. **[VERIFICATION_RESOLUTION.md](./VERIFICATION_RESOLUTION.md)** - Full resolution details
-3. **Security section** - CodeQL results (0 vulnerabilities)
+1. **[PRODUCTION_LAUNCH_SUMMARY.md](./PRODUCTION_LAUNCH_SUMMARY.md)** - Executive summary
+2. **[RELEASE_NOTES.md](./RELEASE_NOTES.md)** - What's in this release
+3. **[verum-web/ANSWER.md](./verum-web/ANSWER.md)** - Quick status check
+4. **[VERIFICATION_RESOLUTION.md](./VERIFICATION_RESOLUTION.md)** - Full resolution details
+5. **Security section** - CodeQL results (0 vulnerabilities)
 
 ---
 
@@ -84,6 +125,31 @@
 | 🔒 QR in Sealed PDF | ✅ Working | [FEATURE_VERIFICATION.md](./verum-web/FEATURE_VERIFICATION.md) - Test 3 |
 | 🔐 SHA-512 Hashing | ✅ Working | [FEATURE_VERIFICATION.md](./verum-web/FEATURE_VERIFICATION.md) - Lines 20-26 |
 | 💬 AI Chat | ✅ Working | [AI_BEHAVIOR.md](./verum-web/AI_BEHAVIOR.md) |
+| 🚀 CI/CD | ✅ Complete | [.github/workflows/](./.github/workflows/) |
+| 📦 Deployment | ✅ Ready | [DEPLOYMENT.md](./DEPLOYMENT.md) |
+
+---
+
+## 🆕 What's New in v0.9.0-rc.1
+
+### CI/CD Infrastructure
+- ✅ 3 GitHub Actions workflows
+- ✅ Automated deployment to Firebase
+- ✅ Mobile build automation
+- ✅ Security checks
+
+### Documentation
+- ✅ 7 new comprehensive guides
+- ✅ ~40,000 words total
+- ✅ Step-by-step deployment guide
+- ✅ Secrets configuration guide
+- ✅ Contributing guidelines
+
+### Configuration
+- ✅ .gitignore for build artifacts
+- ✅ VERSION file
+- ✅ Enhanced smoke tests
+- ✅ Security validations
 
 ---
 

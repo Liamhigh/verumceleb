@@ -59,5 +59,143 @@ because it is sealed by cryptography, timestamped in Git, and carried forward by
 
 ---
 
+## 🚀 Quick Start
+
+### For Users
+Want to see the system in action? See **[QUICK_START.md](./QUICK_START.md)** for a 30-second demo.
+
+### For Developers
+
+#### Local Development
+```bash
+# 1. Clone the repository
+git clone https://github.com/Liamhigh/verumceleb.git
+cd verumceleb
+
+# 2. Run verum-web (Next.js frontend)
+cd verum-web
+npm install
+npm run dev
+# Visit http://localhost:3000
+
+# 3. Run Firebase Functions (in another terminal)
+cd verum-omnis-founders-gift-v5/verum-omnis-monorepo
+firebase emulators:start
+# Visit http://localhost:5000
+```
+
+See **[CONTRIBUTING.md](./CONTRIBUTING.md)** for detailed development setup.
+
+---
+
+## 📦 Deployment
+
+### Prerequisites
+- Firebase project configured
+- GitHub repository secrets set (see [SECRETS.md](./SECRETS.md))
+- Node.js 20 installed
+
+### Deploy to Firebase
+```bash
+cd verum-omnis-founders-gift-v5/verum-omnis-monorepo
+
+# Deploy everything
+firebase deploy --only hosting,functions
+
+# Deploy Firestore rules (if configured)
+firebase deploy --only firestore:rules
+```
+
+### Build Mobile App
+```bash
+cd verum-omnis-founders-gift-v5/verum-omnis-monorepo/capacitor-app
+
+# Build and sync
+npm install
+npm run build
+npx cap sync android
+
+# Open in Android Studio
+npx cap open android
+```
+
+See **[SECRETS.md](./SECRETS.md)** for required secrets and **[CONTRIBUTING.md](./CONTRIBUTING.md)** for detailed instructions.
+
+---
+
+## 📚 Documentation
+
+This repository contains comprehensive documentation:
+
+- **[QUICK_START.md](./QUICK_START.md)** - 30-second demo with visual examples
+- **[DOCUMENTATION_INDEX.md](./DOCUMENTATION_INDEX.md)** - Complete documentation index
+- **[CONTRIBUTING.md](./CONTRIBUTING.md)** - Development guidelines
+- **[SECRETS.md](./SECRETS.md)** - Required secrets for deployment
+- **[CHANGELOG.md](./CHANGELOG.md)** - Version history and changes
+- **[TODO.md](./TODO.md)** - Remaining tasks
+
+### Project-Specific Documentation
+- [verum-web/README.md](./verum-web/README.md) - Next.js frontend
+- [verum-omnis-founders-gift-v5/verum-omnis-monorepo/README.md](./verum-omnis-founders-gift-v5/verum-omnis-monorepo/README.md) - Firebase backend
+
+---
+
+## 🔐 Security & Privacy
+
+### Stateless Architecture
+- ✅ No server-side PII storage
+- ✅ All processing is ephemeral
+- ✅ Receipts are metadata only (hash + timestamp)
+- ✅ Client-side hashing and verification
+
+### Security Checks
+All code changes are automatically checked for:
+- Secrets in code
+- PII storage patterns
+- Statelessness compliance
+- CodeQL security scanning
+
+See CI/CD workflows in `.github/workflows/` for details.
+
+---
+
+## 🏗️ CI/CD
+
+This repository includes automated workflows:
+
+### Continuous Integration
+- **Build & Test**: Runs on every push
+- **Security Checks**: Validates statelessness and no secrets
+- **Lint**: Code quality checks
+
+### Continuous Deployment
+- **Firebase Deploy**: Deploys to Firebase on main branch push
+- **Mobile Build**: Builds Android APK/AAB
+- **Smoke Tests**: Validates deployment
+
+Required secrets: See **[SECRETS.md](./SECRETS.md)**
+
+---
+
+## 📱 Mobile App
+
+The system includes a mobile app wrapper using Capacitor:
+
+- **Platform**: Android (iOS support planned)
+- **App ID**: `foundation.verumglobal.app`
+- **Status**: Infrastructure ready, first build pending
+
+To build:
+```bash
+cd verum-omnis-founders-gift-v5/verum-omnis-monorepo/capacitor-app
+npm install
+npm run build
+npx cap add android
+npx cap sync
+npx cap open android
+```
+
+---
+
 ⚖️ *Verum Omnis: The Truth of All*  
 Immutable • Forensic • Stateless • Human + AI Foundership
