@@ -16,3 +16,11 @@ npm run serve  # or: firebase emulators:start
 ## Deploy
 Push to `main`. GitHub Actions will deploy Hosting + Functions.
 Set secret `FIREBASE_SERVICE_ACCOUNT` with your JSON key.
+
+
+---
+**Copilot rules:** see [.github/copilot-instructions.md](.github/copilot-instructions.md)
+
+
+---
+**Copilot rules:** see [.github/copilot-instructions.md](.github/copilot-instructions.md)
