@@ -1,0 +1,113 @@
+name: Deploy (Hosting+Functions) + Build Android APK
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  MONO_ROOT: verum-omnis-founders-gift-v5/verum-omnis-monorepo
+  WEB_DIR: verum-omnis-founders-gift-v5/verum-omnis-monorepo/web
+  FUNCTIONS_DIR: verum-omnis-founders-gift-v5/verum-omnis-monorepo/functions
+  CAP_DIR: verum-omnis-founders-gift-v5/verum-omnis-monorepo/capacitor-app
+  ANDROID_DIR: verum-omnis-founders-gift-v5/verum-omnis-monorepo/capacitor-app/android
+
+jobs:
+  deploy-and-apk:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install jq (helpers)
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      # ---------- Web build (only if a build script exists) ----------
+      - name: Detect and build web (Vite or similar)
+        working-directory: ${{ env.WEB_DIR }}
+        run: |
+          if [ -f package.json ] && jq -e '.scripts.build' package.json >/dev/null 2>&1; then
+            npm ci || npm install
+            npm run build
+          else
+            echo "No web build script; skipping."
+          fi
+
+      # ---------- Functions ----------
+      - name: Ensure functions lockfile
+        working-directory: ${{ env.FUNCTIONS_DIR }}
+        run: |
+          if [ ! -f package-lock.json ]; then
+            echo "Error: functions/package-lock.json missing."; exit 1;
+          fi
+
+      - name: Install functions dependencies
+        working-directory: ${{ env.FUNCTIONS_DIR }}
+        run: npm ci
+
+      # ---------- Google Auth + Firebase CLI ----------
+      - name: Auth with Google
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+
+      - name: Install Firebase CLI
+        run: npm i -g firebase-tools
+
+      - name: Resolve PROJECT_ID
+        id: proj
+        run: |
+          if [ -n "${{ secrets.PROJECT_ID }}" ]; then
+            echo "PROJECT_ID=${{ secrets.PROJECT_ID }}" >> $GITHUB_ENV
+          else
+            echo "PROJECT_ID=$(jq -r '.project_id' <<< '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}')" >> $GITHUB_ENV
+          fi
+          echo "Using PROJECT_ID=$PROJECT_ID"
+
+      - name: Deploy Hosting + Functions
+        working-directory: ${{ env.MONO_ROOT }}
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/gcloud.json
+        run: |
+          # google-github-actions/auth already exports ADC; no token needed
+          firebase --project "$PROJECT_ID" deploy --only hosting,functions
+
+      # ---------- Android APK (Capacitor) ----------
+      - name: Setup Java (JDK 17)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Capacitor app deps
+        working-directory: ${{ env.CAP_DIR }}
+        run: npm ci || npm install
+
+      - name: Sync Android platform
+        working-directory: ${{ env.CAP_DIR }}
+        run: npx cap sync android
+
+      - name: Assemble Debug APK
+        working-directory: ${{ env.ANDROID_DIR }}
+        run: ./gradlew --no-daemon assembleDebug
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: verum-assistant-debug-apk
+          path: |
+            ${{ env.ANDROID_DIR }}/app/build/outputs/apk/debug/app-debug.apk
