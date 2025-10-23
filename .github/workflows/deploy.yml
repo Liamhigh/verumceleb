@@ -1,0 +1,50 @@
+name: CI / Deploy Firebase Hosting + Functions
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  SMOKE_HOST: gitverum.web.app
+  FIREBASE_PROJECT: verumdone
+
+jobs:
+  deploy:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js (cache npm)
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install functions dependencies
+        run: |
+          cd verum-omnis-founders-gift-v5/verum-omnis-monorepo/functions
+          npm ci
+
+      - name: Ensure latest firebase-functions locally to silence warning
+        run: |
+          cd verum-omnis-founders-gift-v5/verum-omnis-monorepo/functions
+          # install latest for the build (no commit)
+          npm install firebase-functions@latest --no-save
+
+      - name: Install Firebase CLI
+        run: npm install -g firebase-tools
+
+      - name: Deploy Hosting + Functions
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+        run: |
+          cd verum-omnis-founders-gift-v5/verum-omnis-monorepo
+          firebase --project "${{ env.FIREBASE_PROJECT }}" deploy --only hosting,functions --non-interactive --token "${FIREBASE_TOKEN}"
+
+      - name: "Smoke test: health endpoint"
+        run: |
+          # Fail the job if the health endpoint is unavailable or returns non-200
+          curl -fsS https://${{ env.SMOKE_HOST }}/api/health >/dev/null
