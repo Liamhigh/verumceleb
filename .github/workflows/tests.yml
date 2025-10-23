@@ -1,34 +1,48 @@
 name: Manual Tests (Jest)
+run-name: "Tests on ${{ github.ref_name }}"
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - 'ci/test/**'   # auto-run only on ci/test/* branches
 
 jobs:
   tests:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     continue-on-error: true
+
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+
+      - name: Detect Node project
+        id: detect
+        run: |
+          if [ -f package.json ]; then
+            echo "has_node=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_node=false" >> $GITHUB_OUTPUT
+          fi
+
+      - if: steps.detect.outputs.has_node == 'true'
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      # install if package.json exists
-      - name: Install
-        run: |
-          if [ -f package.json ]; then
-            npm ci || npm install
-          else
-            echo "No Node project"; exit 0
-          fi
+      - name: Install (npm)
+        if: steps.detect.outputs.has_node == 'true'
+        run: npm ci || npm install
 
-      # bump Jest timeout to 30s at runtime (non-destructive)
-      - name: Increase Jest timeout
-        if: exists('package.json')
+      - name: Increase Jest timeout to 30s
+        if: steps.detect.outputs.has_node == 'true'
         run: |
-          node -e "try{const fs=require('fs');const p=JSON.parse(fs.readFileSync('package.json'));p.jest=p.jest||{};p.jest.testTimeout=30000;fs.writeFileSync('package.json',JSON.stringify(p,null,2));console.log('Set testTimeout=30000')}catch(e){console.log('Skip: no package.json')}"
-      
+          node -e "const fs=require('fs');const p=JSON.parse(fs.readFileSync('package.json'));p.jest=p.jest||{};p.jest.testTimeout=30000;fs.writeFileSync('package.json',JSON.stringify(p,null,2));console.log('Set jest.testTimeout=30000')"
+
       - name: Run tests
-        if: exists('package.json')
+        if: steps.detect.outputs.has_node == 'true'
         run: npm test --if-present
+
+      - name: No-op (no Node project)
+        if: steps.detect.outputs.has_node != 'true'
+        run: echo "No Node project found. Skipping tests."
