@@ -11,6 +11,29 @@ If something truly requires a human secret/approval, open an issue titled `BLOCK
 - Preserve security headers/CSP already present in `firebase.json`. Tighten only if safe.
 - Do **not** commit large `node_modules/`. Ensure proper `.gitignore` coverage.
 
+## Development Setup
+To work on this repository locally:
+
+**Functions (testing and development):**
+```bash
+cd verum-omnis-founders-gift-v5/verum-omnis-monorepo/functions
+npm ci
+npm test  # Run tests with vitest
+npm run serve  # Start local Firebase emulators
+```
+
+**Web (static hosting):**
+```bash
+cd verum-omnis-founders-gift-v5/verum-omnis-monorepo/web
+# Serve static files locally
+python3 -m http.server 5173
+```
+
+**Linting & Testing:**
+- Functions are tested via CI on every push to `functions/**` paths
+- Tests use vitest framework
+- Always run `npm test` in functions directory before committing
+
 ## Product requirements (non‑negotiable)
 1. **Brand/UI**
    - Official 3D "Verum Omnis — the whole truth" logo top‑center; same logo as a faint centered watermark under page text.
