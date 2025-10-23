@@ -329,6 +329,45 @@ npx cap run ios      # Run on iOS
 
 ---
 
+## 🚀 Deployment
+
+### Quick Start (3 Steps)
+
+**Step 1: Deploy Web + Functions**
+```bash
+cd verum-omnis-founders-gift-v5/verum-omnis-monorepo
+firebase use gitverum
+cd functions && npm ci --no-audit && cd ..
+firebase deploy --only hosting,functions
+```
+
+**Step 2: Enable Firestore**
+1. Firebase Console → Firestore → Create database (Production mode)
+2. Deploy security rules: `firebase deploy --only firestore:rules`
+
+**Step 3: Smoke Test**
+```bash
+# Linux/Mac
+./smoke-test.sh gitverum.web.app
+
+# Windows PowerShell
+.\smoke-test.ps1 -Domain gitverum.web.app
+```
+
+### Documentation
+
+- **📖 Quick Start**: See `QUICKSTART.md` for fast deployment
+- **📚 Full Guide**: See `DEPLOYMENT.md` for detailed instructions
+- **🧪 Smoke Tests**: See `SMOKE_TESTS.md` for validation scripts
+
+### Requirements
+
+- **Node.js 20.x** (required by Firebase Functions)
+- **Firebase CLI** (`npm install -g firebase-tools`)
+- Firebase project configured (current: `gitverum`)
+
+---
+
 ## 🧪 Testing
 
 ```bash
@@ -337,13 +376,15 @@ npm test
 ```
 
 **Test coverage:**
-- ✅ Health check (`/v1/verify`)
+- ✅ Health check (`/health`)
+- ✅ Chat endpoint (`/chat`)
+- ✅ Verify endpoint (`/v1/verify`)
 - ✅ Anchor validation
 - ✅ Assistant modes (verify, policy, anchor, receipt, notice)
 - ✅ Invalid mode rejection
 - ✅ Receipt persistence
 
-All 9 tests passing with Vitest.
+All 12 tests passing with Vitest.
 
 ---
 

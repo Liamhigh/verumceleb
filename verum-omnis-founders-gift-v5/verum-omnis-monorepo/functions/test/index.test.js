@@ -15,6 +15,29 @@ describe('verum omnis api', () => {
     expect(res.body).toMatchObject({ ok: true });
   });
 
+  it('health endpoint returns service info', async () => {
+    const res = await request(app).get('/health');
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toMatchObject({ 
+      ok: true, 
+      status: 'healthy',
+      service: 'verum-omnis-api'
+    });
+  });
+
+  it('chat endpoint echoes message', async () => {
+    const res = await request(app).post('/chat').send({ message: 'Hello' });
+    expect(res.statusCode).toBe(200);
+    expect(res.body.ok).toBe(true);
+    expect(res.body.reply).toContain('Hello');
+  });
+
+  it('chat endpoint requires message', async () => {
+    const res = await request(app).post('/chat').send({});
+    expect(res.statusCode).toBe(400);
+    expect(res.body).toMatchObject({ ok: false, error: 'missing_message' });
+  });
+
   it('rejects anchor without hash', async () => {
     const res = await request(app).post('/v1/anchor').send({});
     expect(res.statusCode).toBe(400);
