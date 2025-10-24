@@ -1,0 +1,48 @@
+name: Deploy (Hosting + Functions)
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - "verum-omnis-founders-gift-v5/verum-omnis-monorepo/functions/**"
+      - "verum-omnis-founders-gift-v5/verum-omnis-monorepo/web/**"
+      - ".github/workflows/deploy.yml"
+  workflow_dispatch:
+
+env:
+  FIREBASE_PROJECT_ID: verumdone
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: |
+            verum-omnis-founders-gift-v5/verum-omnis-monorepo/functions/package-lock.json
+
+      - name: Install Firebase CLI
+        run: npm i -g firebase-tools
+
+      - name: Functions | npm ci + (optional) tests
+        working-directory: verum-omnis-founders-gift-v5/verum-omnis-monorepo/functions
+        run: |
+          npm ci
+          npm test || echo "::notice title=Tests::No tests or non-blocking failures"
+
+      # If your web is a pure static folder, no build step is needed.
+      # If you do have a web build, add it here and make sure firebase.json points to the output dir.
+
+      - name: Firebase deploy (Hosting + Functions)
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+        run: |
+          firebase use $FIREBASE_PROJECT_ID
+          firebase deploy --only hosting,functions --non-interactive
