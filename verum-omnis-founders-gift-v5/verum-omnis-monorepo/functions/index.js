@@ -21,6 +21,7 @@ if (NODE_ENV === 'production' && process.env.SKIP_IMMUTABLE_VERIFY) {
 const skipImmutable = process.env.SKIP_IMMUTABLE_VERIFY === '1';
 
 export const app = express();
+app.get("/health",(req,res)=>res.status(200).send("OK"));
 app.use(express.json({ limit: '4mb' }));
 app.use(helmet({ contentSecurityPolicy: false }));
 
