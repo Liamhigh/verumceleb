@@ -1,21 +1,28 @@
-name: Firebase Deploy
+name: Firebase Deploy (Hosting + Functions Gen2, SA)
 on:
   push:
     branches: [ main ]
 permissions:
   contents: read
+  id-token: write
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with: { node-version: '20' }
-      - name: Install Firebase Tools
+        with:
+          node-version: '20'
+      - name: Auth to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+      - name: Set GCP project
+        run: gcloud config set project "${{ secrets.GCP_PROJECT_ID }}"
+      - name: Install Firebase CLI
         run: npm i -g firebase-tools
       - name: Deploy Hosting + Functions
         env:
-          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+          GOOGLE_CLOUD_PROJECT: ${{ secrets.GCP_PROJECT_ID }}
         run: |
-          firebase use --add || true
-          firebase deploy --only hosting,functions
+          firebase deploy --only hosting,functions --project "${{ secrets.GCP_PROJECT_ID }}"
