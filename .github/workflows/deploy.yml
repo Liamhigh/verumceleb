@@ -16,7 +16,7 @@ permissions:
   id-token: write
 
 env:
-  SMOKE_HOST: gitverum.web.app
+  SMOKE_HOST: verumdone.web.app
   FIREBASE_PROJECT: verumdone
   MONO_ROOT: verum-omnis-founders-gift-v5/verum-omnis-monorepo
 
