@@ -1,20 +1,229 @@
-<!doctype html><html><head>
-<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Verify & Seal</title><link rel="stylesheet" href="/assets/app.css"/></head>
-<body><div class="container"><div class="card">
-<h1>Verify & Seal</h1>
-<div class="row"><textarea id="txt" rows="6" style="width:100%" placeholder="Paste text to scan for contradictions…"></textarea></div>
-<div class="row"><button onclick="contradict()">Scan for Contradictions</button><button class="pill" onclick="verify()">Verify Constitution</button></div>
-<pre id="out" style="white-space:pre-wrap"></pre>
-<hr/>
-<div class="row"><input id="hash" placeholder="SHA-512 (hex)"/><button onclick="anchor()">Anchor</button><button onclick="seal()">Seal → PDF</button></div>
-</div></div>
-<script>
-const BASE = location.origin + "/api";
-async function verify(){ const r=await fetch(BASE+"/v1/verify"); out.textContent=JSON.stringify(await r.json(),null,2); }
-async function contradict(){ const text=document.getElementById('txt').value; const r=await fetch(BASE+"/v1/contradict",{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text,meta:{},timeline:[]})}); out.textContent=JSON.stringify(await r.json(),null,2); }
-async function anchor(){ const hash=document.getElementById('hash').value; const r=await fetch(BASE+"/v1/anchor",{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({hash})}); out.textContent=JSON.stringify(await r.json(),null,2); }
-async function seal(){ const hash=document.getElementById('hash').value; const r=await fetch(BASE+"/v1/seal",{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({hash,title:"Verum Omnis Seal",notes:"Founders Release"})}); if(r.ok){ const b=await r.blob(); const u=URL.createObjectURL(b); window.open(u,"_blank"); } else { out.textContent=await r.text(); } }
-const out=document.getElementById('out');
-</script>
-</body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Verify & Seal — Verum Omnis</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .watermark {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      opacity: 0.05;
+      pointer-events: none;
+      z-index: 0;
+      width: 600px;
+      height: auto;
+    }
+    main {
+      position: relative;
+      z-index: 1;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100">
+  <!-- Watermark Logo -->
+  <img src="/assets/mainlogo.png" alt="Verum Omnis" class="watermark" />
+  
+  <header class="max-w-6xl mx-auto px-4 py-6">
+    <!-- Top-center logo -->
+    <div class="flex justify-center mb-4">
+      <a href="/">
+        <img src="/assets/mainlogo.png" alt="Verum Omnis — the whole truth" class="h-16 object-contain" />
+      </a>
+    </div>
+    <nav class="flex gap-3 justify-center">
+      <a href="/" class="px-4 py-2 rounded border border-slate-700 hover:bg-slate-800">Home</a>
+      <a href="/assistant.html" class="px-4 py-2 rounded bg-indigo-600 hover:bg-indigo-500">Open Chat</a>
+      <a href="/verify.html" class="px-4 py-2 rounded bg-green-600 hover:bg-green-500">Verify Document</a>
+    </nav>
+  </header>
+
+  <main class="max-w-4xl mx-auto px-4 py-12">
+    <div class="bg-slate-900 p-8 rounded-lg border border-slate-800">
+      <h1 class="text-3xl font-bold mb-6 text-center">Verify & Seal Documents</h1>
+      
+      <!-- File Upload Section -->
+      <div class="mb-8">
+        <label class="block text-sm font-medium mb-2">Upload Document/Image/Video/Audio</label>
+        <input type="file" id="fileInput" accept="*/*" 
+          class="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-slate-100 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:bg-indigo-600 file:text-white hover:file:bg-indigo-500" />
+        <div id="fileInfo" class="mt-2 text-sm text-slate-400"></div>
+      </div>
+
+      <!-- Text Input for Contradiction Scan -->
+      <div class="mb-6">
+        <label class="block text-sm font-medium mb-2">Or paste text to scan for contradictions</label>
+        <textarea id="txt" rows="6" 
+          class="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-slate-100 focus:border-indigo-500 focus:outline-none"
+          placeholder="Paste text to scan for contradictions…"></textarea>
+      </div>
+
+      <div class="flex flex-wrap gap-3 mb-6">
+        <button onclick="hashFile()" 
+          class="px-6 py-3 bg-green-600 hover:bg-green-500 rounded-lg font-medium">
+          📄 Generate SHA-512 Hash
+        </button>
+        <button onclick="contradict()" 
+          class="px-6 py-3 bg-purple-600 hover:bg-purple-500 rounded-lg font-medium">
+          🔍 Scan for Contradictions
+        </button>
+        <button onclick="verify()" 
+          class="px-6 py-3 bg-blue-600 hover:bg-blue-500 rounded-lg font-medium">
+          ✔ Verify Constitution
+        </button>
+      </div>
+
+      <hr class="border-slate-700 my-6"/>
+
+      <!-- Hash Input & Sealing -->
+      <div class="mb-6">
+        <label class="block text-sm font-medium mb-2">SHA-512 Hash (128 hex characters)</label>
+        <input id="hash" type="text" 
+          class="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-slate-100 font-mono text-sm focus:border-indigo-500 focus:outline-none"
+          placeholder="Enter or generate SHA-512 hash..."/>
+      </div>
+
+      <div class="flex flex-wrap gap-3 mb-6">
+        <button onclick="anchor()" 
+          class="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 rounded-lg font-medium">
+          ⚓ Anchor Hash
+        </button>
+        <button onclick="seal()" 
+          class="px-6 py-3 bg-amber-600 hover:bg-amber-500 rounded-lg font-medium">
+          🔒 Seal → PDF with QR
+        </button>
+        <button onclick="copyHash()" 
+          class="px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium">
+          📋 Copy Hash
+        </button>
+      </div>
+
+      <!-- Output -->
+      <div class="mt-6">
+        <label class="block text-sm font-medium mb-2">Output</label>
+        <pre id="out" class="w-full p-4 bg-slate-950 border border-slate-700 rounded-lg text-sm text-green-400 overflow-auto max-h-96"></pre>
+      </div>
+
+      <!-- Notice -->
+      <div class="mt-6 p-4 bg-indigo-900/20 border border-indigo-700 rounded-lg text-sm">
+        <p class="font-semibold mb-1">✨ Patent Pending - Verum Omnis</p>
+        <p class="text-slate-400">Free for individuals forever. Institutions/companies: 20% of fraud recovery after trial.</p>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const BASE = location.origin + "/api";
+    const out = document.getElementById('out');
+    const hashInput = document.getElementById('hash');
+    const fileInput = document.getElementById('fileInput');
+    const fileInfo = document.getElementById('fileInfo');
+
+    // File upload handler
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        fileInfo.textContent = `Selected: ${file.name} (${(file.size / 1024).toFixed(2)} KB)`;
+      }
+    });
+
+    // Generate SHA-512 hash from file
+    async function hashFile() {
+      const file = fileInput.files[0];
+      if (!file) {
+        out.textContent = '⚠ Please select a file first';
+        return;
+      }
+      
+      out.textContent = 'Computing SHA-512 hash...';
+      try {
+        const buffer = await file.arrayBuffer();
+        const hashBuffer = await crypto.subtle.digest('SHA-512', buffer);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        
+        hashInput.value = hashHex;
+        out.textContent = `✅ SHA-512 Hash Generated\n\nFile: ${file.name}\nHash: ${hashHex}\n\n${file.name} is now sealed with cryptographic proof.`;
+      } catch (err) {
+        out.textContent = `❌ Error: ${err.message}`;
+      }
+    }
+
+    async function verify() {
+      out.textContent = 'Verifying...';
+      const r = await fetch(BASE + "/v1/verify");
+      out.textContent = JSON.stringify(await r.json(), null, 2);
+    }
+
+    async function contradict() {
+      const text = document.getElementById('txt').value;
+      if (!text.trim()) {
+        out.textContent = '⚠ Please enter text to scan';
+        return;
+      }
+      out.textContent = 'Scanning for contradictions...';
+      const r = await fetch(BASE + "/v1/contradict", {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text, meta: {}, timeline: [] })
+      });
+      out.textContent = JSON.stringify(await r.json(), null, 2);
+    }
+
+    async function anchor() {
+      const hash = hashInput.value;
+      if (!hash || hash.length !== 128) {
+        out.textContent = '⚠ Please enter a valid 128-character SHA-512 hash';
+        return;
+      }
+      out.textContent = 'Anchoring hash...';
+      const r = await fetch(BASE + "/v1/anchor", {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ hash })
+      });
+      out.textContent = JSON.stringify(await r.json(), null, 2);
+    }
+
+    async function seal() {
+      const hash = hashInput.value;
+      if (!hash || hash.length !== 128) {
+        out.textContent = '⚠ Please enter a valid 128-character SHA-512 hash';
+        return;
+      }
+      out.textContent = 'Generating sealed PDF...';
+      const r = await fetch(BASE + "/v1/seal", {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          hash, 
+          title: "Verum Omnis Document Seal",
+          notes: "Founders Release — Patent Pending"
+        })
+      });
+      
+      if (r.ok) {
+        const blob = await r.blob();
+        const url = URL.createObjectURL(blob);
+        window.open(url, "_blank");
+        out.textContent = '✅ Sealed PDF generated and opened in new tab';
+      } else {
+        out.textContent = `❌ Error: ${await r.text()}`;
+      }
+    }
+
+    function copyHash() {
+      const hash = hashInput.value;
+      if (!hash) {
+        out.textContent = '⚠ No hash to copy';
+        return;
+      }
+      navigator.clipboard.writeText(hash);
+      out.textContent = '✅ Hash copied to clipboard';
+    }
+  </script>
+</body>
+</html>

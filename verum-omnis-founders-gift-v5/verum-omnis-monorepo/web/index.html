@@ -3,23 +3,88 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Verum Omnis — Legal AI</title>
+  <title>Verum Omnis — the whole truth</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .watermark {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      opacity: 0.05;
+      pointer-events: none;
+      z-index: 0;
+      width: 600px;
+      height: auto;
+    }
+    main {
+      position: relative;
+      z-index: 1;
+    }
+  </style>
 </head>
 <body class="bg-slate-950 text-slate-100">
-  <header class="max-w-6xl mx-auto px-4 py-6 flex items-center justify-between">
-    <h1 class="text-xl font-semibold">Verum Omnis</h1>
-    <nav class="flex gap-3">
+  <!-- Watermark Logo -->
+  <img src="/assets/mainlogo.png" alt="Verum Omnis" class="watermark" />
+  
+  <header class="max-w-6xl mx-auto px-4 py-6">
+    <!-- Top-center logo -->
+    <div class="flex justify-center mb-4">
+      <img src="/assets/mainlogo.png" alt="Verum Omnis — the whole truth" class="h-20 object-contain" />
+    </div>
+    <nav class="flex gap-3 justify-center">
       <a href="/assistant.html" class="px-4 py-2 rounded bg-indigo-600 hover:bg-indigo-500">Open Chat</a>
+      <a href="/verify.html" class="px-4 py-2 rounded bg-green-600 hover:bg-green-500">Verify Document</a>
       <a href="/institutions.html" class="px-4 py-2 rounded border border-slate-700 hover:bg-slate-800">Institutions</a>
     </nav>
   </header>
+  
   <main class="max-w-6xl mx-auto px-4 py-12">
-    <h2 class="text-3xl font-bold mb-4">Verify, Seal, Anchor</h2>
-    <p class="text-slate-300">
-      Court-validated outputs with QR + SHA-512 on every document.  
-      Free for citizens; institutions contribute on recoveries.
-    </p>
+    <!-- Hero Video Section -->
+    <div class="mb-12 rounded-lg overflow-hidden">
+      <video autoplay muted loop playsinline class="w-full max-w-4xl mx-auto">
+        <source src="/assets/hero.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+    </div>
+
+    <div class="text-center mb-12">
+      <h2 class="text-4xl font-bold mb-4">Verify, Seal, Anchor</h2>
+      <p class="text-xl text-slate-300 mb-2">
+        Court-validated outputs with QR + SHA-512 on every document.
+      </p>
+      <p class="text-lg text-indigo-400 font-semibold">
+        ✅ Free for individuals forever
+      </p>
+      <p class="text-sm text-slate-400 mt-2">
+        Institutions & companies: 20% of recovered fraud after trial
+      </p>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+      <div class="bg-slate-900 p-6 rounded-lg border border-slate-800">
+        <h3 class="text-xl font-bold mb-3">🔍 Verify</h3>
+        <p class="text-slate-400">
+          Upload documents, images, videos, or audio for instant SHA-512 verification
+        </p>
+      </div>
+      <div class="bg-slate-900 p-6 rounded-lg border border-slate-800">
+        <h3 class="text-xl font-bold mb-3">🔒 Seal</h3>
+        <p class="text-slate-400">
+          Generate PDF 1.7 sealed documents with logo, watermark, QR code, and certification
+        </p>
+      </div>
+      <div class="bg-slate-900 p-6 rounded-lg border border-slate-800">
+        <h3 class="text-xl font-bold mb-3">⚓ Anchor</h3>
+        <p class="text-slate-400">
+          Blockchain anchoring hook ready for immutable proof (when configured)
+        </p>
+      </div>
+    </div>
   </main>
+
+  <footer class="max-w-6xl mx-auto px-4 py-8 mt-16 border-t border-slate-800 text-center text-slate-500 text-sm">
+    <p>© 2025 Verum Omnis. Patent Pending. No telemetry. Privacy-first verification.</p>
+  </footer>
 </body>
 </html>
