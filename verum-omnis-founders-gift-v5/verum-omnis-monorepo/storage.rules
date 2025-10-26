@@ -1,0 +1,15 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Public read access for assets (videos, images)
+    match /assets/{allPaths=**} {
+      allow read: if true;
+      allow write: if false; // Only admins/functions can write
+    }
+    
+    // All other files: deny public access
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
