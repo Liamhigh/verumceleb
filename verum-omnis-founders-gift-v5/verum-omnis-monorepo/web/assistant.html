@@ -10,6 +10,10 @@
   <!-- Client-side libraries -->
   <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+  <!-- PDF.js for PDF text extraction -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <!-- Tesseract.js for OCR -->
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4.1.1/dist/tesseract.min.js"></script>
 </head>
 <body class="bg-slate-950 text-slate-100">
   
@@ -308,67 +312,125 @@
     });
 
     // ========================================================================
-    // VERIFY BUTTON
+    // VERIFY BUTTON - Nine-Brains Forensic Analysis
     // ========================================================================
     elements.btnVerify.addEventListener('click', async () => {
       if (!currentFileData) return;
 
       try {
         elements.btnVerify.disabled = true;
-        elements.btnVerify.textContent = '⏳ Verifying...';
-        showResults('Running triple-consensus verification...', 'info');
+        elements.btnVerify.textContent = '⏳ Analyzing with Nine-Brains...';
+        showResults('Running forensic verification with 9 independent analysis modules...', 'info');
 
-        const fileData = getCurrentFile();
-        const result = await verifyTriple({
-          arrayBuffer: fileData.arrayBuffer,
-          sha512: fileData.sha512,
-          filename: fileData.filename,
-          mime: fileData.mime
+        const verification = await verifyTriple({
+          arrayBuffer: currentFileData.arrayBuffer,
+          sha512: currentFileData.sha512,
+          filename: currentFileData.filename,
+          mime: currentFileData.mime
         });
 
-        // Build results HTML
-        let html = '<div class="space-y-3">';
+        // Get Nine-Brains results
+        const nineBrains = verification.nineBrainsResults || verification;
         
-        // Individual checker results
-        result.results.forEach(checker => {
-          const statusColor = checker.vote === 'pass' ? 'text-green-400' : 'text-yellow-400';
-          html += `
-            <div class="p-3 bg-slate-800 rounded-lg">
-              <div class="flex items-center justify-between mb-2">
-                <span class="font-medium">${checker.checker}</span>
-                <span class="${statusColor} font-bold">${checker.vote.toUpperCase()}</span>
+        // Build Nine-Brains matrix display
+        let html = `
+          <div class="space-y-4">
+            <div class="flex items-center justify-between">
+              <div class="font-bold text-xl">Nine-Brains Forensic Analysis</div>
+              <div class="text-sm text-slate-400">
+                Score: ${Math.round((nineBrains.avgScore || 0) * 100)}%
               </div>
-              <ul class="text-xs text-slate-400 space-y-1">
-                ${checker.notes.map(note => `<li>→ ${note}</li>`).join('')}
-              </ul>
             </div>
+            
+            <!-- Consensus Banner -->
+            <div class="p-4 rounded-lg ${nineBrains.consensus === 'pass' ? 'bg-green-900/30 border-2 border-green-600' : 'bg-red-900/30 border-2 border-red-600'}">
+              <div class="flex items-center gap-3">
+                <div class="text-3xl">${nineBrains.consensus === 'pass' ? '✅' : '🚨'}</div>
+                <div>
+                  <div class="font-bold text-lg ${nineBrains.consensus === 'pass' ? 'text-green-400' : 'text-red-400'}">
+                    ${nineBrains.consensus === 'pass' ? 'PASS - Document Verified' : 'FLAG - Review Required'}
+                  </div>
+                  <div class="text-sm text-slate-300">
+                    ${nineBrains.passCount || 0} of 9 brains voted PASS (${nineBrains.flagCount || 0} flagged)
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Nine-Brains Results Table -->
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm border-collapse">
+                <thead>
+                  <tr class="border-b border-slate-700 bg-slate-800/50">
+                    <th class="text-left py-2 px-3 font-semibold">Brain Module</th>
+                    <th class="text-center py-2 px-2 font-semibold">Vote</th>
+                    <th class="text-center py-2 px-2 font-semibold">Score</th>
+                    <th class="text-left py-2 px-3 font-semibold">Key Findings</th>
+                  </tr>
+                </thead>
+                <tbody>
+        `;
+
+        const results = nineBrains.results || verification.results || [];
+        results.forEach((brain, i) => {
+          const voteColor = brain.vote === 'pass' ? 'text-green-400' : 'text-red-400';
+          const voteIcon = brain.vote === 'pass' ? '✓' : '⚠️';
+          const scorePercent = Math.round((brain.score || 0) * 100);
+          const scoreColor = scorePercent >= 70 ? 'text-green-400' : scorePercent >= 40 ? 'text-yellow-400' : 'text-red-400';
+          
+          html += `
+            <tr class="border-b border-slate-800 hover:bg-slate-800/30">
+              <td class="py-3 px-3">
+                <div class="font-medium">${brain.brain || brain.checker || `Brain ${i+1}`}</div>
+              </td>
+              <td class="py-3 px-2 text-center ${voteColor} font-bold text-lg">
+                ${voteIcon}
+              </td>
+              <td class="py-3 px-2 text-center ${scoreColor} font-mono text-xs">
+                ${scorePercent}%
+              </td>
+              <td class="py-3 px-3 text-xs text-slate-300">
+                ${(brain.notes || []).slice(0, 3).map(n => `<div class="mb-1">• ${n}</div>`).join('')}
+                ${brain.notes && brain.notes.length > 3 ? `<div class="text-slate-500 italic">+${brain.notes.length - 3} more...</div>` : ''}
+              </td>
+            </tr>
           `;
         });
 
-        // Consensus
-        const consensusColor = result.consensus === 'pass' ? 'bg-green-600' : 'bg-yellow-600';
         html += `
-          <div class="p-4 ${consensusColor} rounded-lg">
-            <div class="font-bold text-lg mb-1">Consensus: ${result.consensus.toUpperCase()}</div>
-            <div class="text-sm opacity-90">${result.passCount}/${result.totalCheckers} checkers voted PASS</div>
+                </tbody>
+              </table>
+            </div>
+            
+            <!-- Recommendation -->
+            <div class="p-3 bg-slate-800/50 rounded-lg border border-slate-700">
+              <div class="font-semibold mb-2">💡 Recommendation:</div>
+              <div class="text-sm text-slate-300">
+                ${nineBrains.consensus === 'pass' 
+                  ? 'Document passed forensic verification. You can proceed with sealing and anchoring for court submission.'
+                  : 'Document has been flagged. Review the findings above carefully. Consider requesting original source or additional documentation.'}
+              </div>
+            </div>
           </div>
         `;
 
-        html += '</div>';
-
-        showResults(html, 'success');
-        addAssistantMessage(`Verification complete! Consensus: **${result.consensus.toUpperCase()}** (${result.passCount}/${result.totalCheckers} checkers passed).`);
+        showResults(html, nineBrains.consensus === 'pass' ? 'success' : 'warning');
+        
+        // Add conversational assistant message
+        const msg = nineBrains.consensus === 'pass' 
+          ? `✅ Great news! Your document "${currentFileData.filename}" passed all forensic checks. Out of 9 independent verification modules, ${nineBrains.passCount} voted PASS. The document appears authentic and ready for legal use. Would you like me to seal it with a certified QR code?`
+          : `⚠️ I've analyzed "${currentFileData.filename}" and ${nineBrains.flagCount} out of 9 verification modules raised concerns. This doesn't necessarily mean the document is fake, but it warrants careful review. Check the detailed findings above. Would you like me to explain what any of the modules found?`;
+        
+        addAssistantMessage(msg);
 
       } catch (error) {
         showResults(`Verification failed: ${error.message}`, 'error');
-        addAssistantMessage(`Sorry, verification encountered an error: ${error.message}`);
+        addAssistantMessage(`I encountered an error while analyzing the document: ${error.message}. This might happen if the file type isn't fully supported yet. Try a PDF or image file.`);
       } finally {
         elements.btnVerify.disabled = false;
         elements.btnVerify.textContent = '🔍 Check this document';
       }
-    });
-
-    // ========================================================================
+    });    // ========================================================================
     // SEAL BUTTON
     // ========================================================================
     elements.btnSeal.addEventListener('click', async () => {
