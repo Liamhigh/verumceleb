@@ -1,7 +1,13 @@
 /**
  * Verum Omnis - Client-Only Assistant
  * All core logic runs in the browser (no server required)
+ * 
+ * Enhanced with Nine-Brains forensic verification
  */
+
+// Import new modules
+import { runNineBrains } from './nine-brains.js';
+import { extractFromFile } from './extraction.js';
 
 // ============================================================================
 // STATE MANAGEMENT
@@ -235,28 +241,40 @@ async function llmChecker({ arrayBuffer, filename, sha512, mime }) {
 
 export async function verifyTriple({ arrayBuffer, sha512, filename, mime }) {
   try {
-    // Run all three checkers in parallel
-    const [ruleResult, statResult, llmResult] = await Promise.all([
-      ruleChecker({ arrayBuffer, filename, mime }),
-      statChecker({ arrayBuffer, filename }),
-      llmChecker({ arrayBuffer, filename, sha512, mime })
-    ]);
+    // Extract text first (needed for Nine-Brains)
+    const file = currentFile?.file || { name: filename, type: mime, size: arrayBuffer.byteLength };
+    const { text, metadata } = await extractFromFile(file);
     
-    // Consensus voting
-    const votes = [ruleResult.vote, statResult.vote, llmResult.vote];
-    const passCount = votes.filter(v => v === 'pass').length;
-    const consensus = passCount >= 2 ? 'pass' : 'flag';
+    // Run Nine-Brains verification (all 9 modules)
+    const nineBrainsResults = await runNineBrains({
+      file,
+      arrayBuffer,
+      text,
+      metadata,
+      caseFiles: [], // Single file mode
+    });
+    
+    // Map to old format for backwards compatibility
+    const results = nineBrainsResults.results.map(brain => ({
+      checker: brain.brain,
+      vote: brain.vote,
+      notes: brain.notes,
+    }));
     
     return {
-      results: [ruleResult, statResult, llmResult],
-      consensus,
-      passCount,
-      totalCheckers: 3,
-      timestamp: new Date().toISOString()
+      results,
+      consensus: nineBrainsResults.consensus,
+      passCount: nineBrainsResults.passCount,
+      flagCount: nineBrainsResults.flagCount,
+      totalCheckers: 9,
+      avgScore: nineBrainsResults.avgScore,
+      timestamp: new Date().toISOString(),
+      // Include full Nine-Brains data
+      nineBrainsResults,
     };
   } catch (error) {
     console.error('Verification failed:', error);
-    throw new Error('Triple verification failed');
+    throw new Error('Nine-Brains verification failed: ' + error.message);
   }
 }
 

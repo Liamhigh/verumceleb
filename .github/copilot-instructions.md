@@ -407,3 +407,211 @@ Tailwind classes, dark theme (`bg-slate-950 text-slate-100`), rounded 2xl cards,
 * [ ] **Polish**: copy buttons for hash/receipts, small toast for "Copied!", smooth scroll to newest chat.
 
 ---
+
+# ═══════════════════════════════════════════════════════════════
+# FORENSIC VERIFICATION & CASE ANALYSIS (Nine-Brains System)
+# ═══════════════════════════════════════════════════════════════
+
+## ✅ Logic & Forensics Checklist (Nine-Brains / Verification Engine)
+
+### A. Intake & Chain-of-Custody
+
+* [ ] **Hash on ingest**: Compute **SHA-512** for every file immediately (no network). Persist filename, size, mime, timestamp.
+* [ ] **Immutable evidence record**: Maintain an in-memory (and downloadable) **evidence manifest** listing every file's SHA-512 and metadata.
+* [ ] **No silent mutation**: Any transform (OCR render, compression, derived text) is recorded in an **audit log** with time, tool, params.
+
+### B. Universal Extraction (Text & Signals)
+
+* [ ] **PDF**: Extract text layer; if empty/low, render pages → OCR (tesseract) with per-page confidence.
+* [ ] **Images (PNG/JPG/TIFF/WEBP)**: OCR with language picker (default `eng`, allow `afr`, `zul`).
+* [ ] **DOC/DOCX/TXT**: Extract text (basic is OK); record warnings if conversion lossy.
+* [ ] **Media (MP3/MP4)**: Accept + hash; (optional) transcription if a speech model is later added; otherwise mark "not analyzed for text."
+* [ ] **Normalization**: Build a unified **document text** (per file) and **case text** (across files); keep page/file boundaries for traceability.
+
+### C. Nine-Brains Verification (apply to each file and to the whole case set)
+
+> Implement as 9 independent "brains" (modules). Each outputs `{vote: pass|flag, score 0–1, notes[]}`.
+
+* [ ] **Brain 1 — Document Integrity**: empty pages, duplicate pages, page size/producer shifts, corrupted bytes, suspicious filename patterns.
+* [ ] **Brain 2 — OCR Sanity**: per-page OCR confidence, non-linguistic character rate, repeated glyphs/banding → flags scan artifacts.
+* [ ] **Brain 3 — Statistical Signals**: entropy spikes, repetition ratio, boilerplate markers (e.g., Lorem Ipsum), symbol runs.
+* [ ] **Brain 4 — Timeline Coherence**: extract dates/times; build a timeline; flag impossible sequences (future dates, overlaps, back-dating).
+* [ ] **Brain 5 — Entity/Referential Consistency**: parties/IDs/amounts/locations consistent across docs; spot altered totals or mismatched names.
+* [ ] **Brain 6 — Cross-Document Contradictions**: claim vs. counterclaim; policy vs. letter; attachment vs. body; highlights conflicts and where.
+* [ ] **Brain 7 — Confession/Admission/Denial Mining**: regex/phrasebanks for admission/knowledge/intent; surface "confession-like" lines with context.
+* [ ] **Brain 8 — Policy/Template Deviation**: detect when a doc deviates from an institutional/form template (headers, clauses missing, numeric ranges).
+* [ ] **Brain 9 — Bias/Anomaly/Outlier**: outlier detection on values/dates; sudden style/lexical changes; improbable sequences.
+
+### D. Triple-Consensus (per file + case level)
+
+* [ ] **Model Set**: (a) RuleChecker (Brains 1–5), (b) StatChecker (Brains 3,9 emphasis), (c) LLMChecker stub or cloud-backed if key present (Brains 6–7 emphasis).
+* [ ] **Decision**: **Consensus = PASS** if ≥5/9 brains vote pass (majority); otherwise **FLAG**. Keep per-brain scores for audit.
+* [ ] **Explainability**: Every vote lists top 2–5 `notes` with page/file anchors.
+
+### E. Case-Level Synthesis
+
+* [ ] **Merged timeline** across all files with back-references to sources.
+* [ ] **Contradiction table** (who/what/where; link to original lines/pages).
+* [ ] **Confession/exposure table** (quote + surrounding context + source).
+* [ ] **Risk/Confidence summary** (0–100) with reasoning bullets.
+
+### F. Sealing & Anchoring
+
+* [ ] **Sealed PDF**: generate a **print-ready** PDF with: logo header, faint watermark, footer with "✔ Patent Pending Verum Omnis · SHA-512 (trunc)", and **QR** encoding `{sha512, filename/case-id, ts, ver}`.
+* [ ] **Per-file & Case-bundle**: allow sealing **each file's** findings report **and** a **master case report**.
+* [ ] **Anchor receipt**: downloadable JSON (`anchor-receipt.json`) per file and per case with `{sha512, ts, method:'local', txHash?}`.
+
+### G. Privacy/Local-First
+
+* [ ] **No upload by default**; all compute local in browser.
+* [ ] **Downloadables only**: sealed PDFs, receipts, and case report are offered as downloads without server storage.
+
+---
+
+## 🎯 Website & Workflow Checklist (Users + Law Enforcement/Lawyers)
+
+### A. Pages & Navigation
+
+* [ ] **Landing**: hero video (from `videos.json.landing`), headline, 3 features, CTAs to Chat and Institutions.
+* [ ] **Institutions**: two videos (`videos.json.institutions1/2`), 3 cards (20% recovery, Legal AI, Investigation AI), note on hashes/QR.
+* [ ] **Assistant**: chat-first layout with tools panel.
+
+### B. Single-Document Flow (Citizen / Any User)
+
+* [ ] **Drop/Select file** → **SHA-512 shows instantly** + metadata.
+* [ ] **Extract** runs; if OCR needed, show progress and page counts; allow cancel.
+* [ ] **Verify** → display **Nine-Brains mini-matrix** + **Consensus**.
+* [ ] **Seal** → download **file.sealed.pdf** (logo, watermark, QR, truncated hash).
+* [ ] **Anchor** → download **anchor-receipt.json**.
+
+### C. Case-File Flow (Law Enforcement / Lawyers)
+
+* [ ] **Bulk input**: drag-drop folder or multiple files; show per-file progress (hash/OCR/verify).
+* [ ] **Evidence manifest**: display table of all files (name, type, size, SHA-512, status).
+* [ ] **Case Verify**:
+  * Runs Nine-Brains **per file** and **across files** (timeline, contradictions, admission mining).
+  * Produces **case-level consensus** separate from per-file consensuses.
+* [ ] **Generate Case Report (PDF)**:
+  * **Cover**: case ID, date, total files, overall consensus.
+  * **Chain of Custody**: SHA-512 list for every file.
+  * **Timeline**: normalized events with citations to file/page.
+  * **Contradictions**: table with exact excerpts + sources.
+  * **Confessions/Admissions**: excerpts + context + sources.
+  * **Nine-Brains Matrix**: scores/votes per brain per file + case summary heatmap.
+  * **Final Assessment**: PASS/FLAG with reasons; recommended next steps.
+  * **QR & Footer**: as per sealing standard; optional per-file appendix.
+* [ ] **Downloadables**:
+  * **Master case report (sealed)**: `case-report.sealed.pdf`
+  * **Per-file sealed reports** on demand
+  * **Anchor receipts** for case and/or each file
+
+### D. Usability & Accessibility
+
+* [ ] **Runs offline** after load (PWA optional later).
+* [ ] **Progress indicators** for OCR/verify; non-blocking chat.
+* [ ] **Responsive**: mobile stacks, desktop 70/30 split (chat/tools).
+* [ ] **Copy buttons** for hashes; **"Copied"** toast; scroll to latest chat.
+
+### E. Security & Compliance Hints (UI copy)
+
+* [ ] Warn: "Local-first. Nothing leaves your device unless you opt-in."
+* [ ] Note: "OCR and analysis are best-effort; verified sealing preserves hash & audit trail."
+* [ ] Disclaimer for users: "Not legal advice; outputs are for counsel and court submission."
+
+---
+
+## 📄 Case Report PDF Structure (Forensic Report)
+
+* [ ] **Front page**: logo, title, case ID/filename, timestamp, analyst ("Verum Omnis Automated Forensic Assistant").
+* [ ] **Executive summary**: 3–6 bullets; overall **Consensus** and confidence.
+* [ ] **Chain of custody**: SHA-512 (full), truncated display; file list with sizes, types, times.
+* [ ] **Methodology**: one page explaining Nine-Brains, OCR, consensus rule.
+* [ ] **Per-file findings**:
+  * Hash + metadata
+  * OCR stats (text vs OCR pages; confidence)
+  * Nine-Brains mini-matrix + notes
+  * Consensus vote + notes
+* [ ] **Case-level analysis** (multi-file only):
+  * Timeline (table)
+  * Contradictions map (table with quotes & citations)
+  * Confessions/admissions mined (table with quotes & citations)
+  * Outliers/Anomalies
+* [ ] **Conclusion & Next steps** (what to request, where to look)
+* [ ] **Footer** every page: "✔ Patent Pending Verum Omnis · SHA-512 (trunc) · QR" (QR encodes receipt JSON).
+
+---
+
+## 🔧 Engineering Acceptance Tests
+
+* [ ] Drop a **scanned PDF** → OCR detects pages; verify flags OCR anomalies; seal produces QR.
+* [ ] Drop a **born-digital PDF** → no OCR; verify passes Rule/Stat checks.
+* [ ] Drop **two conflicting letters** → contradictions table highlights the conflict passages.
+* [ ] Bulk drop **10–50 files** → case report compiles without crash; progress UI remains responsive.
+* [ ] All outputs (sealed PDFs, receipts, case report) download without server contact.
+
+---
+
+## 📦 Implemented Modules (as of latest commit)
+
+### Core Forensic Modules
+
+1. **`web/js/nine-brains.js`** — 9 independent verification brains:
+   - Brain 1: Document Integrity
+   - Brain 2: OCR Sanity
+   - Brain 3: Statistical Signals
+   - Brain 4: Timeline Coherence
+   - Brain 5: Entity/Referential Consistency
+   - Brain 6: Cross-Document Contradictions
+   - Brain 7: Confession/Admission/Denial Mining
+   - Brain 8: Policy/Template Deviation
+   - Brain 9: Bias/Anomaly/Outlier Detection
+   - Function: `runNineBrains()` — returns 5/9 majority consensus
+
+2. **`web/js/case-manager.js`** — Evidence manifest & chain-of-custody:
+   - Class: `CaseManager` — multi-file case management
+   - Immutable evidence records (SHA-512, metadata, audit log)
+   - Functions: `addFile`, `setExtraction`, `setVerification`, `getManifest`, `exportCaseData`
+
+3. **`web/js/case-synthesis.js`** — Case-level analysis:
+   - `buildMergedTimeline()` — chronological event extraction
+   - `buildContradictionTable()` — cross-document conflict detection
+   - `buildConfessionTable()` — admission/denial mining
+   - `trackEntities()` — names, IDs, amounts, emails across files
+   - `calculateCaseScore()` — risk/confidence scoring (0-100)
+
+4. **`web/js/extraction.js`** — Universal file extraction:
+   - `extractFromFile()` — routes to appropriate extractor
+   - `extractFromPDF()` — text layer first, OCR fallback
+   - `extractFromImage()` — OCR with language picker
+   - `extractFromText()` — direct UTF-8 decode
+   - `extractFromMedia()` — hash + transcription stub
+
+5. **`web/js/assistant.js`** (enhanced) — Integration layer:
+   - `verifyTriple()` now calls `runNineBrains()` (9 checkers, 5/9 consensus)
+   - Imports: nine-brains.js, extraction.js
+   - Returns full Nine-Brains results + backwards-compatible format
+
+---
+
+## 🚀 Implementation Status
+
+✅ **Completed:**
+- Nine-Brains verification engine (all 9 modules)
+- Evidence manifest & chain-of-custody tracking
+- Case-level synthesis (timeline, contradictions, confessions, entities)
+- Universal extraction (PDF, images, text, media)
+- Integration with assistant.js
+
+🔄 **In Progress:**
+- Comprehensive case report PDF generation
+- Bulk case-file UI workflow (drag-drop folders)
+- Assistant.html case mode interface
+- End-to-end testing with real case files
+
+📋 **Next Steps:**
+1. Build case report PDF generator (pdf-lib with multi-section layout)
+2. Add bulk upload UI to assistant.html
+3. Create evidence manifest table component
+4. Test with 10-50 file case scenarios
+5. Mobile responsive case-file interface
+
