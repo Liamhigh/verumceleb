@@ -5,71 +5,21 @@
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Verum Omnis — Legal AI</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="icon" href="/assets/logo.png">
 </head>
 <body class="bg-slate-950 text-slate-100">
   <header class="max-w-6xl mx-auto px-4 py-6 flex items-center justify-between">
-    <div class="flex items-center gap-3">
-      <img src="/assets/logo.png" class="h-9 w-9 rounded" alt="Verum Omnis"/>
-      <h1 class="text-xl font-semibold">Verum Omnis</h1>
-    </div>
-    <nav class="flex items-center gap-3">
+    <h1 class="text-xl font-semibold">Verum Omnis</h1>
+    <nav class="flex gap-3">
       <a href="/assistant.html" class="px-4 py-2 rounded bg-indigo-600 hover:bg-indigo-500">Open Chat</a>
       <a href="/institutions.html" class="px-4 py-2 rounded border border-slate-700 hover:bg-slate-800">Institutions</a>
-      <a href="/apk/VerumOmnis.apk" class="px-4 py-2 rounded border border-slate-700 hover:bg-slate-800">Download App (APK)</a>
     </nav>
   </header>
-
-  <section class="relative">
-    <video class="w-full max-h-[60vh] object-cover opacity-80" src="/assets/hero.mp4" autoplay muted loop playsinline></video>
-    <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 to-transparent"></div>
-    <div class="absolute inset-0 flex items-end">
-      <div class="max-w-6xl mx-auto px-4 pb-8">
-        <h2 class="text-3xl md:text-5xl font-bold mb-3">The World’s First Legal AI</h2>
-        <p class="text-slate-300 max-w-2xl">
-          Verify, seal, and anchor truth. Court-actionable outputs with SHA-512 hashes, QR verification,
-          and blockchain receipts. Free for citizens; institutions contribute on recoveries.
-        </p>
-      </div>
-    </div>
-  </section>
-
-  <section class="max-w-6xl mx-auto px-4 py-12 grid md:grid-cols-3 gap-6">
-    <div class="p-5 rounded-2xl bg-slate-900/50 border border-slate-800">
-      <h3 class="font-semibold mb-2">World-First Legal AI</h3>
-      <p class="text-slate-300">Court-validated outputs with QR + SHA-512 on every document.</p>
-    </div>
-    <div class="p-5 rounded-2xl bg-slate-900/50 border border-slate-800">
-      <h3 class="font-semibold mb-2">Free for Citizens</h3>
-      <p class="text-slate-300">Open access via mobile and web; professional escalation when required.</p>
-    </div>
-    <div class="p-5 rounded-2xl bg-slate-900/50 border border-slate-800">
-      <h3 class="font-semibold mb-2">Contradiction Engine</h3>
-      <p class="text-slate-300">Detects inconsistencies; triple-AI consensus with human oversight.</p>
-    </div>
-  </section>
-
-  <section class="max-w-6xl mx-auto px-4 py-12">
-    <h3 class="text-2xl font-semibold mb-4">Institutions & Legal</h3>
-    <ul id="inst" class="space-y-2 text-slate-300"></ul>
-  </section>
-
-  <footer class="border-t border-slate-800">
-    <div class="max-w-6xl mx-auto px-4 py-6 text-sm text-slate-400">
-      <div>“Truth can be verified. Fraud can be exposed. Justice can be democratized.”</div>
-      <div class="mt-2">&copy; Verum Omnis Foundation — Sealed templates, hashes, and QR verification available on request.</div>
-    </div>
-  </footer>
-
-  <script>
-    fetch('/data/institutions.json').then(r=>r.json()).then(d=>{
-      const ul=document.getElementById('inst');
-      d.institutions.forEach(i=>{
-        const li=document.createElement('li');
-        li.textContent = `${i.name} — ${i.ref}`;
-        ul.appendChild(li);
-      });
-    }).catch(()=>{});
-  </script>
+  <main class="max-w-6xl mx-auto px-4 py-12">
+    <h2 class="text-3xl font-bold mb-4">Verify, Seal, Anchor</h2>
+    <p class="text-slate-300">
+      Court-validated outputs with QR + SHA-512 on every document.  
+      Free for citizens; institutions contribute on recoveries.
+    </p>
+  </main>
 </body>
 </html>

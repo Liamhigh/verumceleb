@@ -26,35 +26,44 @@
       const d = await crypto.subtle.digest('SHA-512', buf);
       return [...new Uint8Array(d)].map(b=>b.toString(16).padStart(2,'0')).join('');
     }
+
     document.getElementById('file').addEventListener('change', async (e)=>{
-      const f=e.target.files?.[0]; if(!f) return;
+      const f = e.target.files?.[0]; if(!f) return;
       currentFile = f;
       const buf = await f.arrayBuffer();
       const h = await sha512(buf);
       currentHash = h;
-      document.getElementById('out').textContent = 'I\\'ve hashed your file (SHA-512): ' + h + '\\nWhat next?';
+      document.getElementById('out').textContent = `I've hashed your file (SHA-512): ${h}\nWhat next?`;
     });
 
     async function callApi(path, body){
-      const res = await fetch('/api' + path, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)});
-      const json = await res.json().catch(()=>({error:'non-JSON'}));
+      const res = await fetch('/api' + path, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify(body)
+      });
+      const json = await res.json().catch(() => ({
+        error: 'Unable to parse server response. Please try again.'
+      }));
       return {status: res.status, json};
     }
 
     document.getElementById('btn-verify').addEventListener('click', async()=>{
       if(!currentHash) return alert('Upload a file first to compute SHA-512.');
       const r = await callApi('/verify', { sha512: currentHash });
-      document.getElementById('out').textContent += '\\n\\nVerify → ' + JSON.stringify(r.json, null, 2);
+      document.getElementById('out').textContent += `\n\nVerify → ${JSON.stringify(r.json, null, 2)}`;
     });
+
     document.getElementById('btn-seal').addEventListener('click', async()=>{
       if(!currentHash) return alert('Upload a file first to compute SHA-512.');
       const r = await callApi('/seal', { sha512: currentHash, filename: currentFile?.name });
-      document.getElementById('out').textContent += '\\n\\nSeal → ' + JSON.stringify(r.json, null, 2);
+      document.getElementById('out').textContent += `\n\nSeal → ${JSON.stringify(r.json, null, 2)}`;
     });
+
     document.getElementById('btn-anchor').addEventListener('click', async()=>{
       if(!currentHash) return alert('Upload a file first to compute SHA-512.');
       const r = await callApi('/anchor', { sha512: currentHash });
-      document.getElementById('out').textContent += '\\n\\nAnchor → ' + JSON.stringify(r.json, null, 2);
+      document.getElementById('out').textContent += `\n\nAnchor → ${JSON.stringify(r.json, null, 2)}`;
     });
   </script>
 </body>

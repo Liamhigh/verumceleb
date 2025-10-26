@@ -12,8 +12,24 @@ jobs:
         with:
           node-version: '20'
       - name: Install Firebase CLI
-        run: npm i -g firebase-tools
+        run: npm i -g firebase-tools@13.3.0
+      - name: Install functions deps
+        working-directory: functions
+        run: npm ci || npm install
       - name: Deploy
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
-        run: firebase deploy --only hosting,functions
+        run: firebase deploy --only hosting,functions --non-interactive
+      - name: Smoke test /api/health (retry)
+        run: |
+          for i in {1..5}; do
+            if curl -fsS "https://verumdone.web.app/api/health" | grep -q '^OK$'; then
+              echo "SMOKE: OK"
+              exit 0
+            else
+              echo "SMOKE: attempt $i failed, retrying in 5s..."
+              sleep 5
+            fi
+          done
+          echo "SMOKE: FAILED after 5 attempts"
+          exit 1
