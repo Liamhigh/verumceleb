@@ -3,121 +3,54 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Verum Omnis — For Institutions</title>
+  <title>Verum Omnis — Institutions</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="icon" href="/assets/logo.png">
 </head>
 <body class="bg-slate-950 text-slate-100">
-  <!-- Top bar -->
   <header class="max-w-6xl mx-auto px-4 py-6 flex items-center justify-between">
-    <div class="flex items-center gap-3">
-      <img src="/assets/logo.png" class="h-9 w-9 rounded" alt="Verum Omnis"/>
-      <h1 class="text-xl font-semibold">Verum Omnis</h1>
-    </div>
+    <h1 class="text-xl font-semibold">Verum Omnis — Institutions</h1>
     <nav class="flex items-center gap-3">
-      <a href="/index.html" class="px-4 py-2 rounded border border-slate-700 hover:bg-slate-800">Home</a>
-      <a href="/assistant.html" class="px-4 py-2 rounded bg-indigo-600 hover:bg-indigo-500">Open Chat</a>
-      <a href="/apk/VerumOmnis.apk" class="px-4 py-2 rounded border border-slate-700 hover:bg-slate-800">Download App (APK)</a>
+      <a href="/" class="px-3 py-2 rounded border border-slate-700 hover:bg-slate-800">Home</a>
+      <a href="/assistant.html" class="px-3 py-2 rounded bg-indigo-600 hover:bg-indigo-500">Open Chat</a>
     </nav>
   </header>
 
-  <!-- Hero -->
-  <section class="max-w-6xl mx-auto px-4 pt-4 pb-8">
-    <h2 class="text-3xl md:text-4xl font-bold mb-3">Institutional Program</h2>
-    <p class="text-slate-300 max-w-3xl">
-      Verum Omnis provides a court-validated investigation and legal automation layer designed to work
-      with your existing in-house counsel and fraud teams. Citizens use the platform for free.
-      For institutions, we offer two subscriptions — <b>Investigation AI</b> and <b>Legal AI</b> — plus an optional
-      success fee of <b>20% of post-judgment or settled fraud recoveries</b>.
-    </p>
-  </section>
+  <main class="max-w-6xl mx-auto px-4 space-y-10">
+    <section class="grid md:grid-cols-2 gap-6">
+      <video class="w-full rounded-2xl border border-slate-800" src="/assets/institutions1.mp4" controls playsinline></video>
+      <video class="w-full rounded-2xl border border-slate-800" src="/assets/institutions2.mp4" controls playsinline></video>
+    </section>
 
-  <!-- Offer structure -->
-  <section class="max-w-6xl mx-auto px-4 grid md:grid-cols-2 gap-6">
-    <div class="p-5 rounded-2xl bg-slate-900/50 border border-slate-800">
-      <h3 class="text-xl font-semibold mb-2">Investigation AI (Subscription)</h3>
-      <ul class="list-disc ml-5 space-y-2 text-slate-300">
-        <li>Contradiction Engine & anomaly detection across statements and artefacts.</li>
-        <li>Forensic hashes (SHA-512), QR audit trails, PDF/A-3B evidence packages.</li>
-        <li>Bulk intake pipelines for case queues; triage and prioritisation.</li>
-        <li>Outputs structured for counsel, investigators, and law enforcement.</li>
-      </ul>
-    </div>
-
-    <div class="p-5 rounded-2xl bg-slate-900/50 border border-slate-800">
-      <h3 class="text-xl font-semibold mb-2">Legal AI (Subscription)</h3>
-      <ul class="list-disc ml-5 space-y-2 text-slate-300">
-        <li>Jurisdiction-aware drafting for notices, affidavits, and filings.</li>
-        <li>Automated bundle assembly with sealed exhibits and chain-of-custody.</li>
-        <li>In-house lawyer workflow: review, approve, e-sign, file.</li>
-        <li>Audit-ready logs for court acceptance and internal policy.</li>
-      </ul>
-    </div>
-  </section>
-
-  <!-- Recovery model -->
-  <section class="max-w-6xl mx-auto px-4 py-8">
-    <div class="p-5 rounded-2xl bg-slate-900/50 border border-slate-800">
-      <h3 class="text-xl font-semibold mb-2">Recovery Model</h3>
-      <p class="text-slate-300">
-        For institutions, Verum Omnis may participate via a <b>20% success fee</b> on recovered fraud amounts,
-        payable <i>only after</i> judgment or settlement. This aligns incentives while keeping subscriptions predictable.
-        Citizens pay <b>zero</b>; access to justice remains free for private individuals.
-      </p>
-      <ul class="list-disc ml-5 mt-3 space-y-2 text-slate-300">
-        <li>Success fee applies to recoveries proven through court orders, settlement agreements, or equivalent instruments.</li>
-        <li>Subscriptions cover platform usage, evidence generation, and counsel-ready outputs.</li>
-        <li>Your in-house counsel directs strategy; Verum Omnis provides automation, evidence integrity and drafting.</li>
-      </ul>
-    </div>
-  </section>
-
-  <!-- Governance & compliance -->
-  <section class="max-w-6xl mx-auto px-4 grid md:grid-cols-3 gap-6">
-    <div class="p-5 rounded-2xl bg-slate-900/50 border border-slate-800">
-      <h4 class="font-semibold mb-2">Data Handling</h4>
-      <p class="text-slate-300">Hash-based verification, least-privilege access, immutable logs, exportable evidence packs.</p>
-    </div>
-    <div class="p-5 rounded-2xl bg-slate-900/50 border border-slate-800">
-      <h4 class="font-semibold mb-2">Court Acceptance</h4>
-      <p class="text-slate-300">Sealed documents with QR & SHA-512 on cover pages; audit trails for admissibility.</p>
-    </div>
-    <div class="p-5 rounded-2xl bg-slate-900/50 border border-slate-800">
-      <h4 class="font-semibold mb-2">Integration</h4>
-      <p class="text-slate-300">API & bulk intake; maps to your matter IDs, custody policies, and retention schedules.</p>
-    </div>
-  </section>
-
-  <!-- Videos -->
-  <section class="max-w-6xl mx-auto px-4 py-10 space-y-10">
-    <div>
-      <h3 class="text-2xl font-semibold mb-3">Bank Promo — Short</h3>
-      <video controls class="w-full rounded-2xl border border-slate-800"
-             src="/assets/bank-promo.mp4" playsinline></video>
-    </div>
-    <div>
-      <h3 class="text-2xl font-semibold mb-3">Bank Promo — Long</h3>
-      <video controls class="w-full rounded-2xl border border-slate-800"
-             src="/assets/bank-promo-long.mp4" playsinline></video>
-    </div>
-  </section>
-
-  <!-- CTA -->
-  <section class="max-w-6xl mx-auto px-4 pb-14">
-    <div class="p-6 rounded-2xl bg-indigo-600/10 border border-indigo-700">
-      <h3 class="text-xl font-semibold mb-2">Start a Pilot</h3>
-      <p class="text-slate-200">Connect your in-house lawyer and fraud lead. We’ll enable bulk intake, sealed evidence, and counsel workflows in under a week.</p>
-      <div class="mt-4 flex gap-3">
-        <a href="/assistant.html" class="px-4 py-2 rounded bg-indigo-600 hover:bg-indigo-500">Open Chat</a>
-        <a href="mailto:liam@verumglobal.foundation" class="px-4 py-2 rounded border border-slate-700 hover:bg-slate-800">Contact</a>
+    <section class="grid md:grid-cols-3 gap-6">
+      <div class="p-5 rounded-2xl bg-slate-900/50 border border-slate-800">
+        <h3 class="font-semibold mb-2">Recovery Fee (Success-Based)</h3>
+        <p class="text-slate-300">
+          On proven fraud recoveries, institutions contribute <b>20%</b> of funds recovered after the matter is resolved.
+          No charges to private citizens.
+        </p>
       </div>
-    </div>
-  </section>
+      <div class="p-5 rounded-2xl bg-slate-900/50 border border-slate-800">
+        <h3 class="font-semibold mb-2">Legal AI — Subscription</h3>
+        <ul class="list-disc ml-5 text-slate-300 space-y-1">
+          <li>Draft notices, filings & affidavits</li>
+          <li>Jurisdiction-aware templates</li>
+          <li>In-house counsel ready</li>
+        </ul>
+      </div>
+      <div class="p-5 rounded-2xl bg-slate-900/50 border border-slate-800">
+        <h3 class="font-semibold mb-2">Investigation AI — Subscription</h3>
+        <ul class="list-disc ml-5 text-slate-300 space-y-1">
+          <li>Evidence ingestion & OCR</li>
+          <li>Contradiction / anomaly detection</li>
+          <li>Forensic timelines & audit trail</li>
+        </ul>
+      </div>
+    </section>
 
-  <footer class="border-t border-slate-800">
-    <div class="max-w-6xl mx-auto px-4 py-6 text-sm text-slate-400">
-      &copy; Verum Omnis Foundation — Institutional Program
-    </div>
-  </footer>
+    <p class="text-slate-400 text-sm">
+      Note: Many banks prefer to litigate with their own in-house lawyers. Verum Omnis integrates cleanly:
+      exportable reports, sealed hashes (SHA-512), QR verification, and API access for case-management systems.
+    </p>
+  </main>
 </body>
 </html>
