@@ -1,0 +1,36 @@
+name: Firebase Deploy
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch: {}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Firebase CLI
+        run: npm i -g firebase-tools@13
+
+      - name: Install functions deps
+        working-directory: functions
+        run: npm ci || npm install
+
+      - name: Deploy Hosting + Functions
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+        run: |
+          firebase use verumdone
+          firebase deploy --only hosting,functions --non-interactive
+
+      - name: Smoke test /api/health (via Hosting rewrite)
+        run: |
+          curl -fsS https://verumdone.web.app/api/health | grep -q '^OK$' && echo "SMOKE: OK"

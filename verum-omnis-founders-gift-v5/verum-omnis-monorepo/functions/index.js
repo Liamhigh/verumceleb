@@ -21,6 +21,7 @@ if (NODE_ENV === 'production' && process.env.SKIP_IMMUTABLE_VERIFY) {
 const skipImmutable = process.env.SKIP_IMMUTABLE_VERIFY === '1';
 
 export const app = express();
+app.get("/health",(req,res)=>res.status(200).send("OK"));
 app.use(express.json({ limit: '4mb' }));
 app.use(helmet({ contentSecurityPolicy: false }));
 
@@ -134,3 +135,14 @@ app.get('/v1/video/status', (_req,res)=>{ res.json({ ok:true, status: videoCfg }
 app.post('/v1/video/upload', (_req,res)=>{ res.status(501).json({ ok:false, error:'VIDEO_DISABLED' }); });
 app.post('/v1/video/transcribe', (_req,res)=>{ res.status(501).json({ ok:false, error:'TRANSCRIBE_DISABLED' }); });
 app.post('/v1/video/analyze', (_req,res)=>{ res.status(501).json({ ok:false, error:'THREAT_DETECT_DISABLED' }); });
+import express from "express";
+import { onRequest } from "firebase-functions/v2/https";
+
+const app = express();
+
+app.get("/health", (req, res) => {
+  res.status(200).send("OK");
+});
+
+// export Cloud Function named "api"
+export const api = onRequest({ region: "us-central1" }, app);
