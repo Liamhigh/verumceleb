@@ -5,12 +5,7 @@ const config: CapacitorConfig = {
   appName: 'Verum Omnis',
   webDir: 'www',
   server: {
-    // TODO: Replace with your production Firebase Hosting URL after deployment
-    // Examples:
-    //   - 'https://gitverum.web.app'
-    //   - 'https://your-project.firebaseapp.com'
-    //   - 'https://your-custom-domain.com'
-    url: 'https://YOUR_HOSTING_DOMAIN',
+    url: 'https://gitverum.web.app',
     cleartext: false  // Enforce HTTPS for security
   }
 };
