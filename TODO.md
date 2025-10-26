@@ -1,3 +1,3 @@
 # TODO
 
-[ ] Smoke tests: replace scripts/smoke.sh, push, and verify CI deploy
+[x] Smoke tests: replace scripts/smoke.sh, push, and verify CI deploy
