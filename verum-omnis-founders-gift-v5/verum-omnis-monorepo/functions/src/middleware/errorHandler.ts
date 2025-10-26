@@ -5,19 +5,19 @@ export class VoError extends Error {
   constructor(
     public code: string,
     public httpStatus: number,
-    public details?: any
+    public details?: unknown
   ) {
     super(code);
     this.name = "VoError";
   }
 }
 
-export function voError(code: string, httpStatus: number, details?: any): VoError {
+export function voError(code: string, httpStatus: number, details?: unknown): VoError {
   return new VoError(code, httpStatus, details);
 }
 
 export function errorHandler(logger: Logger) {
-  return (err: Error, req: Request, res: Response, next: NextFunction) => {
+  return (err: Error, req: Request, res: Response, _next: NextFunction) => {
     if (err instanceof VoError) {
       logger.error({
         code: err.code,

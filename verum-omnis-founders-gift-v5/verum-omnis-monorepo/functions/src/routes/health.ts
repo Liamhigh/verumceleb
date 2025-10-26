@@ -2,7 +2,7 @@ import { Router } from "express";
 import type { Logger } from "pino";
 import { getEnv } from "../config/env";
 
-export function healthRouter(logger: Logger) {
+export function healthRouter(_logger: Logger) {
   const router = Router();
   
   const startTime = Date.now();

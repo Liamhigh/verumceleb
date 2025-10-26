@@ -4,12 +4,9 @@ import cors from "cors";
 import helmet from "helmet";
 import compression from "compression";
 import rateLimit from "express-rate-limit";
-import multer from "multer";
-import { z } from "zod";
 import pino from "pino";
 import { validateEnv } from "./config/env";
-import { errorHandler, voError } from "./middleware/errorHandler";
-import { validateRequest } from "./middleware/validation";
+import { errorHandler } from "./middleware/errorHandler";
 import { setupRoutes } from "./routes";
 
 // Initialize logger

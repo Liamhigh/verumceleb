@@ -12,6 +12,10 @@ export default [
         ecmaVersion: 2022,
         sourceType: "module",
       },
+      globals: {
+        process: "readonly",
+        console: "readonly",
+      },
     },
     plugins: {
       "@typescript-eslint": tseslint,
@@ -21,9 +25,10 @@ export default [
       "@typescript-eslint/explicit-function-return-type": "off",
       "@typescript-eslint/no-explicit-any": "warn",
       "no-console": "warn",
+      "no-unused-vars": "off", // Turned off in favor of @typescript-eslint/no-unused-vars
     },
   },
   {
-    ignores: ["dist/**", "node_modules/**", "*.js"],
+    ignores: ["dist/**", "node_modules/**", "*.js", "!eslint.config.js"],
   },
 ];

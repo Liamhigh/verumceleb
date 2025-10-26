@@ -10,8 +10,6 @@ export interface EnvConfig {
   ANCHOR_PRIVATE_KEY?: string;
 }
 
-const requiredEnvVars = ["FIREBASE_APP_ENV"];
-
 export function validateEnv(logger: Logger): EnvConfig {
   const env = process.env.FIREBASE_APP_ENV || "local";
 

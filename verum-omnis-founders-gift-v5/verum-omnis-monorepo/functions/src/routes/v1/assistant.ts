@@ -5,7 +5,7 @@ import { validateRequest } from "../../middleware/validation";
 import { voError } from "../../middleware/errorHandler";
 
 // In-memory receipt storage (same as original receipts-kv.js)
-const receipts = new Map<string, any>();
+const receipts = new Map<string, Record<string, unknown>>();
 
 const assistantSchema = z.object({
   mode: z.enum(["verify", "policy", "anchor", "receipt", "notice", "seal"]).optional(),
@@ -17,7 +17,7 @@ export function assistantRouter(logger: Logger) {
   const router = Router();
 
   router.post("/", validateRequest(assistantSchema), (req, res) => {
-    const { mode, hash, message } = req.body;
+    const { mode, hash } = req.body;
     
     if (!mode) {
       throw voError("invalid_mode", 400, { message: "mode is required" });
@@ -44,7 +44,7 @@ export function assistantRouter(logger: Logger) {
         });
         break;
 
-      case "anchor":
+      case "anchor": {
         if (!hash) {
           throw voError("hash_required_for_anchor", 400);
         }
@@ -63,8 +63,9 @@ export function assistantRouter(logger: Logger) {
           receipt,
         });
         break;
+      }
 
-      case "receipt":
+      case "receipt": {
         if (!hash) {
           throw voError("hash_required_for_receipt", 400);
         }
@@ -79,6 +80,7 @@ export function assistantRouter(logger: Logger) {
           receipt: storedReceipt,
         });
         break;
+      }
 
       case "notice":
         res.json({
