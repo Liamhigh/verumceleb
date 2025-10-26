@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Select Your Account Type — Verum Omnis</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-950 text-slate-100">
+  
+  <!-- Watermark -->
+  <img src="/assets/logo.png" alt="Verum Omnis" class="watermark" />
+  
+  <!-- Header -->
+  <header class="sticky top-0 z-50 bg-slate-950/95 backdrop-blur-sm border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 py-4">
+      <div class="flex items-center justify-between flex-wrap gap-4">
+        <div class="flex items-center gap-3">
+          <img src="/assets/logo.png" alt="Verum Omnis — the whole truth" class="h-12 object-contain" />
+          <span class="text-xl font-bold">Verum Omnis</span>
+        </div>
+        <nav class="flex gap-3 flex-wrap">
+          <a href="/" class="px-3 py-2 rounded border border-slate-700 hover:bg-slate-800 transition-colors text-sm">Home</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="relative z-10 max-w-6xl mx-auto px-4 py-12">
+    
+    <!-- Title Section -->
+    <div class="mb-12 text-center">
+      <h1 class="text-4xl md:text-5xl font-bold mb-4">
+        Welcome to Verum Omnis
+      </h1>
+      <p class="text-xl text-slate-400">
+        Select your account type to continue
+      </p>
+    </div>
+
+    <!-- Selection Cards -->
+    <div class="grid md:grid-cols-3 gap-6 mb-12">
+      
+      <!-- Private Person (Free) -->
+      <div class="p-8 bg-gradient-to-br from-green-900/30 to-emerald-900/30 border-2 border-green-600/50 rounded-2xl card-hover cursor-pointer" onclick="selectMode('private')">
+        <div class="text-center mb-6">
+          <div class="text-6xl mb-4">👤</div>
+          <h2 class="text-2xl font-bold text-green-400 mb-2">Private Person</h2>
+          <div class="text-3xl font-bold mb-2">FREE</div>
+          <p class="text-sm text-slate-400">Forever</p>
+        </div>
+        
+        <div class="space-y-3 text-sm text-slate-300">
+          <div class="flex items-start gap-2">
+            <span class="text-green-400 font-bold">✓</span>
+            <span>All features unlimited</span>
+          </div>
+          <div class="flex items-start gap-2">
+            <span class="text-green-400 font-bold">✓</span>
+            <span>Document verification</span>
+          </div>
+          <div class="flex items-start gap-2">
+            <span class="text-green-400 font-bold">✓</span>
+            <span>Sealed PDFs with QR</span>
+          </div>
+          <div class="flex items-start gap-2">
+            <span class="text-green-400 font-bold">✓</span>
+            <span>Legal AI chat</span>
+          </div>
+          <div class="flex items-start gap-2">
+            <span class="text-green-400 font-bold">✓</span>
+            <span>Tax returns assistance</span>
+          </div>
+          <div class="flex items-start gap-2">
+            <span class="text-green-400 font-bold">✓</span>
+            <span>No hidden fees</span>
+          </div>
+        </div>
+        
+        <button class="w-full mt-6 px-6 py-3 bg-green-600 hover:bg-green-500 rounded-lg font-medium transition-colors">
+          Continue as Private Person
+        </button>
+      </div>
+      
+      <!-- Institution -->
+      <div class="p-8 bg-gradient-to-br from-indigo-900/30 to-purple-900/30 border-2 border-indigo-600/50 rounded-2xl card-hover cursor-pointer" onclick="selectMode('institution')">
+        <div class="text-center mb-6">
+          <div class="text-6xl mb-4">🏛️</div>
+          <h2 class="text-2xl font-bold text-indigo-400 mb-2">Institution</h2>
+          <div class="text-2xl font-bold mb-2">20% Fee</div>
+          <p class="text-sm text-slate-400">Of recovered fraud</p>
+        </div>
+        
+        <div class="space-y-3 text-sm text-slate-300">
+          <div class="flex items-start gap-2">
+            <span class="text-indigo-400 font-bold">✓</span>
+            <span>All features + API access</span>
+          </div>
+          <div class="flex items-start gap-2">
+            <span class="text-indigo-400 font-bold">✓</span>
+            <span>Bulk document processing</span>
+          </div>
+          <div class="flex items-start gap-2">
+            <span class="text-indigo-400 font-bold">✓</span>
+            <span>Case management tools</span>
+          </div>
+          <div class="flex items-start gap-2">
+            <span class="text-indigo-400 font-bold">✓</span>
+            <span>Priority support</span>
+          </div>
+          <div class="flex items-start gap-2">
+            <span class="text-indigo-400 font-bold">✓</span>
+            <span>Custom integrations</span>
+          </div>
+          <div class="flex items-start gap-2">
+            <span class="text-yellow-400 font-bold">⚠</span>
+            <span>Performance-based pricing</span>
+          </div>
+        </div>
+        
+        <button class="w-full mt-6 px-6 py-3 bg-indigo-600 hover:bg-indigo-500 rounded-lg font-medium transition-colors">
+          Continue as Institution
+        </button>
+      </div>
+      
+      <!-- Company -->
+      <div class="p-8 bg-gradient-to-br from-purple-900/30 to-pink-900/30 border-2 border-purple-600/50 rounded-2xl card-hover cursor-pointer" onclick="selectMode('company')">
+        <div class="text-center mb-6">
+          <div class="text-6xl mb-4">🏢</div>
+          <h2 class="text-2xl font-bold text-purple-400 mb-2">Company</h2>
+          <div class="text-2xl font-bold mb-2">20% Fee</div>
+          <p class="text-sm text-slate-400">Of recovered fraud</p>
+        </div>
+        
+        <div class="space-y-3 text-sm text-slate-300">
+          <div class="flex items-start gap-2">
+            <span class="text-purple-400 font-bold">✓</span>
+            <span>Enterprise features</span>
+          </div>
+          <div class="flex items-start gap-2">
+            <span class="text-purple-400 font-bold">✓</span>
+            <span>Multi-user accounts</span>
+          </div>
+          <div class="flex items-start gap-2">
+            <span class="text-purple-400 font-bold">✓</span>
+            <span>SSO integration</span>
+          </div>
+          <div class="flex items-start gap-2">
+            <span class="text-purple-400 font-bold">✓</span>
+            <span>Dedicated support</span>
+          </div>
+          <div class="flex items-start gap-2">
+            <span class="text-purple-400 font-bold">✓</span>
+            <span>SLA guarantees</span>
+          </div>
+          <div class="flex items-start gap-2">
+            <span class="text-yellow-400 font-bold">⚠</span>
+            <span>Licensing fees apply</span>
+          </div>
+        </div>
+        
+        <button class="w-full mt-6 px-6 py-3 bg-purple-600 hover:bg-purple-500 rounded-lg font-medium transition-colors">
+          Continue as Company
+        </button>
+      </div>
+      
+    </div>
+
+    <!-- Fee Notice for Institutions/Companies -->
+    <div class="p-6 bg-yellow-900/20 border-2 border-yellow-600/50 rounded-xl text-center">
+      <p class="text-sm text-slate-300">
+        <strong>Note for Institutions & Companies:</strong> A 20% fee applies to fraud recovered after the free trial period. This is a performance-based model — you only pay when we help you recover funds. Licensing fees apply for ongoing enterprise use. Private citizens always remain 100% free.
+      </p>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="relative z-10 max-w-7xl mx-auto px-4 py-12 mt-16 border-t border-slate-800">
+    <div class="text-center text-slate-400 space-y-2">
+      <p class="text-sm">
+        ✔ Patent Pending Verum Omnis Foundation
+      </p>
+      <p class="text-xs">
+        © 2025 Verum Omnis Foundation. "The Whole Truth."
+      </p>
+    </div>
+  </footer>
+
+  <!-- Modal for Fee Notice -->
+  <div id="feeModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-slate-900 border-2 border-yellow-600 rounded-2xl max-w-2xl w-full p-8">
+      <div class="text-center mb-6">
+        <div class="text-5xl mb-4">⚠️</div>
+        <h2 class="text-3xl font-bold mb-4">Fee Notice</h2>
+      </div>
+      
+      <div class="space-y-4 mb-6 text-slate-300">
+        <p class="text-lg">
+          As an <span id="modeType" class="font-bold text-indigo-400"></span>, the following terms apply:
+        </p>
+        
+        <div class="p-4 bg-slate-800/50 rounded-lg">
+          <h3 class="font-bold mb-2 text-yellow-400">Performance-Based Fee Structure:</h3>
+          <ul class="space-y-2 text-sm">
+            <li>✓ <strong>20% of recovered fraud</strong> after successful trial period</li>
+            <li>✓ You only pay when we help you recover funds</li>
+            <li>✓ No upfront costs during trial</li>
+            <li>✓ Fair and transparent pricing</li>
+          </ul>
+        </div>
+        
+        <div class="p-4 bg-slate-800/50 rounded-lg">
+          <h3 class="font-bold mb-2 text-yellow-400">Licensing & Terms:</h3>
+          <ul class="space-y-2 text-sm">
+            <li>✓ Ongoing licensing fees for enterprise features</li>
+            <li>✓ API access and bulk processing</li>
+            <li>✓ Dedicated support and SLAs</li>
+            <li>✓ Custom integration options</li>
+          </ul>
+        </div>
+        
+        <p class="text-sm text-slate-400">
+          By continuing, you acknowledge and accept these terms. Full details are available in our <a href="/legal.html" class="text-indigo-400 hover:underline">Legal Information page</a>.
+        </p>
+      </div>
+      
+      <div class="flex gap-4">
+        <button onclick="cancelMode()" class="flex-1 px-6 py-3 border border-slate-700 hover:bg-slate-800 rounded-lg font-medium transition-colors">
+          Cancel
+        </button>
+        <button onclick="acceptAndContinue()" class="flex-1 px-6 py-3 bg-indigo-600 hover:bg-indigo-500 rounded-lg font-medium transition-colors">
+          Accept & Continue
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Watermark & Card Hover Styles -->
+  <style>
+    .watermark {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      opacity: 0.03;
+      pointer-events: none;
+      z-index: 0;
+      max-width: 800px;
+      width: 60%;
+    }
+    
+    header, main, footer {
+      position: relative;
+      z-index: 1;
+    }
+    
+    .card-hover {
+      transition: all 0.3s ease;
+    }
+    
+    .card-hover:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px rgba(99, 102, 241, 0.4);
+    }
+  </style>
+
+  <!-- Selection Logic -->
+  <script>
+    let selectedMode = null;
+
+    function selectMode(mode) {
+      selectedMode = mode;
+      
+      if (mode === 'private') {
+        // Private citizens go directly to assistant
+        localStorage.setItem('userMode', 'private');
+        window.location.href = '/assistant.html';
+      } else {
+        // Institutions and companies see fee notice modal
+        document.getElementById('modeType').textContent = mode === 'institution' ? 'Institution' : 'Company';
+        document.getElementById('feeModal').classList.remove('hidden');
+      }
+    }
+
+    function cancelMode() {
+      document.getElementById('feeModal').classList.add('hidden');
+      selectedMode = null;
+    }
+
+    function acceptAndContinue() {
+      if (selectedMode) {
+        localStorage.setItem('userMode', selectedMode);
+        localStorage.setItem('feeAccepted', 'true');
+        localStorage.setItem('feeAcceptedDate', new Date().toISOString());
+        window.location.href = '/assistant.html';
+      }
+    }
+
+    // Check if user already selected mode
+    window.addEventListener('DOMContentLoaded', () => {
+      const savedMode = localStorage.getItem('userMode');
+      if (savedMode) {
+        // Show reminder that they're in a specific mode
+        console.log('User mode:', savedMode);
+      }
+    });
+  </script>
+
+</body>
+</html>

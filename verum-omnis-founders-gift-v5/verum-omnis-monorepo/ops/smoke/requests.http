@@ -1,0 +1,162 @@
+### Verum Omnis API Smoke Tests
+### Use with REST Client extension in VS Code or similar tools
+
+@baseUrl = http://localhost:8000/api
+@host = gitverum.web.app
+
+### Health Check
+GET {{baseUrl}}/health
+
+###
+
+### Health Check (Production)
+GET https://{{host}}/api/health
+
+###
+
+### V1 Verify (Health Check)
+GET {{baseUrl}}/v1/verify
+
+###
+
+### Chat Endpoint - Valid Message
+POST {{baseUrl}}/chat
+Content-Type: application/json
+
+{
+  "message": "Hello, test message"
+}
+
+###
+
+### Chat Endpoint - Missing Message
+POST {{baseUrl}}/chat
+Content-Type: application/json
+
+{}
+
+###
+
+### V1 Assistant - Verify Mode
+POST {{baseUrl}}/v1/assistant
+Content-Type: application/json
+
+{
+  "mode": "verify"
+}
+
+###
+
+### V1 Assistant - Policy Mode
+POST {{baseUrl}}/v1/assistant
+Content-Type: application/json
+
+{
+  "mode": "policy"
+}
+
+###
+
+### V1 Assistant - Anchor Mode (Valid)
+POST {{baseUrl}}/v1/assistant
+Content-Type: application/json
+
+{
+  "mode": "anchor",
+  "hash": "a".repeat(128)
+}
+
+###
+
+### V1 Assistant - Anchor Mode (Missing Hash)
+POST {{baseUrl}}/v1/assistant
+Content-Type: application/json
+
+{
+  "mode": "anchor"
+}
+
+###
+
+### V1 Assistant - Receipt Mode
+POST {{baseUrl}}/v1/assistant
+Content-Type: application/json
+
+{
+  "mode": "receipt",
+  "hash": "a".repeat(128)
+}
+
+###
+
+### V1 Assistant - Notice Mode
+POST {{baseUrl}}/v1/assistant
+Content-Type: application/json
+
+{
+  "mode": "notice"
+}
+
+###
+
+### V1 Assistant - Invalid Mode
+POST {{baseUrl}}/v1/assistant
+Content-Type: application/json
+
+{
+  "mode": "invalid_mode"
+}
+
+###
+
+### V1 Anchor - Valid Hash
+POST {{baseUrl}}/v1/anchor
+Content-Type: application/json
+
+{
+  "sha512": "a".repeat(128)
+}
+
+###
+
+### V1 Anchor - Invalid Hash
+POST {{baseUrl}}/v1/anchor
+Content-Type: application/json
+
+{}
+
+###
+
+### V1 Seal - Valid Request
+POST {{baseUrl}}/v1/seal
+Content-Type: application/json
+
+{
+  "sha512": "a".repeat(128),
+  "filename": "test-document.pdf"
+}
+
+###
+
+### V1 Verify - Valid Hash
+POST {{baseUrl}}/v1/verify
+Content-Type: application/json
+
+{
+  "sha512": "a".repeat(128)
+}
+
+###
+
+### V1 Contradict - Test Contradiction
+POST {{baseUrl}}/v1/contradict
+Content-Type: application/json
+
+{
+  "statements": [
+    "Meeting was at 2pm in New York",
+    "I was in London at 2pm on the same day"
+  ]
+}
+
+###
