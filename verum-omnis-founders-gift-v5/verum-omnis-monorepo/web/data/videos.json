@@ -1,0 +1,5 @@
+{
+  "landing": "",          // put full HTTPS URL here (Firebase Storage or GitHub Release)
+  "institutions1": "",    // full HTTPS URL here
+  "institutions2": ""     // full HTTPS URL here
+}

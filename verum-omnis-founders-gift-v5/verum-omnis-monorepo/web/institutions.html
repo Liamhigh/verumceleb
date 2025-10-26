@@ -17,8 +17,8 @@
 
   <main class="max-w-6xl mx-auto px-4 space-y-10">
     <section class="grid md:grid-cols-2 gap-6">
-      <video class="w-full rounded-2xl border border-slate-800" src="/assets/institutions1.mp4" controls playsinline></video>
-      <video class="w-full rounded-2xl border border-slate-800" src="/assets/institutions2.mp4" controls playsinline></video>
+      <video id="inst1" class="w-full rounded-2xl border border-slate-800" controls playsinline></video>
+      <video id="inst2" class="w-full rounded-2xl border border-slate-800" controls playsinline></video>
     </section>
 
     <section class="grid md:grid-cols-3 gap-6">
@@ -48,9 +48,21 @@
     </section>
 
     <p class="text-slate-400 text-sm">
-      Note: Many banks prefer to litigate with their own in-house lawyers. Verum Omnis integrates cleanly:
-      exportable reports, sealed hashes (SHA-512), QR verification, and API access for case-management systems.
+      Note: Verum Omnis integrates cleanly with in-house counsel workflows:
+      sealed hashes (SHA-512), QR verification, and API access for case-management systems.
     </p>
   </main>
+
+  <script>
+    fetch('/data/videos.json').then(r=>r.json()).then(d=>{
+      const v1 = document.getElementById('inst1');
+      const v2 = document.getElementById('inst2');
+      if (d.institutions1) v1.src = d.institutions1; else v1.outerHTML = '<div class="p-6 rounded-2xl border border-slate-800 text-slate-400">Add institutions1 URL in <code>videos.json</code></div>';
+      if (d.institutions2) v2.src = d.institutions2; else v2.outerHTML = '<div class="p-6 rounded-2xl border border-slate-800 text-slate-400">Add institutions2 URL in <code>videos.json</code></div>';
+    }).catch(()=>{
+      const sec = document.querySelector("section.grid.md\\:grid-cols-2");
+      if (sec) sec.innerHTML = '<div class="p-6 rounded-2xl border border-slate-800 text-slate-400">videos.json not found</div>';
+    });
+  </script>
 </body>
 </html>
