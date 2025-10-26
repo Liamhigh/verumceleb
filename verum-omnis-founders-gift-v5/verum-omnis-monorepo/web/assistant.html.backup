@@ -54,7 +54,7 @@
                 AI
               </div>
               <div class="flex-1 bg-slate-800 rounded-2xl rounded-tl-sm p-3">
-                <p class="text-slate-100">Hi — I'm your Verum Omnis assistant, operating under the <strong>Constitutional Framework</strong> to ensure the whole truth. We can chat normally, and I can Verify, Seal, and Anchor documents with rigorous legal standards. Drop a file anytime or ask me about the constitutional principles I follow!</p>
+                <p class="text-slate-100">Hi — I'm your Verum Omnis assistant. We can chat normally, and I can Verify, Seal, and Anchor documents. Drop a file anytime.</p>
               </div>
             </div>
           </div>
@@ -297,45 +297,6 @@
     });
 
     // ========================================================================
-    // DRAG AND DROP FILE UPLOAD
-    // ========================================================================
-    const fileUploadZone = elements.fileInput.parentElement;
-    
-    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-      fileUploadZone.addEventListener(eventName, preventDefaults, false);
-      document.body.addEventListener(eventName, preventDefaults, false);
-    });
-
-    function preventDefaults(e) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-
-    ['dragenter', 'dragover'].forEach(eventName => {
-      fileUploadZone.addEventListener(eventName, () => {
-        fileUploadZone.classList.add('border-indigo-500', 'bg-indigo-900/30');
-      }, false);
-    });
-
-    ['dragleave', 'drop'].forEach(eventName => {
-      fileUploadZone.addEventListener(eventName, () => {
-        fileUploadZone.classList.remove('border-indigo-500', 'bg-indigo-900/30');
-      }, false);
-    });
-
-    fileUploadZone.addEventListener('drop', async (e) => {
-      const dt = e.dataTransfer;
-      const files = dt.files;
-
-      if (files.length > 0) {
-        const file = files[0];
-        // Trigger file processing
-        elements.fileInput.files = files;
-        elements.fileInput.dispatchEvent(new Event('change'));
-      }
-    }, false);
-
-    // ========================================================================
     // COPY HASH
     // ========================================================================
     elements.copyHash.addEventListener('click', async () => {
@@ -371,7 +332,7 @@
         // Get Nine-Brains results
         const nineBrains = verification.nineBrainsResults || verification;
         
-        // Build Nine-Brains matrix display with constitutional compliance
+        // Build Nine-Brains matrix display
         let html = `
           <div class="space-y-4">
             <div class="flex items-center justify-between">
@@ -380,21 +341,6 @@
                 Score: ${Math.round((nineBrains.avgScore || 0) * 100)}%
               </div>
             </div>
-            
-            <!-- Constitutional Compliance Badge -->
-            ${nineBrains.constitutional !== undefined ? `
-              <div class="p-3 rounded-lg ${nineBrains.constitutional ? 'bg-blue-900/30 border border-blue-600' : 'bg-orange-900/30 border border-orange-600'}">
-                <div class="flex items-center gap-2">
-                  <div class="text-xl">${nineBrains.constitutional ? '📜' : '⚠️'}</div>
-                  <div class="text-sm">
-                    <strong>${nineBrains.constitutional ? 'Constitutional Framework: COMPLIANT' : 'Constitutional Framework: VIOLATIONS DETECTED'}</strong>
-                    <div class="text-xs text-slate-300 mt-1">
-                      ${(nineBrains.constitutionalNotes || []).slice(0, 2).join(' • ')}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ` : ''}
             
             <!-- Consensus Banner -->
             <div class="p-4 rounded-lg ${nineBrains.consensus === 'pass' ? 'bg-green-900/30 border-2 border-green-600' : 'bg-red-900/30 border-2 border-red-600'}">
@@ -406,9 +352,6 @@
                   </div>
                   <div class="text-sm text-slate-300">
                     ${nineBrains.passCount || 0} of 9 brains voted PASS (${nineBrains.flagCount || 0} flagged)
-                  </div>
-                  <div class="text-xs text-slate-400 mt-1">
-                    Analysis follows <strong>P5: Multi-Perspective Analysis</strong> (9 independent modules)
                   </div>
                 </div>
               </div>
@@ -435,14 +378,9 @@
           const scorePercent = Math.round((brain.score || 0) * 100);
           const scoreColor = scorePercent >= 70 ? 'text-green-400' : scorePercent >= 40 ? 'text-yellow-400' : 'text-red-400';
           
-          // Show constitutional principle if present
-          const constitutionalBadge = brain.constitutionalPrinciple ? 
-            `<div class="text-xs text-blue-400 mb-1">📜 ${brain.constitutionalPrinciple}</div>` : '';
-          
           html += `
             <tr class="border-b border-slate-800 hover:bg-slate-800/30">
               <td class="py-3 px-3">
-                ${constitutionalBadge}
                 <div class="font-medium">${brain.brain || brain.checker || `Brain ${i+1}`}</div>
               </td>
               <td class="py-3 px-2 text-center ${voteColor} font-bold text-lg">
@@ -466,11 +404,11 @@
             
             <!-- Recommendation -->
             <div class="p-3 bg-slate-800/50 rounded-lg border border-slate-700">
-              <div class="font-semibold mb-2">💡 Recommendation (per P1: Truth Above All):</div>
+              <div class="font-semibold mb-2">💡 Recommendation:</div>
               <div class="text-sm text-slate-300">
                 ${nineBrains.consensus === 'pass' 
-                  ? 'Document passed forensic verification under the Constitutional Framework. Meets <strong>P7: Legal Standard Compliance</strong> for court submission. You can proceed with sealing and anchoring.'
-                  : 'Document flagged under rigorous constitutional analysis (<strong>P2: Presumption of Innocence</strong> requires substantive evidence). Review the findings above carefully. Consider requesting original source or additional documentation.'}
+                  ? 'Document passed forensic verification. You can proceed with sealing and anchoring for court submission.'
+                  : 'Document has been flagged. Review the findings above carefully. Consider requesting original source or additional documentation.'}
               </div>
             </div>
           </div>
@@ -478,10 +416,10 @@
 
         showResults(html, nineBrains.consensus === 'pass' ? 'success' : 'warning');
         
-        // Add conversational assistant message with constitutional references
+        // Add conversational assistant message
         const msg = nineBrains.consensus === 'pass' 
-          ? `✅ Great news! Your document "${currentFileData.filename}" passed all forensic checks under the Constitutional Framework. Out of 9 independent modules (P5: Multi-Perspective Analysis), ${nineBrains.passCount} voted PASS. The analysis meets P7: Legal Standard Compliance and is ready for court use. Would you like me to seal it with a certified QR code (P6: Evidence Chain Integrity)?`
-          : `⚠️ I've analyzed "${currentFileData.filename}" following P1: Truth Above All, and ${nineBrains.flagCount} out of 9 verification modules raised concerns. Under P2: Presumption of Innocence, this requires careful review but doesn't prove fraud. Check the detailed findings above. Under P3: Right to Explanation, I can explain what any module found. Would you like details?`;
+          ? `✅ Great news! Your document "${currentFileData.filename}" passed all forensic checks. Out of 9 independent verification modules, ${nineBrains.passCount} voted PASS. The document appears authentic and ready for legal use. Would you like me to seal it with a certified QR code?`
+          : `⚠️ I've analyzed "${currentFileData.filename}" and ${nineBrains.flagCount} out of 9 verification modules raised concerns. This doesn't necessarily mean the document is fake, but it warrants careful review. Check the detailed findings above. Would you like me to explain what any of the modules found?`;
         
         addAssistantMessage(msg);
 

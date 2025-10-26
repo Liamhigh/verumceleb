@@ -1,0 +1,1 @@
+This is a test document for Verum Omnis verification system. SHA-512 hash computation test. Nine-Brains forensic analysis test. OCR extraction test. PDF sealing test. Anchor receipt generation test.
