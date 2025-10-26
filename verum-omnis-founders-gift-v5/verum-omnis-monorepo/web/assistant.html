@@ -323,7 +323,9 @@
         if (file.type.includes('text')) {
           textContent = await file.text();
         } else if (file.type.includes('pdf')) {
-          // Simple PDF text extraction would go here
+          // TODO: Implement full PDF text extraction using PDF.js
+          // Current implementation only sends filename for PDF files
+          // This is a known limitation that reduces fraud detection accuracy for PDFs
           textContent = `PDF: ${hashData.filename}`;
         }
 
@@ -357,8 +359,12 @@
       } catch (error) {
         elements.typingIndicator.classList.add('hidden');
         console.warn('Auto-verify failed:', error);
-        // Don't show error to user - it's optional analysis
-        addAssistantMessage(`I've loaded your document. Click "Check this document" for full forensic analysis.`);
+        // Inform user that auto-analysis was skipped
+        addAssistantMessage(
+          `ℹ️ I've loaded your document "${hashData.filename}". ` +
+          `Automatic fraud detection is currently unavailable (${error.message}). ` +
+          `You can still perform full forensic analysis by clicking "Check this document".`
+        );
       }
     }
 
@@ -369,23 +375,29 @@
       const { riskScore, contradictions, analysis } = contradictResult;
       
       // Determine risk level
-      let riskLevel, riskColor, riskIcon, riskMessage;
+      let riskLevel, riskIcon, riskMessage;
       if (riskScore < 0.3) {
         riskLevel = 'LOW RISK';
-        riskColor = 'text-green-400';
         riskIcon = '✅';
         riskMessage = `Initial analysis shows no significant red flags. Document "${filename}" appears clean.`;
       } else if (riskScore < 0.6) {
         riskLevel = 'MEDIUM RISK';
-        riskColor = 'text-yellow-400';
         riskIcon = '⚠️';
         riskMessage = `Initial analysis detected ${contradictions.length} potential concern(s). Please review before proceeding.`;
       } else {
         riskLevel = 'HIGH RISK';
-        riskColor = 'text-red-400';
         riskIcon = '🚨';
         riskMessage = `Multiple red flags detected (${contradictions.length}). I recommend careful review before sealing or anchoring.`;
       }
+
+      // Build concerns list with null safety
+      const concernsList = contradictions && contradictions.length > 0 
+        ? contradictions.map(c => {
+            const severity = (c.severity || 'unknown').toUpperCase();
+            const type = (c.type || 'unspecified').replace(/_/g, ' ');
+            return `• ${severity}: ${type}`;
+          }).join('\n')
+        : '';
 
       // Show lawyerly-toned message
       const lawyerlyMsg = `📋 **Initial Legal Analysis Complete**
@@ -394,12 +406,12 @@ ${riskIcon} **Risk Assessment: ${riskLevel}** (Score: ${(riskScore * 100).toFixe
 
 ${riskMessage}
 
-${contradictions.length > 0 ? `
+${concernsList ? `
 **Concerns Identified:**
-${contradictions.map(c => `• ${c.severity.toUpperCase()}: ${c.type.replace(/_/g, ' ')}`).join('\n')}
+${concernsList}
 ` : ''}
 
-${analysis.recommendation}
+${analysis?.recommendation || 'No specific recommendation available.'}
 
 **Next Steps:**
 • For full forensic analysis, click "Check this document" (Nine-Brains verification)
@@ -717,7 +729,7 @@ Under P2 (Presumption of Innocence), this initial scan does not constitute final
               download="anchor-receipt.json"
               class="block w-full px-4 py-3 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-center font-medium transition-colors"
             >
-              �� Download anchor-receipt.json
+              📥 Download anchor-receipt.json
             </a>
           </div>
         `;
