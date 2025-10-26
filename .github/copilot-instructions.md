@@ -352,3 +352,58 @@ export async function assistantReply(text) { /* chat behavior */ }
 Tailwind classes, dark theme (`bg-slate-950 text-slate-100`), rounded 2xl cards, soft borders (`border-slate-800`). Chat bubbles with subtle shadows.
 
 ---
+
+# ✅ Functional Checklist (Copilot must implement)
+
+* [ ] Chat works like a **normal assistant** (empathetic replies, remembers context, not just "upload a doc").
+* [ ] **File input** accepts: .pdf, .doc, .docx, .txt, .png, .jpg, .jpeg, .mp3, .mp4.
+* [ ] **SHA-512 hash** is computed locally on file select and displayed immediately.
+* [ ] **OCR**: PDFs → text layer first, fallback to tesseract.js; Images → tesseract.js direct.
+* [ ] **Triple verification**:
+  * RuleChecker (heuristics: dates, duplicate pages, phrases).
+  * StatChecker (entropy, layout, repetition).
+  * LLMChecker (stub offline; API call optional if env key present).
+  * Consensus rule = 2 of 3 pass.
+  * Renders table with 3 rows + final consensus row.
+* [ ] **Seal**: pdf-lib generates a sealed PDF:
+  * Logo at top, watermark, footer with truncated hash.
+  * QR code encoding `{ sha512, filename, ts }`.
+  * Downloadable `<original>.sealed.pdf`.
+* [ ] **Anchor**: downloads `anchor-receipt.json` with {sha512, filename, ts, method, txHash?}.
+* [ ] **Videos**: pulled dynamically from `web/data/videos.json`, not in repo.
+  * Landing hero uses `landing`.
+  * Institutions page shows `institutions1` + `institutions2`.
+  * If missing, visible placeholder.
+* [ ] **Privacy**: Works entirely offline; no backend required for Verify/Seal/Anchor.
+* [ ] **Firebase Hosting**: uses firebase.json to serve static web.
+* [ ] Acceptance: user can chat, hash, verify, seal, anchor, and see videos — all offline.
+
+---
+
+# 🎨 Visual/Layout Checklist (Copilot must match)
+
+* [ ] **Dark theme**: `bg-slate-950 text-slate-100`.
+* [ ] **Header (all pages)**:
+  * Left: logo + "Verum Omnis".
+  * Right nav: Open Chat, Institutions.
+* [ ] **Footer**: tagline text + © Verum Omnis Foundation.
+* [ ] **Landing page (index.html)**:
+  * Full-width hero video (autoplay, muted, loop) from `videos.json.landing`.
+  * Headline: "The World's First Legal AI".
+  * Subtext paragraph.
+  * 3 feature cards (Legal AI, Free for Citizens, Contradiction Engine).
+  * CTAs: "Open Chat", "Institutions".
+* [ ] **Institutions page**:
+  * Two videos (stacked on mobile, side-by-side on desktop).
+  * 3 feature cards (20% recovery, Legal AI, Investigation AI).
+  * Note re: SHA-512 + QR verification.
+* [ ] **Assistant page**:
+  * Two-column layout (70% chat / 30% tools; stacked on mobile).
+  * Chat bubbles with subtle shadows, scrollable thread.
+  * Tools panel: file input, hash pane, buttons (Check, Seal, Anchor), findings table.
+  * First assistant message explains features.
+* [ ] **Typography**: clear headings, readable body, monospace for hashes.
+* [ ] **Responsiveness**: works on mobile, grid breaks cleanly, videos responsive.
+* [ ] **Polish**: copy buttons for hash/receipts, small toast for "Copied!", smooth scroll to newest chat.
+
+---
