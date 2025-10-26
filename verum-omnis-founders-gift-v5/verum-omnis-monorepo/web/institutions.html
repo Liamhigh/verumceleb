@@ -337,3 +337,122 @@
   
 </body>
 </html>
+      
+      <div class="grid md:grid-cols-2 gap-8">
+        <div>
+          <h3 class="text-xl font-semibold mb-4">SHA-512 + QR Verification</h3>
+          <p class="text-slate-400 mb-4">
+            Every sealed document includes:
+          </p>
+          <ul class="space-y-2 text-sm text-slate-300">
+            <li>✓ Full SHA-512 cryptographic hash</li>
+            <li>✓ Truncated hash display for readability</li>
+            <li>✓ QR code encoding hash + metadata</li>
+            <li>✓ Tamper-evident watermark</li>
+            <li>✓ Patent-pending seal</li>
+          </ul>
+        </div>
+        
+        <div>
+          <h3 class="text-xl font-semibold mb-4">Bank & Legal System Integration</h3>
+          <p class="text-slate-400 mb-4">
+            Designed for your existing workflows:
+          </p>
+          <ul class="space-y-2 text-sm text-slate-300">
+            <li>✓ Exportable PDF reports</li>
+            <li>✓ API access for case management systems</li>
+            <li>✓ Works with in-house legal teams</li>
+            <li>✓ Blockchain anchoring (optional)</li>
+            <li>✓ Zero-knowledge architecture</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Use Cases -->
+    <section>
+      <h2 class="text-3xl font-bold mb-8 text-center">Perfect For</h2>
+      
+      <div class="grid md:grid-cols-4 gap-6">
+        <div class="text-center p-6 bg-slate-900/30 rounded-xl border border-slate-800">
+          <div class="text-3xl mb-3">🏦</div>
+          <h4 class="font-semibold mb-2">Banks & Financial Institutions</h4>
+          <p class="text-xs text-slate-400">Fraud detection, loan verification, compliance</p>
+        </div>
+        
+        <div class="text-center p-6 bg-slate-900/30 rounded-xl border border-slate-800">
+          <div class="text-3xl mb-3">🏛️</div>
+          <h4 class="font-semibold mb-2">Law Firms</h4>
+          <p class="text-xs text-slate-400">Document authentication, case evidence, discovery</p>
+        </div>
+        
+        <div class="text-center p-6 bg-slate-900/30 rounded-xl border border-slate-800">
+          <div class="text-3xl mb-3">🏢</div>
+          <h4 class="font-semibold mb-2">Insurance Companies</h4>
+          <p class="text-xs text-slate-400">Claims verification, fraud investigation</p>
+        </div>
+        
+        <div class="text-center p-6 bg-slate-900/30 rounded-xl border border-slate-800">
+          <div class="text-3xl mb-3">👮</div>
+          <h4 class="font-semibold mb-2">Law Enforcement</h4>
+          <p class="text-xs text-slate-400">Case files, evidence chains, court submissions</p>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Call to Action -->
+    <section class="text-center bg-gradient-to-r from-indigo-900/30 to-purple-900/30 rounded-2xl border border-indigo-800 p-12">
+      <h2 class="text-3xl font-bold mb-4">Ready to Get Started?</h2>
+      <p class="text-lg text-slate-300 mb-8 max-w-2xl mx-auto">
+        Schedule a demo with our team to see how Verum Omnis can integrate with your existing systems.
+      </p>
+      <div class="flex gap-4 justify-center flex-wrap">
+        <a href="/assistant.html" class="px-8 py-3 bg-indigo-600 hover:bg-indigo-500 rounded-lg font-semibold transition">
+          Try the Platform
+        </a>
+        <a href="/assistant.html?demo=true" class="px-8 py-3 border border-slate-600 hover:bg-slate-800 rounded-lg font-semibold transition">
+          Request Enterprise Demo
+        </a>
+      </div>
+    </section>
+    
+  </main>
+  
+  <!-- Footer -->
+  <footer class="relative z-10 max-w-7xl mx-auto px-4 py-12 mt-16 border-t border-slate-800">
+    <div class="text-center text-slate-400 space-y-2">
+      <p class="text-sm">
+        ✔ Patent Pending Verum Omnis Foundation
+      </p>
+      <p class="text-xs">
+        © 2025 Verum Omnis Foundation. "The Whole Truth."
+      </p>
+    </div>
+  </footer>
+  
+  <!-- Load videos from videos.json -->
+  <script>
+    fetch('/data/videos.json')
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('videoSource1').src = data.institutions1;
+        document.getElementById('video1').load();
+        
+        document.getElementById('videoSource2').src = data.institutions2;
+        document.getElementById('video2').load();
+      })
+      .catch(err => {
+        console.warn('Could not load videos.json:', err);
+        // Fallback to direct URLs
+        document.getElementById('videoSource1').src = 
+          'https://firebasestorage.googleapis.com/v0/b/verumdone.firebasestorage.app/o/assets%2Fbank%20promo%20long.mp4?alt=media';
+        document.getElementById('video1').load();
+        
+        document.getElementById('videoSource2').src = 
+          'https://firebasestorage.googleapis.com/v0/b/verumdone.firebasestorage.app/o/assets%2Fbank%20promo.mp4?alt=media';
+        document.getElementById('video2').load();
+      });
+  </script>
+  
+</body>
+</html>

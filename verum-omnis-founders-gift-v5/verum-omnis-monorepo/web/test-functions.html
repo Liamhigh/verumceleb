@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Verum Omnis — Function Tests</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/js/config.js" onerror="console.log('No config - using dev mode')"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4.1.1/dist/tesseract.min.js"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 p-8">
+  
+  <div class="max-w-4xl mx-auto">
+    <h1 class="text-3xl font-bold mb-8 text-center">Verum Omnis — Function Tests</h1>
+    
+    <div class="space-y-6">
+      
+      <!-- Test 1: SHA-512 Hash -->
+      <div class="bg-slate-900 rounded-xl p-6 border border-slate-800">
+        <h2 class="text-xl font-semibold mb-4">1. SHA-512 Hash Computation</h2>
+        <input type="file" id="testFile1" class="mb-3 text-sm" />
+        <button id="btnTestHash" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 rounded font-medium">
+          Test Hash
+        </button>
+        <div id="resultHash" class="mt-3 p-3 bg-slate-800 rounded text-xs font-mono hidden"></div>
+      </div>
+      
+      <!-- Test 2: Nine-Brains Verification -->
+      <div class="bg-slate-900 rounded-xl p-6 border border-slate-800">
+        <h2 class="text-xl font-semibold mb-4">2. Nine-Brains Verification</h2>
+        <input type="file" id="testFile2" class="mb-3 text-sm" />
+        <button id="btnTestVerify" class="px-4 py-2 bg-green-600 hover:bg-green-500 rounded font-medium">
+          Test Verify
+        </button>
+        <div id="resultVerify" class="mt-3 p-3 bg-slate-800 rounded text-xs hidden"></div>
+      </div>
+      
+      <!-- Test 3: OCR Extraction -->
+      <div class="bg-slate-900 rounded-xl p-6 border border-slate-800">
+        <h2 class="text-xl font-semibold mb-4">3. OCR Text Extraction</h2>
+        <input type="file" id="testFile3" accept=".pdf,.png,.jpg,.jpeg" class="mb-3 text-sm" />
+        <button id="btnTestOCR" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded font-medium">
+          Test OCR
+        </button>
+        <div id="resultOCR" class="mt-3 p-3 bg-slate-800 rounded text-xs max-h-40 overflow-y-auto hidden"></div>
+      </div>
+      
+      <!-- Test 4: Sealed PDF -->
+      <div class="bg-slate-900 rounded-xl p-6 border border-slate-800">
+        <h2 class="text-xl font-semibold mb-4">4. Sealed PDF Generation</h2>
+        <input type="file" id="testFile4" class="mb-3 text-sm" />
+        <button id="btnTestSeal" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 rounded font-medium">
+          Test Seal
+        </button>
+        <div id="resultSeal" class="mt-3 hidden"></div>
+      </div>
+      
+      <!-- Test 5: Anchor Receipt -->
+      <div class="bg-slate-900 rounded-xl p-6 border border-slate-800">
+        <h2 class="text-xl font-semibold mb-4">5. Anchor Receipt</h2>
+        <input type="file" id="testFile5" class="mb-3 text-sm" />
+        <button id="btnTestAnchor" class="px-4 py-2 bg-pink-600 hover:bg-pink-500 rounded font-medium">
+          Test Anchor
+        </button>
+        <div id="resultAnchor" class="mt-3 p-3 bg-slate-800 rounded text-xs hidden"></div>
+      </div>
+      
+      <!-- Test 6: OpenAI Chat (if configured) -->
+      <div class="bg-slate-900 rounded-xl p-6 border border-slate-800">
+        <h2 class="text-xl font-semibold mb-4">6. AI Chat (OpenAI)</h2>
+        <input type="text" id="testChatInput" placeholder="Type a message..." class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded mb-3" />
+        <button id="btnTestChat" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 rounded font-medium">
+          Test Chat
+        </button>
+        <div id="resultChat" class="mt-3 p-3 bg-slate-800 rounded text-sm hidden"></div>
+        <div id="chatStatus" class="mt-2 text-xs text-slate-500"></div>
+      </div>
+      
+      <!-- Test Summary -->
+      <div class="bg-slate-900 rounded-xl p-6 border border-green-800">
+        <h2 class="text-xl font-semibold mb-4">Test Summary</h2>
+        <div id="testSummary" class="space-y-2 text-sm">
+          <div>📊 Run tests above to verify all functions work correctly</div>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+
+  <script type="module">
+    import { 
+      computeSHA512, 
+      verifyTriple, 
+      sealPDF, 
+      anchor, 
+      assistantReply,
+      truncateHash
+    } from '/js/assistant.js';
+    
+    import { extractFromFile } from '/js/extraction.js';
+    import { runNineBrains } from '/js/nine-brains.js';
+
+    const results = {
+      hash: false,
+      verify: false,
+      ocr: false,
+      seal: false,
+      anchor: false,
+      chat: false
+    };
+
+    function updateSummary() {
+      const passed = Object.values(results).filter(v => v).length;
+      const total = Object.keys(results).length;
+      const summary = document.getElementById('testSummary');
+      
+      summary.innerHTML = `
+        <div class="text-lg font-semibold ${passed === total ? 'text-green-400' : 'text-yellow-400'}">
+          ${passed} / ${total} tests passed
+        </div>
+        <div class="grid grid-cols-2 gap-2 mt-3">
+          <div>SHA-512 Hash: ${results.hash ? '✅' : '⏳'}</div>
+          <div>Nine-Brains: ${results.verify ? '✅' : '⏳'}</div>
+          <div>OCR Extraction: ${results.ocr ? '✅' : '⏳'}</div>
+          <div>Sealed PDF: ${results.seal ? '✅' : '⏳'}</div>
+          <div>Anchor Receipt: ${results.anchor ? '✅' : '⏳'}</div>
+          <div>AI Chat: ${results.chat ? '✅' : '⏳'}</div>
+        </div>
+      `;
+    }
+
+    // Test 1: Hash
+    document.getElementById('btnTestHash').addEventListener('click', async () => {
+      const file = document.getElementById('testFile1').files[0];
+      if (!file) return alert('Select a file');
+      
+      try {
+        const result = await computeSHA512(file);
+        document.getElementById('resultHash').classList.remove('hidden');
+        document.getElementById('resultHash').innerHTML = `
+          <div><strong>File:</strong> ${result.filename}</div>
+          <div><strong>Size:</strong> ${result.size} bytes</div>
+          <div><strong>SHA-512:</strong> ${result.sha512}</div>
+          <div><strong>Truncated:</strong> ${truncateHash(result.sha512)}</div>
+        `;
+        results.hash = true;
+        updateSummary();
+        console.log('✅ Hash test passed');
+      } catch (err) {
+        alert('Hash failed: ' + err.message);
+        console.error(err);
+      }
+    });
+
+    // Test 2: Verify
+    document.getElementById('btnTestVerify').addEventListener('click', async () => {
+      const file = document.getElementById('testFile2').files[0];
+      if (!file) return alert('Select a file');
+      
+      try {
+        const hashData = await computeSHA512(file);
+        const result = await verifyTriple({
+          arrayBuffer: hashData.arrayBuffer || await file.arrayBuffer(),
+          sha512: hashData.sha512,
+          filename: hashData.filename,
+          mime: file.type
+        });
+        
+        const nb = result.nineBrainsResults || result;
+        document.getElementById('resultVerify').classList.remove('hidden');
+        document.getElementById('resultVerify').innerHTML = `
+          <div class="font-semibold mb-2">Consensus: ${nb.consensus?.toUpperCase()}</div>
+          <div>Pass Count: ${nb.passCount} / 9</div>
+          <div>Flag Count: ${nb.flagCount} / 9</div>
+          <div>Avg Score: ${Math.round((nb.avgScore || 0) * 100)}%</div>
+          <div class="mt-2 text-xs text-slate-400">
+            ${(nb.results || []).map(r => `${r.brain || r.checker}: ${r.vote}`).join(' | ')}
+          </div>
+        `;
+        results.verify = true;
+        updateSummary();
+        console.log('✅ Verify test passed');
+      } catch (err) {
+        alert('Verify failed: ' + err.message);
+        console.error(err);
+      }
+    });
+
+    // Test 3: OCR
+    document.getElementById('btnTestOCR').addEventListener('click', async () => {
+      const file = document.getElementById('testFile3').files[0];
+      if (!file) return alert('Select a file');
+      
+      try {
+        const result = await extractFromFile(file);
+        document.getElementById('resultOCR').classList.remove('hidden');
+        document.getElementById('resultOCR').innerHTML = `
+          <div><strong>Type:</strong> ${result.metadata.type}</div>
+          <div><strong>Method:</strong> ${result.metadata.extractionMethod}</div>
+          <div><strong>Text Length:</strong> ${result.text.length} chars</div>
+          ${result.metadata.ocrConfidence ? `<div><strong>OCR Confidence:</strong> ${Math.round(result.metadata.ocrConfidence * 100)}%</div>` : ''}
+          <div class="mt-2 border-t border-slate-700 pt-2 max-h-32 overflow-y-auto whitespace-pre-wrap">
+            ${result.text.substring(0, 500)}${result.text.length > 500 ? '...' : ''}
+          </div>
+        `;
+        results.ocr = true;
+        updateSummary();
+        console.log('✅ OCR test passed');
+      } catch (err) {
+        alert('OCR failed: ' + err.message);
+        console.error(err);
+      }
+    });
+
+    // Test 4: Seal
+    document.getElementById('btnTestSeal').addEventListener('click', async () => {
+      const file = document.getElementById('testFile4').files[0];
+      if (!file) return alert('Select a file');
+      
+      try {
+        const hashData = await computeSHA512(file);
+        const sealed = await sealPDF({
+          arrayBuffer: hashData.arrayBuffer || await file.arrayBuffer(),
+          sha512: hashData.sha512,
+          filename: hashData.filename
+        });
+        
+        const url = URL.createObjectURL(sealed.blob);
+        document.getElementById('resultSeal').classList.remove('hidden');
+        document.getElementById('resultSeal').innerHTML = `
+          <div class="p-3 bg-green-900/30 border border-green-700 rounded mb-2">
+            <div class="font-semibold">✅ Sealed PDF Created</div>
+            <div class="text-xs mt-1">Filename: ${sealed.filename}</div>
+            <div class="text-xs">Size: ${(sealed.size / 1024).toFixed(1)} KB</div>
+          </div>
+          <a href="${url}" download="${sealed.filename}" class="block px-4 py-2 bg-purple-600 hover:bg-purple-500 rounded text-center font-medium">
+            Download ${sealed.filename}
+          </a>
+        `;
+        results.seal = true;
+        updateSummary();
+        console.log('✅ Seal test passed');
+      } catch (err) {
+        alert('Seal failed: ' + err.message);
+        console.error(err);
+      }
+    });
+
+    // Test 5: Anchor
+    document.getElementById('btnTestAnchor').addEventListener('click', async () => {
+      const file = document.getElementById('testFile5').files[0];
+      if (!file) return alert('Select a file');
+      
+      try {
+        const hashData = await computeSHA512(file);
+        const receipt = await anchor({
+          sha512: hashData.sha512,
+          filename: hashData.filename
+        });
+        
+        document.getElementById('resultAnchor').classList.remove('hidden');
+        document.getElementById('resultAnchor').innerHTML = `
+          <div><strong>Method:</strong> ${receipt.method}</div>
+          <div><strong>Timestamp:</strong> ${receipt.timestamp}</div>
+          <div><strong>SHA-512:</strong> ${receipt.sha512.substring(0, 32)}...</div>
+          ${receipt.txHash ? `<div><strong>Tx Hash:</strong> ${receipt.txHash}</div>` : ''}
+          <pre class="mt-2 text-xs bg-slate-900 p-2 rounded overflow-x-auto">${JSON.stringify(receipt, null, 2)}</pre>
+        `;
+        results.anchor = true;
+        updateSummary();
+        console.log('✅ Anchor test passed');
+      } catch (err) {
+        alert('Anchor failed: ' + err.message);
+        console.error(err);
+      }
+    });
+
+    // Test 6: Chat
+    const chatStatus = document.getElementById('chatStatus');
+    if (window.VERUM_ENV?.OPENAI_API_KEY) {
+      chatStatus.textContent = '🔑 OpenAI API key detected';
+      chatStatus.classList.add('text-green-500');
+    } else {
+      chatStatus.textContent = '⚠️ No API key - using local stub';
+      chatStatus.classList.add('text-yellow-500');
+    }
+    
+    document.getElementById('btnTestChat').addEventListener('click', async () => {
+      const message = document.getElementById('testChatInput').value.trim();
+      if (!message) return alert('Type a message');
+      
+      try {
+        const reply = await assistantReply(message);
+        document.getElementById('resultChat').classList.remove('hidden');
+        document.getElementById('resultChat').innerHTML = `
+          <div class="mb-2"><strong>You:</strong> ${message}</div>
+          <div class="p-2 bg-slate-900 rounded"><strong>AI:</strong> ${reply}</div>
+        `;
+        results.chat = true;
+        updateSummary();
+        console.log('✅ Chat test passed');
+      } catch (err) {
+        alert('Chat failed: ' + err.message);
+        console.error(err);
+      }
+    });
+
+    // Initialize
+    updateSummary();
+    console.log('Test page loaded. Libraries check:');
+    console.log('- PDFLib:', typeof window.PDFLib !== 'undefined' ? '✓' : '✗');
+    console.log('- QRCode:', typeof window.QRCode !== 'undefined' ? '✓' : '✗');
+    console.log('- PDF.js:', typeof pdfjsLib !== 'undefined' ? '✓' : '✗');
+    console.log('- Tesseract:', typeof Tesseract !== 'undefined' ? '✓' : '✗');
+  </script>
+  
+</body>
+</html>
