@@ -2,12 +2,29 @@
  * Verum Omnis - Client-Only Assistant
  * All core logic runs in the browser (no server required)
  * 
- * Enhanced with Nine-Brains forensic verification
+ * Enhanced with Nine-Brains forensic verification and Constitutional Framework
+ * All analysis follows the 10 constitutional principles
  */
 
 // Import new modules
 import { runNineBrains } from './nine-brains.js';
 import { extractFromFile } from './extraction.js';
+
+// Constitutional Framework - loaded once and referenced throughout
+let CONSTITUTION = null;
+
+async function loadConstitution() {
+  if (!CONSTITUTION) {
+    try {
+      const response = await fetch('/data/constitution.json');
+      CONSTITUTION = await response.json();
+    } catch (error) {
+      console.warn('Constitution not loaded:', error);
+      CONSTITUTION = { principles: [], loaded: false };
+    }
+  }
+  return CONSTITUTION;
+}
 
 // ============================================================================
 // STATE MANAGEMENT
@@ -486,13 +503,16 @@ export async function anchor({ sha512, filename }) {
 }
 
 // ============================================================================
-// 5. CHAT - Assistant Reply (local stub with optional LLM)
+// 5. CHAT - Assistant Reply (Constitutional Framework Aware)
 // ============================================================================
 
 const conversationHistory = [];
 
 export async function assistantReply(userMessage) {
   try {
+    // Load constitution on first use
+    await loadConstitution();
+    
     // Store user message
     conversationHistory.push({
       role: 'user',
@@ -505,11 +525,31 @@ export async function assistantReply(userMessage) {
     // Check for optional LLM API
     if (window.VERUM_ENV?.OPENAI_API_KEY) {
       try {
-        // Build messages for OpenAI
+        // Build messages for OpenAI with constitutional awareness
+        const constitutionalContext = CONSTITUTION?.loaded === false ? 
+          '' : 
+          `\n\nYou must follow the Verum Omnis Constitutional Framework with 10 principles:
+P1: Truth Above All - never omit contradictions
+P2: Presumption of Innocence - evidence required for flagging
+P3: Right to Explanation - always explain reasoning
+P4: Contradiction Detection Primacy - contradictions are key evidence
+P5: Multi-Perspective Analysis - 9 independent modules required
+P6: Evidence Chain Integrity - SHA-512 + QR verification
+P7: Legal Standard Compliance - court-admissible verification
+P8: Privacy and Confidentiality - client-side only processing
+P9: Accessible Justice - free for individuals, 20% recovery for institutions
+P10: Continuous Improvement - evolve while maintaining principles
+
+When discussing analysis, reference principles by ID (e.g., "Under P4...").`;
+        
         const messages = [
           {
             role: 'system',
-            content: `You are a helpful AI assistant for Verum Omnis, a document verification platform. You can help users verify, seal, and anchor documents. Current file: ${currentFile ? currentFile.filename : 'none'}. Be concise, friendly, and guide users to use the tools panel.`
+            content: `You are a helpful AI assistant for Verum Omnis, a constitutional framework-based document verification platform. You can help users verify, seal, and anchor documents using rigorous legal standards.${constitutionalContext}
+
+Current file: ${currentFile ? currentFile.filename : 'none'}. 
+
+Be concise, friendly, reference constitutional principles when relevant, and guide users to use the tools panel.`
           }
         ];
         
@@ -529,7 +569,7 @@ export async function assistantReply(userMessage) {
           body: JSON.stringify({
             model: window.VERUM_ENV.OPENAI_MODEL || 'gpt-4o-mini',
             messages,
-            max_tokens: 200,
+            max_tokens: 300,
             temperature: 0.7
           })
         });
@@ -545,7 +585,7 @@ export async function assistantReply(userMessage) {
         response = generateLocalResponse(userMessage);
       }
     } else {
-      // Local stub response (pattern matching + context awareness)
+      // Local stub response (pattern matching + context awareness + constitutional)
       response = generateLocalResponse(userMessage);
     }
     
@@ -571,51 +611,125 @@ function generateLocalResponse(message) {
     `I can see you have "${currentFile.filename}" loaded (${(currentFile.size / 1024).toFixed(1)}KB, hash: ${truncateHash(currentFile.sha512)}).` : 
     '';
   
+  // Constitutional principle queries
+  if (/constitution|principle|framework/i.test(lowerMsg)) {
+    return `I operate under the **Verum Omnis Constitutional Framework** with 10 core principles:
+
+📜 **P1: Truth Above All** - No omissions, all contradictions surfaced
+📜 **P2: Presumption of Innocence** - Documents are authentic until proven otherwise
+📜 **P3: Right to Explanation** - Every decision is transparent and explainable
+📜 **P4: Contradiction Detection Primacy** - Contradictions are key evidence of fraud
+📜 **P5: Multi-Perspective Analysis** - 9 independent verification modules
+📜 **P6: Evidence Chain Integrity** - SHA-512 hashing + QR verification
+📜 **P7: Legal Standard Compliance** - Court-admissible forensic analysis
+📜 **P8: Privacy & Confidentiality** - Client-side only, no server storage
+📜 **P9: Accessible Justice** - Free for individuals, 20% recovery for institutions
+📜 **P10: Continuous Improvement** - Evolve while maintaining principles
+
+${fileContext || 'Upload a document to see these principles in action!'}`;
+  }
+  
+  if (/contradiction/i.test(lowerMsg)) {
+    return `Under **P4: Contradiction Detection Primacy**, I use an enhanced contradiction engine that detects:
+
+• **Temporal contradictions** - Same event, different dates
+• **Factual contradictions** - X is true vs X is false
+• **Entity contradictions** - Same person, different attributes
+• **Admission vs Denial** - Claims admitted in one doc, denied in another
+• **Numerical contradictions** - Same ID, different amounts
+
+${fileContext ? `I can analyze "${currentFile.filename}" for contradictions when you upload additional related documents.` : 'Upload multiple related documents to enable cross-document contradiction analysis.'}`;
+  }
+  
   // Greeting patterns
   if (/^(hi|hello|hey|greetings)/i.test(lowerMsg)) {
-    return `Hello! I'm your Verum Omnis assistant. ${fileContext || 'Upload a document to get started, or just chat with me about what you need.'}`;
+    return `Hello! I'm your Verum Omnis assistant, operating under a strict constitutional framework to ensure **the whole truth** in every analysis. ${fileContext || 'Upload a document to get started, or ask me about the constitutional principles I follow.'}`;
   }
   
   // Tool-related queries
   if (/verify|check|validate/i.test(lowerMsg)) {
     return fileContext ? 
-      `I can verify "${currentFile.filename}" using triple-consensus checking. Just click "Check this document" in the tools panel, and I'll run three independent validators.` :
-      `To verify a document, first upload it using the file selector, then click "Check this document". I'll run three independent checkers and give you a consensus result.`;
+      `I can verify "${currentFile.filename}" using **Nine-Brains forensic analysis** (P5: Multi-Perspective). This includes the contradiction engine (P4) and 8 other independent validators. Click "Check this document" to start the constitutional verification process.` :
+      `To verify a document, upload it first. I'll run 9 independent analysis modules including the **contradiction engine** to detect any fraud or tampering. This meets legal standards for court admissibility (P7).`;
   }
   
   if (/seal|stamp|certif/i.test(lowerMsg)) {
     return fileContext ?
-      `I can seal "${currentFile.filename}" as a certified PDF with your hash, a QR code, and our watermark. Click "Seal this document" when ready.` :
-      `To seal a document, upload it first. I'll create a certified PDF with the SHA-512 hash, QR code for verification, and the Verum Omnis watermark.`;
+      `I can seal "${currentFile.filename}" as a certified PDF with SHA-512 hash, QR verification code, and Verum Omnis watermark (P6: Evidence Chain Integrity). Click "Seal this document" when ready.` :
+      `To seal a document, upload it first. I'll create a certified PDF meeting **P6: Evidence Chain Integrity** - SHA-512 hash + QR code for third-party verification.`;
   }
   
   if (/anchor|blockchain|chain/i.test(lowerMsg)) {
     return fileContext ?
-      `I can generate an anchor receipt for "${currentFile.filename}". Click "Anchor this document" to create a timestamped proof record. ${window.VERUM_ENV?.ANCHOR ? 'Blockchain anchoring is configured!' : 'Currently local-only (no blockchain configured).'}` :
-      `Anchoring creates a permanent record of your document's hash. Upload a file first, then click "Anchor this document" to generate a receipt.`;
+      `I can generate an anchor receipt for "${currentFile.filename}" (P6: Evidence Chain). This creates a timestamped proof record. ${window.VERUM_ENV?.ANCHOR ? 'Blockchain anchoring is configured!' : 'Currently local-only (P8: Privacy - no server storage).'}` :
+      `Anchoring creates a permanent record of your document's hash while respecting **P8: Privacy** (client-side only). Upload a file first, then click "Anchor this document".`;
   }
   
   if (/hash|sha/i.test(lowerMsg)) {
     return fileContext ?
-      `Your file's SHA-512 hash is: ${currentFile.sha512.substring(0, 32)}... (full hash shown in the tools panel)` :
-      `I compute SHA-512 hashes instantly when you upload a file. They're cryptographic fingerprints that prove your document hasn't changed.`;
+      `Your file's SHA-512 hash is: ${currentFile.sha512.substring(0, 32)}... (full hash in tools panel). This cryptographic fingerprint ensures **P6: Evidence Chain Integrity**.` :
+      `I compute SHA-512 hashes instantly when you upload a file (P6: Evidence Chain Integrity). They're cryptographic fingerprints that prove your document hasn't changed.`;
+  }
+  
+  // Legal/court admissibility
+  if (/legal|court|evidence|admiss/i.test(lowerMsg)) {
+    return `Under **P7: Legal Standard Compliance**, all my verifications are designed for court admissibility:
+
+✓ Forensic-grade SHA-512 hashing
+✓ Nine independent analysis modules with audit trails
+✓ Contradiction detection with documented evidence
+✓ Reproducible verification process
+✓ Sealed PDFs with tamper-evident QR codes
+
+${fileContext ? `Your document "${currentFile.filename}" can be verified to these legal standards.` : 'Upload a document to start the legal verification process.'}`;
+  }
+  
+  // Privacy
+  if (/privacy|private|confidential|data|storage/i.test(lowerMsg)) {
+    return `**P8: Privacy & Confidentiality** is absolute here:
+
+✓ All processing happens in YOUR browser
+✓ No document content ever sent to servers
+✓ No server-side storage of your files
+✓ You maintain complete control over your data
+
+${fileContext ? `Your file "${currentFile.filename}" never leaves this browser.` : 'Your documents stay completely private and under your control.'}`;
+  }
+  
+  // Pricing/institutions
+  if (/price|cost|fee|institution|company|business/i.test(lowerMsg)) {
+    return `Under **P9: Accessible Justice**:
+
+👤 **Individuals**: Completely FREE - all verification, sealing, and anchoring
+🏛️ **Institutions/Companies**: 20% of fraud recovery AFTER successful trial (no upfront costs)
+
+This ensures access to justice isn't blocked by fees. ${fileContext || 'Upload your documents and start verifying for free!'}`;
   }
   
   // Help/what can you do
   if (/help|what can|capabilities|features/i.test(lowerMsg)) {
-    return `I can help you with:\n\n• **Verify** - Triple-check documents for authenticity\n• **Seal** - Create certified PDFs with QR codes\n• **Anchor** - Generate timestamped proof receipts\n• **Hash** - Compute SHA-512 fingerprints\n\n${fileContext || 'Upload a document to get started!'}`;
+    return `I operate under the **Constitutional Framework** to provide:
+
+• **Verify** - Nine-Brains forensic analysis with contradiction detection (P4, P5)
+• **Seal** - Court-admissible certified PDFs with QR codes (P6, P7)
+• **Anchor** - Timestamped proof receipts (P6)
+• **Hash** - SHA-512 cryptographic fingerprints (P6)
+
+All analysis follows **P1: Truth Above All** - no omissions, ever.
+
+${fileContext || 'Upload a document to get started!'}`;
   }
   
   // Thank you
   if (/thank|thanks|thx/i.test(lowerMsg)) {
-    return `You're welcome! Let me know if you need anything else. ${fileContext ? `Your file "${currentFile.filename}" is ready for verification, sealing, or anchoring.` : ''}`;
+    return `You're welcome! I'm here to uphold the constitutional principles and ensure the whole truth emerges. ${fileContext ? `Your file "${currentFile.filename}" is ready for constitutional verification, sealing, or anchoring.` : ''}`;
   }
   
-  // Default empathetic response
+  // Default empathetic response with constitutional awareness
   const responses = [
-    `I understand. ${fileContext || 'Feel free to upload a document, and I can help verify, seal, or anchor it.'}`,
-    `Got it. ${fileContext ? `Would you like me to verify, seal, or anchor "${currentFile.filename}"?` : 'Upload a file and I can help with verification, sealing, or anchoring.'}`,
-    `I'm here to help. ${fileContext || 'You can upload documents for verification, sealing, or blockchain anchoring.'}`,
+    `I understand. ${fileContext || 'Feel free to upload a document, and I can apply constitutional forensic analysis to verify, seal, or anchor it.'}`,
+    `Got it. ${fileContext ? `Would you like me to verify "${currentFile.filename}" using the Nine-Brains system with contradiction engine (P4)?` : 'Upload a file and I can help with constitutional verification, sealing, or anchoring.'}`,
+    `I'm here to help under the constitutional framework. ${fileContext || 'You can upload documents for rigorous verification, legal-grade sealing, or blockchain anchoring.'}`,
   ];
   
   return responses[Math.floor(Math.random() * responses.length)];

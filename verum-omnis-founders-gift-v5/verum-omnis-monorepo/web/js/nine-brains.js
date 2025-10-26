@@ -4,7 +4,12 @@
  * 
  * Each "brain" is an independent analysis module that votes PASS or FLAG
  * with a confidence score (0–1) and detailed notes for audit trail.
+ * 
+ * Constitutional Framework Compliant - All analysis follows the 10 principles
+ * defined in /web/data/constitution.json
  */
+
+import { runContradictionEngine, checkConstitutionalCompliance } from './contradiction-engine.js';
 
 // ═══════════════════════════════════════════════════════════════
 // Brain 1: Document Integrity
@@ -369,65 +374,127 @@ export async function brain5_entityConsistency({ file, text, metadata, caseFiles
 }
 
 // ═══════════════════════════════════════════════════════════════
-// Brain 6: Cross-Document Contradictions
+// Brain 6: Cross-Document Contradictions (ENHANCED)
+// Constitutional Principle P4: Contradiction Detection Primacy
 // ═══════════════════════════════════════════════════════════════
 export async function brain6_contradictions({ file, text, metadata, caseFiles = [] }) {
   const notes = [];
   let score = 1.0;
   
+  // Add constitutional principle reference
+  notes.push('📜 Operating under P4: Contradiction Detection Primacy');
+  
   if (caseFiles.length < 2) {
-    notes.push('ℹ️ Single file; no cross-document analysis possible');
-    return { brain: 'Cross-Document Contradictions', vote: 'pass', score: 1.0, notes };
+    notes.push('ℹ️ Single file; no cross-document analysis possible (P4 waived)');
+    return { 
+      brain: 'Cross-Document Contradictions (Constitutional)', 
+      vote: 'pass', 
+      score: 1.0, 
+      notes,
+      constitutionalPrinciple: 'P4',
+      contradictionAnalysisPerformed: false
+    };
   }
   
-  // Extract claims (sentences with certain verbs: is, was, states, claims, confirms, denies)
-  const claimVerbs = ['is', 'was', 'are', 'were', 'states', 'claims', 'confirms', 'denies', 'alleges'];
-  const sentences = text.split(/[.!?]+/).map(s => s.trim()).filter(s => s.length > 10);
-  const claims = sentences.filter(s => 
-    claimVerbs.some(verb => new RegExp(`\\b${verb}\\b`, 'i').test(s))
-  );
-  
-  // Look for contradictory statements in other files
-  const contradictions = [];
-  for (const claim of claims.slice(0, 20)) { // Limit to first 20 claims for performance
-    const claimLower = claim.toLowerCase();
+  // Use enhanced contradiction engine
+  try {
+    const engineResults = await runContradictionEngine(caseFiles);
     
-    for (const otherFile of caseFiles) {
-      if (otherFile.filename === file.name) continue;
+    // Process results
+    const { contradictions, criticalCount, majorCount, minorCount, totalCount } = engineResults;
+    
+    if (totalCount === 0) {
+      notes.push(`✓ Enhanced analysis: No contradictions detected across ${caseFiles.length} files`);
+      notes.push('✓ Constitutional compliance: P4 requirement met');
+      score = 1.0;
+    } else {
+      notes.push(`⚠️ Enhanced analysis found ${totalCount} contradiction(s):`);
+      notes.push(`   - ${criticalCount} critical (factual/admission-denial conflicts)`);
+      notes.push(`   - ${majorCount} major (temporal/entity inconsistencies)`);
+      notes.push(`   - ${minorCount} minor (numerical variations)`);
       
-      const otherText = (otherFile.text || '').toLowerCase();
+      // Score based on severity
+      score -= (criticalCount * 0.3);
+      score -= (majorCount * 0.15);
+      score -= (minorCount * 0.05);
+      score = Math.max(0, score);
       
-      // Simple contradiction detection: look for negation patterns
-      const negationPatterns = [
-        'not ' + claimLower.slice(0, 50),
-        'never ' + claimLower.slice(0, 50),
-        'denies ' + claimLower.slice(0, 50),
-        'disputes ' + claimLower.slice(0, 50),
-      ];
+      // Add examples
+      if (contradictions.length > 0) {
+        const example = contradictions[0];
+        notes.push(`   Example (${example.severity}): ${example.explanation}`);
+      }
       
-      for (const pattern of negationPatterns) {
-        if (otherText.includes(pattern)) {
-          contradictions.push({
-            file1: file.name,
-            file2: otherFile.filename,
-            claim: claim.slice(0, 100),
-          });
-          score -= 0.15;
-          break;
+      notes.push('📋 All contradictions documented per P1: Truth Above All');
+    }
+    
+    const vote = score >= 0.5 ? 'pass' : 'flag';
+    return { 
+      brain: 'Cross-Document Contradictions (Constitutional)', 
+      vote, 
+      score, 
+      notes,
+      contradictions,
+      constitutionalPrinciple: 'P4',
+      contradictionAnalysisPerformed: true,
+      engineResults
+    };
+  } catch (error) {
+    notes.push(`⚠️ Contradiction engine error: ${error.message}`);
+    notes.push('⚠️ Falling back to basic analysis');
+    
+    // Fallback to original simple logic
+    const claimVerbs = ['is', 'was', 'are', 'were', 'states', 'claims', 'confirms', 'denies', 'alleges'];
+    const sentences = text.split(/[.!?]+/).map(s => s.trim()).filter(s => s.length > 10);
+    const claims = sentences.filter(s => 
+      claimVerbs.some(verb => new RegExp(`\\b${verb}\\b`, 'i').test(s))
+    );
+    
+    const contradictions = [];
+    for (const claim of claims.slice(0, 20)) {
+      const claimLower = claim.toLowerCase();
+      
+      for (const otherFile of caseFiles) {
+        if (otherFile.filename === file.name) continue;
+        
+        const otherText = (otherFile.text || '').toLowerCase();
+        const negationPatterns = [
+          'not ' + claimLower.slice(0, 50),
+          'never ' + claimLower.slice(0, 50),
+          'denies ' + claimLower.slice(0, 50),
+          'disputes ' + claimLower.slice(0, 50),
+        ];
+        
+        for (const pattern of negationPatterns) {
+          if (otherText.includes(pattern)) {
+            contradictions.push({
+              file1: file.name,
+              file2: otherFile.filename,
+              claim: claim.slice(0, 100),
+            });
+            score -= 0.15;
+            break;
+          }
         }
       }
     }
+    
+    if (contradictions.length > 0) {
+      notes.push(`⚠️ Found ${contradictions.length} potential contradiction(s) (basic mode)`);
+      notes.push(`   Example: "${contradictions[0].claim}..." conflicts with ${contradictions[0].file2}`);
+    }
+    
+    const vote = score >= 0.5 ? 'pass' : 'flag';
+    return { 
+      brain: 'Cross-Document Contradictions (Constitutional)', 
+      vote, 
+      score: Math.max(0, score), 
+      notes, 
+      contradictions,
+      constitutionalPrinciple: 'P4',
+      contradictionAnalysisPerformed: true
+    };
   }
-  
-  if (contradictions.length > 0) {
-    notes.push(`⚠️ Found ${contradictions.length} potential contradiction(s)`);
-    notes.push(`   Example: "${contradictions[0].claim}..." conflicts with ${contradictions[0].file2}`);
-  } else {
-    notes.push(`✓ No obvious contradictions detected across ${caseFiles.length} files`);
-  }
-  
-  const vote = score >= 0.5 ? 'pass' : 'flag';
-  return { brain: 'Cross-Document Contradictions', vote, score: Math.max(0, score), notes, contradictions };
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -680,7 +747,7 @@ function levenshteinDistance(str1, str2) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// Master Nine-Brains Runner
+// Master Nine-Brains Runner (Constitutional Framework Compliant)
 // ═══════════════════════════════════════════════════════════════
 export async function runNineBrains({ file, arrayBuffer, text, metadata, caseFiles = [] }) {
   const results = await Promise.all([
@@ -695,13 +762,37 @@ export async function runNineBrains({ file, arrayBuffer, text, metadata, caseFil
     brain9_biasAnomaly({ file, text, metadata, caseFiles }),
   ]);
   
-  // Calculate overall consensus
+  // Calculate overall consensus (P5: Multi-Perspective Analysis)
   const votes = results.map(r => r.vote);
   const passCount = votes.filter(v => v === 'pass').length;
   const flagCount = votes.filter(v => v === 'flag').length;
-  const consensus = passCount >= 5 ? 'PASS' : 'FLAG'; // 5/9 majority
+  const consensus = passCount >= 5 ? 'pass' : 'flag'; // 5/9 majority per P5
   
   const avgScore = results.reduce((sum, r) => sum + r.score, 0) / results.length;
+  
+  // Check constitutional compliance
+  const allNotes = results.flatMap(r => r.notes || []);
+  const constitutionalCheck = checkConstitutionalCompliance('nine-brains', {
+    totalBrains: 9,
+    notes: allNotes,
+    contradictionAnalysisPerformed: results.find(r => r.contradictionAnalysisPerformed) !== undefined,
+    contradictions: results.find(r => r.contradictions)?.contradictions || []
+  });
+  
+  // Add constitutional compliance summary
+  const constitutionalNotes = [];
+  if (constitutionalCheck.constitutional) {
+    constitutionalNotes.push('✅ Analysis meets all constitutional requirements');
+  } else {
+    constitutionalNotes.push('⚠️ Constitutional violations detected:');
+    constitutionalCheck.violations.forEach(v => {
+      constitutionalNotes.push(`   - ${v.principle}: ${v.violation} (${v.severity})`);
+    });
+  }
+  
+  constitutionalCheck.compliances.forEach(c => {
+    constitutionalNotes.push(`✓ ${c.principle}: ${c.status}`);
+  });
   
   return {
     results,
@@ -710,5 +801,10 @@ export async function runNineBrains({ file, arrayBuffer, text, metadata, caseFil
     flagCount,
     avgScore,
     totalBrains: 9,
+    constitutional: constitutionalCheck.constitutional,
+    constitutionalCheck,
+    constitutionalNotes,
+    timestamp: new Date().toISOString(),
+    framework: 'Verum Omnis Constitutional Framework v1.0.0'
   };
 }
