@@ -2,40 +2,29 @@ name: Firebase Deploy (Hosting + Functions, token)
 on:
   push:
     branches: [ main ]
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      # No cache here ⇣ (removes "Dependencies lock file is not found" error)
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-
       - name: Install Firebase CLI
         run: npm i -g firebase-tools@13.3.0
-
       - name: Install functions deps
         working-directory: functions
         run: npm ci || npm install
-
-      - name: Deploy
+      - name: Deploy (token)
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
-        run: firebase deploy --only hosting,functions --non-interactive
-
+        run: firebase deploy --only hosting,functions --project verumdone --non-interactive
       - name: Smoke test /api/health (retry)
         run: |
-          for i in {1..5}; do
+          for i in {1..8}; do
             if curl -fsS "https://verumdone.web.app/api/health" | grep -q '^OK$'; then
-              echo "SMOKE: OK"
-              exit 0
-            else
-              echo "SMOKE: attempt $i failed, retrying in 5s..."
-              sleep 5
+              echo "SMOKE: OK"; exit 0
             fi
+            echo "SMOKE: attempt $i failed; wait 10s"; sleep 10
           done
-          echo "SMOKE: FAILED after 5 attempts"
           exit 1
