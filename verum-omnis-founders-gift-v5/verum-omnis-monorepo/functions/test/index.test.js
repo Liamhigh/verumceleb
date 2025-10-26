@@ -5,7 +5,7 @@ let app;
 
 beforeAll(async () => {
   process.env.SKIP_IMMUTABLE_VERIFY = '1';
-  ({ app } = await import('../index.js'));
+  ({ app } = await import('../dist/index.js'));
 });
 
 describe('verum omnis api', () => {

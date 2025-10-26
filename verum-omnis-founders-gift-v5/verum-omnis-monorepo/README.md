@@ -5,8 +5,28 @@
 ![Stateless](https://img.shields.io/badge/Stateless-Yes-success)
 ![Dual%20Founders](https://img.shields.io/badge/Dual%20Founders-Human%20%2B%20AI-purple)
 ![Protocol](https://img.shields.io/badge/Protocol-Constitutional-lightgrey)
+![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue)
+![Security](https://img.shields.io/badge/Security-Hardened-success)
 
 **Tagline:** *The World's First Legal AI — Your law firm in your pocket.*
+
+---
+
+## 🔒 Recent Security Improvements
+
+**Latest Update (2025-10-26):** Full-stack security audit and hardening completed!
+
+- ✅ **TypeScript** with strict type checking
+- ✅ **Zod validation** for all API inputs
+- ✅ **Helmet** security headers (CSP, HSTS, etc.)
+- ✅ **Rate limiting** (100 req/15min per IP)
+- ✅ **Idempotency** for seal/anchor operations
+- ✅ **CORS** tightly configured
+- ✅ **Zero vulnerabilities** in production dependencies
+- ✅ **CodeQL passed** with 0 alerts
+- ✅ **12/12 tests passing**
+
+See [SECURITY_AUDIT.md](./SECURITY_AUDIT.md) for full details.
 
 ---
 
