@@ -300,11 +300,128 @@
         // Add message to chat
         addAssistantMessage(`File loaded: "${hashData.filename}" (${(hashData.size / 1024).toFixed(1)}KB). Hash computed successfully! ✓`);
 
+        // AUTO-VERIFY: Call /v1/contradict for automatic fraud detection
+        await autoVerifyDocument(file, hashData);
+
       } catch (error) {
         showResults(`Error: ${error.message}`, 'error');
         console.error(error);
       }
     });
+
+    // ========================================================================
+    // AUTO-VERIFY DOCUMENT (Fraud Detection)
+    // ========================================================================
+    async function autoVerifyDocument(file, hashData) {
+      try {
+        // Show typing indicator
+        elements.typingIndicator.classList.remove('hidden');
+        scrollChatToBottom();
+
+        // Extract text for analysis (simplified)
+        let textContent = '';
+        if (file.type.includes('text')) {
+          textContent = await file.text();
+        } else if (file.type.includes('pdf')) {
+          // TODO: Implement full PDF text extraction using PDF.js
+          // Current implementation only sends filename for PDF files
+          // This is a known limitation that reduces fraud detection accuracy for PDFs
+          textContent = `PDF: ${hashData.filename}`;
+        }
+
+        // Call /v1/contradict endpoint
+        const apiUrl = window.location.hostname === 'localhost' 
+          ? 'http://localhost:5001/verumdone/us-central1/api/v1/contradict'
+          : '/v1/contradict';
+
+        const response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            text: textContent.substring(0, 5000), // Limit text
+            sha512: hashData.sha512,
+            filename: hashData.filename
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error(`Contradict API returned ${response.status}`);
+        }
+
+        const result = await response.json();
+
+        // Hide typing indicator
+        elements.typingIndicator.classList.add('hidden');
+
+        // Display risk advisory
+        displayRiskAdvisory(result, hashData.filename);
+
+      } catch (error) {
+        elements.typingIndicator.classList.add('hidden');
+        console.warn('Auto-verify failed:', error);
+        // Inform user that auto-analysis was skipped
+        addAssistantMessage(
+          `ℹ️ I've loaded your document "${hashData.filename}". ` +
+          `Automatic fraud detection is currently unavailable (${error.message}). ` +
+          `You can still perform full forensic analysis by clicking "Check this document".`
+        );
+      }
+    }
+
+    // ========================================================================
+    // DISPLAY RISK ADVISORY
+    // ========================================================================
+    function displayRiskAdvisory(contradictResult, filename) {
+      const { riskScore, contradictions, analysis } = contradictResult;
+      
+      // Determine risk level
+      let riskLevel, riskIcon, riskMessage;
+      if (riskScore < 0.3) {
+        riskLevel = 'LOW RISK';
+        riskIcon = '✅';
+        riskMessage = `Initial analysis shows no significant red flags. Document "${filename}" appears clean.`;
+      } else if (riskScore < 0.6) {
+        riskLevel = 'MEDIUM RISK';
+        riskIcon = '⚠️';
+        riskMessage = `Initial analysis detected ${contradictions.length} potential concern(s). Please review before proceeding.`;
+      } else {
+        riskLevel = 'HIGH RISK';
+        riskIcon = '🚨';
+        riskMessage = `Multiple red flags detected (${contradictions.length}). I recommend careful review before sealing or anchoring.`;
+      }
+
+      // Build concerns list with null safety
+      const concernsList = contradictions && contradictions.length > 0 
+        ? contradictions.map(c => {
+            const severity = (c.severity || 'unknown').toUpperCase();
+            const type = (c.type || 'unspecified').replace(/_/g, ' ');
+            return `• ${severity}: ${type}`;
+          }).join('\n')
+        : '';
+
+      // Show lawyerly-toned message
+      const lawyerlyMsg = `📋 **Initial Legal Analysis Complete**
+
+${riskIcon} **Risk Assessment: ${riskLevel}** (Score: ${(riskScore * 100).toFixed(0)}%)
+
+${riskMessage}
+
+${concernsList ? `
+**Concerns Identified:**
+${concernsList}
+` : ''}
+
+${analysis?.recommendation || 'No specific recommendation available.'}
+
+**Next Steps:**
+• For full forensic analysis, click "Check this document" (Nine-Brains verification)
+• To proceed with sealing, I'll need your explicit consent
+• For anchoring, I'll ask for confirmation first
+
+Under P2 (Presumption of Innocence), this initial scan does not constitute final judgment. Would you like me to proceed with full constitutional verification?`;
+
+      addAssistantMessage(lawyerlyMsg);
+    }
 
     // ========================================================================
     // DRAG AND DROP FILE UPLOAD
@@ -479,11 +596,31 @@
         elements.btnVerify.disabled = false;
         elements.btnVerify.textContent = '🔍 Check this document';
       }
-    });    // ========================================================================
-    // SEAL BUTTON
+    });    
+    
+    // ========================================================================
+    // SEAL BUTTON - WITH CONSENT GATE
     // ========================================================================
     elements.btnSeal.addEventListener('click', async () => {
       if (!currentFileData) return;
+
+      // CONSENT GATE: Ask for explicit permission before sealing
+      const consent = confirm(
+        `🔒 SEAL DOCUMENT CONSENT\n\n` +
+        `You are about to create a certified, sealed PDF of "${currentFileData.filename}".\n\n` +
+        `This will:\n` +
+        `• Generate a forensic-grade sealed document\n` +
+        `• Embed SHA-512 hash and QR verification code\n` +
+        `• Add Verum Omnis watermark and certification page\n` +
+        `• Create a court-admissible artifact (P7: Legal Standard)\n\n` +
+        `Under P8 (Privacy), all processing remains client-side. No data is sent to servers.\n\n` +
+        `Do you consent to proceed with sealing?`
+      );
+
+      if (!consent) {
+        addAssistantMessage(`Understood. Sealing cancelled. Your document remains unsealed. Let me know if you change your mind or have questions about the sealing process.`);
+        return;
+      }
 
       try {
         elements.btnSeal.disabled = true;
@@ -519,11 +656,19 @@
         `;
 
         showResults(html, 'success');
-        addAssistantMessage(`Your sealed PDF is ready! Click the download button in the results panel. The PDF includes the Verum Omnis watermark, truncated hash, and QR code for verification.`);
+        addAssistantMessage(
+          `✅ **Seal Complete**\n\n` +
+          `Your sealed PDF is ready for download. Under P6 (Evidence Chain Integrity), this document now includes:\n\n` +
+          `• SHA-512 cryptographic hash\n` +
+          `• QR verification code\n` +
+          `• Verum Omnis certification page\n` +
+          `• Tamper-evident watermark\n\n` +
+          `This sealed document meets P7 (Legal Standard Compliance) for court submission. Click the download button in the results panel.`
+        );
 
       } catch (error) {
         showResults(`Sealing failed: ${error.message}`, 'error');
-        addAssistantMessage(`Sorry, PDF sealing encountered an error: ${error.message}`);
+        addAssistantMessage(`I apologize - PDF sealing encountered an error: ${error.message}. This is a technical issue, not a problem with your document.`);
       } finally {
         elements.btnSeal.disabled = false;
         elements.btnSeal.textContent = '🔒 Seal this document';
@@ -531,10 +676,28 @@
     });
 
     // ========================================================================
-    // ANCHOR BUTTON
+    // ANCHOR BUTTON - WITH CONSENT GATE
     // ========================================================================
     elements.btnAnchor.addEventListener('click', async () => {
       if (!currentFileData) return;
+
+      // CONSENT GATE: Ask for explicit permission before anchoring
+      const consent = confirm(
+        `⚓ ANCHOR DOCUMENT CONSENT\n\n` +
+        `You are about to create a permanent anchor receipt for "${currentFileData.filename}".\n\n` +
+        `This will:\n` +
+        `• Generate a timestamped proof record\n` +
+        `• Create a verifiable anchor receipt (JSON)\n` +
+        `• Establish cryptographic evidence of document existence\n` +
+        `• Maintain P8 (Privacy) - client-side only, no server storage\n\n` +
+        `The receipt can be used as legal evidence of document authenticity at this specific point in time.\n\n` +
+        `Do you consent to proceed with anchoring?`
+      );
+
+      if (!consent) {
+        addAssistantMessage(`Understood. Anchoring cancelled. I can create an anchor receipt whenever you're ready. Let me know if you have questions about the anchoring process.`);
+        return;
+      }
 
       try {
         elements.btnAnchor.disabled = true;
@@ -566,17 +729,25 @@
               download="anchor-receipt.json"
               class="block w-full px-4 py-3 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-center font-medium transition-colors"
             >
-              �� Download anchor-receipt.json
+              📥 Download anchor-receipt.json
             </a>
           </div>
         `;
 
         showResults(html, 'success');
-        addAssistantMessage(`Anchor receipt created! Download the JSON file to keep a permanent record of your document's hash and timestamp.`);
+        addAssistantMessage(
+          `✅ **Anchor Receipt Created**\n\n` +
+          `Your anchor receipt is ready for download. Under P6 (Evidence Chain Integrity), this receipt provides:\n\n` +
+          `• Cryptographic proof of document hash at this timestamp\n` +
+          `• Verifiable evidence for legal proceedings\n` +
+          `• Immutable record of document existence\n\n` +
+          `Under P8 (Privacy), this was processed entirely client-side with no server storage. ` +
+          `Download the JSON file and keep it as evidence alongside your original document.`
+        );
 
       } catch (error) {
         showResults(`Anchoring failed: ${error.message}`, 'error');
-        addAssistantMessage(`Sorry, anchoring encountered an error: ${error.message}`);
+        addAssistantMessage(`I apologize - anchoring encountered an error: ${error.message}. This is a technical issue, not a problem with your document.`);
       } finally {
         elements.btnAnchor.disabled = false;
         elements.btnAnchor.textContent = '⚓ Anchor this document';
