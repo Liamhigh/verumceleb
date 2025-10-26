@@ -85,3 +85,62 @@ python3 -m http.server 5173
 8. Write/refresh short docs: `docs/EXECUTION-PLAN.md`, `docs/SEALING.md`, `docs/AI-ROUTER.md`, `docs/STATELESS.md`.
 
 **Work in small PRs.** Only open `BLOCKED:` issues for human‑only items (API keys/billing).
+
+---
+
+# Asset sourcing – videos (Issue #50)
+
+**Do not commit video binaries to the repo.**  
+All videos are hosted in **Firebase Storage** for project **verumdone**.
+
+## Source bucket & URL format
+- Bucket: `verumdone.firebasestorage.app`
+- Public URL template (no token required):
+```
+https://firebasestorage.googleapis.com/v0/b/verumdone.firebasestorage.app/o/<PATH-ENCODED>?alt=media
+```
+Where `<PATH-ENCODED>` is the object path with `/` → `%2F` and spaces → `%20`.
+
+## File mapping
+- **Landing hero (index.html):**
+  - Object path: `assets/video landing page.mp4`
+  - URL: `https://firebasestorage.googleapis.com/v0/b/verumdone.firebasestorage.app/o/assets%2Fvideo%20landing%20page.mp4?alt=media`
+
+- **Institutions page (institutions.html):**
+  - Object path: `assets/bank promo.mp4`
+  - URL: `https://firebasestorage.googleapis.com/v0/b/verumdone.firebasestorage.app/o/assets%2Fbank%20promo.mp4?alt=media`
+  - Object path: `assets/bank promo long.mp4`
+  - URL: `https://firebasestorage.googleapis.com/v0/b/verumdone.firebasestorage.app/o/assets%2Fbank%20promo%20long.mp4?alt=media`
+
+## Placement rules
+- `web/index.html` renders **one** autoplay/muted/loop hero `<video>` using the **landing** URL above.
+- `web/institutions.html` renders **two** `<video>` tags (stacked on mobile, side-by-side on md+), using the two **institutions** URLs above.
+- Keep the header logo at `/assets/logo.png` (small image can live in repo).
+
+## Config file
+URLs are also stored in `web/data/videos.json`:
+```json
+{
+  "landing": "https://firebasestorage.googleapis.com/v0/b/verumdone.firebasestorage.app/o/assets%2Fvideo%20landing%20page.mp4?alt=media",
+  "institutions1": "https://firebasestorage.googleapis.com/v0/b/verumdone.firebasestorage.app/o/assets%2Fbank%20promo%20long.mp4?alt=media",
+  "institutions2": "https://firebasestorage.googleapis.com/v0/b/verumdone.firebasestorage.app/o/assets%2Fbank%20promo.mp4?alt=media"
+}
+```
+
+## Storage rule (already applied)
+```js
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /assets/{allPaths=**} {
+      allow read: if true;
+    }
+  }
+}
+```
+
+## Acceptance checks
+* Landing page plays the hero video from Firebase.
+* Institutions page plays both videos from Firebase.
+* No video files are added to the repository.
+
