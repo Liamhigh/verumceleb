@@ -23,6 +23,9 @@ coverage/
 .env.test.local
 .env.production.local
 
+# API Keys & Secrets
+web/js/config.js
+
 # Firebase
 .firebase/
 *.cache

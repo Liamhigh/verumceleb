@@ -148,17 +148,63 @@ async function llmChecker({ arrayBuffer, filename, sha512, mime }) {
   // Check if real LLM API is configured
   if (window.VERUM_ENV?.OPENAI_API_KEY) {
     try {
-      notes.push('🤖 Attempting LLM analysis...');
-      // TODO: Implement actual OpenAI API call
-      // For now, fall through to stub behavior
-      notes.push('⚠️ LLM API integration pending');
+      notes.push('🤖 Calling OpenAI for LLM analysis...');
+      
+      // Extract text content for analysis
+      let textContent = '';
+      if (mime?.includes('text')) {
+        textContent = new TextDecoder().decode(arrayBuffer);
+      } else if (mime?.includes('pdf')) {
+        textContent = await extractTextFromPDF(arrayBuffer);
+      }
+      // Limit text size
+      textContent = textContent.substring(0, 4000);
+      
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${window.VERUM_ENV.OPENAI_API_KEY}`
+        },
+        body: JSON.stringify({
+          model: window.VERUM_ENV.OPENAI_MODEL || 'gpt-4o-mini',
+          messages: [
+            {
+              role: 'system',
+              content: 'You are a document verification expert. Analyze the document for signs of fraud, tampering, or anomalies. Respond with PASS or FLAG followed by a brief explanation.'
+            },
+            {
+              role: 'user',
+              content: `Analyze this document:\n\nFilename: ${filename}\nType: ${mime}\nSHA-512: ${sha512.substring(0, 32)}...\n\nContent preview:\n${textContent || '[Binary file - no text extracted]'}\n\nIs this document authentic or suspicious? Respond with "PASS:" or "FLAG:" followed by your analysis.`
+            }
+          ],
+          max_tokens: 150,
+          temperature: 0.3
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`API returned ${response.status}`);
+      }
+      
+      const data = await response.json();
+      const llmResponse = data.choices?.[0]?.message?.content || '';
+      
+      if (llmResponse.toUpperCase().startsWith('FLAG')) {
+        vote = 'flag';
+        notes.push(`🚩 ${llmResponse}`);
+      } else {
+        notes.push(`✓ ${llmResponse}`);
+      }
+      
+      return { checker: 'LLMChecker', vote, notes };
     } catch (error) {
-      notes.push(`⚠️ LLM API error: ${error.message}`);
+      notes.push(`⚠️ LLM API error: ${error.message} - falling back to local analysis`);
     }
   }
   
   // Local stub analysis (pattern-based)
-  notes.push('🔍 Running local pattern analysis (stub mode)');
+  notes.push('🔍 Running local pattern analysis (no API key configured)');
   
   // Simple content-type based analysis
   if (mime?.includes('pdf')) {
@@ -436,18 +482,54 @@ export async function assistantReply(userMessage) {
       timestamp: new Date().toISOString()
     });
     
+    let response;
+    
     // Check for optional LLM API
     if (window.VERUM_ENV?.OPENAI_API_KEY) {
       try {
-        // TODO: Implement actual OpenAI API call
-        // For now, fall through to stub
+        // Build messages for OpenAI
+        const messages = [
+          {
+            role: 'system',
+            content: `You are a helpful AI assistant for Verum Omnis, a document verification platform. You can help users verify, seal, and anchor documents. Current file: ${currentFile ? currentFile.filename : 'none'}. Be concise, friendly, and guide users to use the tools panel.`
+          }
+        ];
+        
+        // Add recent conversation history (last 5 exchanges)
+        const recentHistory = conversationHistory.slice(-10);
+        messages.push(...recentHistory.map(msg => ({
+          role: msg.role,
+          content: msg.content
+        })));
+        
+        const apiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${window.VERUM_ENV.OPENAI_API_KEY}`
+          },
+          body: JSON.stringify({
+            model: window.VERUM_ENV.OPENAI_MODEL || 'gpt-4o-mini',
+            messages,
+            max_tokens: 200,
+            temperature: 0.7
+          })
+        });
+        
+        if (!apiResponse.ok) {
+          throw new Error(`API returned ${apiResponse.status}`);
+        }
+        
+        const data = await apiResponse.json();
+        response = data.choices?.[0]?.message?.content || 'I apologize, but I received an empty response.';
       } catch (error) {
         console.warn('LLM API call failed, using local stub:', error);
+        response = generateLocalResponse(userMessage);
       }
+    } else {
+      // Local stub response (pattern matching + context awareness)
+      response = generateLocalResponse(userMessage);
     }
-    
-    // Local stub response (pattern matching + context awareness)
-    let response = generateLocalResponse(userMessage);
     
     // Store assistant message
     conversationHistory.push({
