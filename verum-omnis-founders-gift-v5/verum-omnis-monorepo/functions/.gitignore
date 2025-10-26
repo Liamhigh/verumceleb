@@ -1,0 +1,45 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+*.js
+*.js.map
+*.d.ts
+!eslint.config.js
+
+# Environment variables
+.env
+.env.*
+!.env.sample
+
+# Firebase
+.firebase/
+firebase-debug.log
+firebase-debug.*.log
+
+# Emulator data
+.emulator/
+
+# Logs
+*.log
+npm-debug.log*
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Test coverage
+coverage/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
