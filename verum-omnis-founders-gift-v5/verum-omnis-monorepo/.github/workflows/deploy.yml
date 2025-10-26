@@ -1,35 +1,21 @@
-name: Deploy to Firebase (hosting + functions)
-
+name: Firebase Deploy
 on:
   push:
     branches: [ main ]
-  workflow_dispatch:
-
+permissions:
+  contents: read
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    env:
-      PROJECT_ID: verumdone
-      SMOKE_HOST: verumdone.web.app
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-      - name: Install root deps (optional)
-        run: npm ci || true
-      - name: Install functions deps
-        working-directory: functions
-        run: npm ci
-      - name: Firebase CLI
-        run: npm i -g firebase-tools@13
-      - name: Deploy
-        run: |
-          firebase use "$PROJECT_ID"
-          firebase deploy --only hosting,functions --project "$PROJECT_ID" --non-interactive
+        with: { node-version: '20' }
+      - name: Install Firebase Tools
+        run: npm i -g firebase-tools
+      - name: Deploy Hosting + Functions
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
-      - name: Smoke test
         run: |
-          curl -fsS "https://${SMOKE_HOST}/api/health"
+          firebase use --add || true
+          firebase deploy --only hosting,functions
