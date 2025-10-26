@@ -7,15 +7,14 @@ const chatSchema = z.object({
   message: z.string().min(1).max(10000),
 });
 
-export function chatRouter(_logger: Logger) {
+export function chatRouter(logger: Logger) {
   const router = Router();
 
   router.post("/", validateRequest(chatSchema), (req, res) => {
     const { message } = req.body;
     
-    // Log removed - logger not used to avoid linting error
+    logger.info({ messageLength: message.length }, "Chat message received");
     
-    // Echo with simple response
     res.json({
       ok: true,
       reply: `Hello! You said: ${message}`,

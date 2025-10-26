@@ -24,6 +24,8 @@ validateEnv(logger);
 const app = express();
 
 // Security middleware
+// Note: contentSecurityPolicy is disabled here because CSP is managed
+// by Firebase Hosting (see firebase.json headers configuration)
 app.use(
   helmet({
     crossOriginResourcePolicy: false,
