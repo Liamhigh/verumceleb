@@ -145,3 +145,210 @@ service firebase.storage {
 * No video files are added to the repository.
 
 ---
+
+# Verum Omnis — Client-Only Assistant (No Server)
+
+## Goal
+
+A **chat-first web app** that behaves like a normal AI chat (like this conversation), and **also** lets the user **Verify**, **Seal**, and **Anchor** documents. **All logic runs in the browser** (no server required). If env keys are present, optional cloud calls may be used; otherwise everything must still work locally.
+
+---
+
+## Pages & Files
+
+* `web/index.html` — public landing (hero video + CTAs)
+* `web/institutions.html` — two promo videos + pricing blocks
+* `web/assistant.html` — **chat UI (primary)** + **tools panel (verify/seal/anchor)**
+* `web/data/videos.json` — holds Firebase video URLs (landing, institutions1, institutions2)
+* `web/assets/*` — logos, small images only (no videos)
+* `web/js/assistant.js` — all client logic (hashing, verify, seal, anchor, chat loop)
+* `web/js/libs/` — client libs: `pdf-lib`, `qrcode`, minimal NLP helpers
+
+**Do not use any server or functions.** No fetch to our backend is required for core features.
+
+---
+
+## UX / Layout (exact)
+
+### Header (every page)
+
+* Left: logo + **Verum Omnis**
+* Right nav: **Open Chat** (`/assistant.html`), **Institutions** (`/institutions.html`)
+
+### Landing (`web/index.html`)
+
+* Full-width **hero `<video>`** (autoplay, muted, loop) reading `videos.json.landing`
+* Headline: "The World's First Legal AI"
+* Subtext paragraph (short)
+* Three feature cards
+* Two CTAs: **Open Chat**, **Institutions**
+
+### Institutions (`web/institutions.html`)
+
+* Two `<video>` elements fed by `videos.json.institutions1/2`
+* Three cards: **20% recovery**, **Legal AI**, **Investigation AI**
+* Note re: SHA-512 + QR verification
+
+### Assistant (`web/assistant.html`)
+
+**Two columns (md+), stacked on mobile:**
+
+* **Left (70%) — Chat**
+
+  * Scrollable thread, bubbles (assistant + user)
+  * Input box + Send
+  * First message (assistant):
+
+    > "Hi — I'm your Verum Omnis assistant. We can chat normally, and I can Verify, Seal, and Anchor documents. Drop a file anytime."
+* **Right (30%) — Tools**
+
+  * File input (accept: `.pdf,.doc,.docx,.txt,.png,.jpg,.jpeg,.mp3,.mp4`)
+  * Hash pane (shows **SHA-512** immediately after select)
+  * Buttons:
+
+    * **Check this document** → local **Verify** (triple-consensus logic; details below)
+    * **Seal this document** → generate **sealed PDF** (logo, watermark, **truncated hash**, **QR**)
+    * **Anchor this document** → produce **receipt JSON** (and optional on-chain call if env provided)
+
+---
+
+## Must-Have Behavior (client-only)
+
+### 1) Hash (always local)
+
+* On file select, do:
+
+```js
+const buf = await file.arrayBuffer();
+const hash = await crypto.subtle.digest('SHA-512', buf);
+const sha512 = [...new Uint8Array(hash)].map(b=>b.toString(16).padStart(2,'0')).join('');
+```
+
+* Display full hex; copy button; keep `{sha512, filename, size, mime}` in memory.
+
+### 2) Verify (triple-consensus, no server required)
+
+* Implement **three independent checkers** fully in the browser. Each returns `{vote:'pass'|'flag', notes:[...]}`.
+
+  * **RuleChecker** — lightweight heuristics (date/timestamp sanity, duplicate pages, red-flag phrases, OCR anomalies).
+  * **StatChecker** — signal features (entropy spikes, repeated lines, font/metadata inconsistencies if PDF), thresholded.
+  * **LLMChecker** — optional: if `OPENAI_API_KEY` (or similar) is present in `window.VERUM_ENV`, call an LLM; **otherwise** run a **local promptless stub** (pattern checks + summaries); must still work offline.
+* **Consensus**:
+
+```js
+const votes = [rule.vote, stat.vote, llm.vote];
+const passCount = votes.filter(v=>v==='pass').length;
+const consensus = passCount >= 2 ? 'pass' : 'flag';
+```
+
+* Render a small table: 3 rows (Rule/Stat/LLM), final **Consensus** row, plus notes.
+
+### 3) Seal (generate PDF in browser)
+
+* Use **`pdf-lib`** to:
+
+  * Load the original file if PDF; else create a 1-page PDF receipt referencing the original filename & hash.
+  * Add **top-right logo**, **faint full-page watermark**, and **footer** with:
+
+    * "✔ Patent Pending Verum Omnis"
+    * "SHA-512 (trunc): `xxxx…xxxx`"
+    * QR code (using `qrcode`) that encodes a JSON blob:
+
+      ```json
+      { "sha512": "<full>", "filename": "<name>", "ts": "<ISO>" }
+      ```
+* Offer a **Download "<name>.sealed.pdf"** button (no upload).
+
+### 4) Anchor (receipt, optional chain)
+
+* Always return a **client-generated receipt**:
+
+```js
+const receipt = {
+  sha512, filename, ts: new Date().toISOString(),
+  method: window.VERUM_ENV?.ANCHOR === 'ethereum' ? 'eth' : 'local',
+  txHash: window.VERUM_ENV?.ANCHOR ? await sendTx(sha512) : null,
+  receiptUrl: window.VERUM_ENV?.ANCHOR ? `https://.../${txHash}` : null
+};
+```
+
+* If `window.VERUM_ENV.RPC_URL` + `PRIVATE_KEY` exist, allow optional **on-chain tx**; otherwise keep it local and downloadable as `anchor-receipt.json`.
+
+### 5) Chat (like a normal AI)
+
+* Default to a **client stub** that echoes, summarizes, and references any computed hash in context. Provide a **hook** to swap in a real LLM later if `OPENAI_API_KEY` is present:
+
+```js
+async function assistantReply(text){
+  if (window.VERUM_ENV?.OPENAI_API_KEY) { /* call LLM */ }
+  else { /* local stub: respond empathetically + mention tools */ }
+}
+```
+
+* Show typing indicator, then append assistant bubble.
+
+---
+
+## Video Sourcing (no binaries in repo)
+
+* URLs come from `web/data/videos.json`:
+
+```json
+{ "landing":"", "institutions1":"", "institutions2":"" }
+```
+
+* If a key is empty, render a visible placeholder "Add URL in videos.json".
+* Firebase URL format (public):
+  `https://firebasestorage.googleapis.com/v0/b/verumdone.firebasestorage.app/o/<PATH-ENCODED>?alt=media`
+
+---
+
+## Libraries (client-side only)
+
+* `pdf-lib` (create/modify PDFs)
+* `qrcode` (generate QR as dataURL)
+* (optional) `pdfjs` for lightweight PDF metadata checks
+* No backend, no Firebase Functions required.
+
+---
+
+## Minimal Code Hooks (must exist)
+
+### `web/js/assistant.js` (key exports)
+
+```js
+export async function computeSHA512(file) { /* as above */ }
+export async function verifyTriple({arrayBuffer, sha512, filename, mime}) { /* 3 checkers + consensus */ }
+export async function sealPDF({arrayBuffer, sha512, filename}) { /* pdf-lib + qrcode; return Blob */ }
+export async function anchor({sha512, filename}) { /* local receipt; optional chain */ }
+export async function assistantReply(text) { /* chat behavior */ }
+```
+
+### Wire up UI
+
+* File input → `computeSHA512` → show hash
+* "Check" → `verifyTriple` → render table
+* "Seal" → `sealPDF` → download link (`URL.createObjectURL`)
+* "Anchor" → `anchor` → download `anchor-receipt.json`
+* Chat input → `assistantReply` → append bubble
+
+---
+
+## Acceptance Criteria
+
+* **No network** required for Verify/Seal/Anchor; they work offline after page load.
+* Chat feels like a normal assistant; mentions tools when helpful.
+* Hash shows instantly on file select (full SHA-512).
+* Verify shows 3 model votes + final consensus.
+* Seal downloads a **sealed PDF** with logo, watermark, truncated hash, and **QR** that decodes to `{sha512, filename, ts}`.
+* Anchor downloads a **receipt JSON**; if env vars exist, can show `txHash`.
+* Landing and Institutions videos play from `videos.json`.
+* Mobile responsive and clean.
+
+---
+
+### Styling nudge
+
+Tailwind classes, dark theme (`bg-slate-950 text-slate-100`), rounded 2xl cards, soft borders (`border-slate-800`). Chat bubbles with subtle shadows.
+
+---
