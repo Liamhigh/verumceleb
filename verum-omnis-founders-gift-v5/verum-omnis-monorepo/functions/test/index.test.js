@@ -35,13 +35,13 @@ describe('verum omnis api', () => {
   it('chat endpoint requires message', async () => {
     const res = await request(app).post('/chat').send({});
     expect(res.statusCode).toBe(400);
-    expect(res.body).toMatchObject({ ok: false, error: 'missing_message' });
+    expect(res.body).toMatchObject({ ok: false, error: 'VO_E_INPUT' });
   });
 
   it('rejects anchor without hash', async () => {
     const res = await request(app).post('/v1/anchor').send({});
     expect(res.statusCode).toBe(400);
-    expect(res.body).toMatchObject({ ok: false, error: 'invalid_hash' });
+    expect(res.body).toMatchObject({ ok: false, error: 'VO_E_INPUT' });
   });
 });
 
@@ -93,6 +93,6 @@ describe('/v1/assistant endpoint', () => {
   it('rejects invalid mode', async () => {
     const res = await request(app).post('/v1/assistant').send({ mode: 'invalid' });
     expect(res.statusCode).toBe(400);
-    expect(res.body).toMatchObject({ ok: false, error: 'invalid_mode' });
+    expect(res.body).toMatchObject({ ok: false, error: 'VO_E_INPUT' });
   });
 });
