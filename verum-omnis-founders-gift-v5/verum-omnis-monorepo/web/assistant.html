@@ -349,14 +349,17 @@
   <script>
     // User type selection modal functions
     window.selectUserType = function(type) {
+      const userTypeModal = document.getElementById('userTypeModal');
       if (type === 'private') {
         // Private person - no fee notice needed
         localStorage.setItem('verumUserType', 'private');
-        document.getElementById('userTypeModal').classList.add('hidden');
+        userTypeModal.classList.add('hidden');
+        userTypeModal.classList.remove('flex');
       } else {
         // Institution or Company - show fee notice
         localStorage.setItem('verumUserTypeTemp', type);
-        document.getElementById('userTypeModal').classList.add('hidden');
+        userTypeModal.classList.add('hidden');
+        userTypeModal.classList.remove('flex');
         const feeNoticeModal = document.getElementById('feeNoticeModal');
         feeNoticeModal.classList.remove('hidden');
         feeNoticeModal.classList.add('flex');
@@ -367,7 +370,9 @@
       const feeNoticeModal = document.getElementById('feeNoticeModal');
       feeNoticeModal.classList.add('hidden');
       feeNoticeModal.classList.remove('flex');
-      document.getElementById('userTypeModal').classList.remove('hidden');
+      const userTypeModal = document.getElementById('userTypeModal');
+      userTypeModal.classList.remove('hidden');
+      userTypeModal.classList.add('flex');
       document.getElementById('agreeTerms').checked = false;
       document.getElementById('acceptTermsBtn').disabled = true;
     };
@@ -387,7 +392,9 @@
       const userType = localStorage.getItem('verumUserType');
       if (userType) {
         // User type already selected, hide modal
-        document.getElementById('userTypeModal').classList.add('hidden');
+        const userTypeModal = document.getElementById('userTypeModal');
+        userTypeModal.classList.add('hidden');
+        userTypeModal.classList.remove('flex');
       }
     }
     
