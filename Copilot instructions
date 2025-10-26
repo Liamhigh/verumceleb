@@ -1,0 +1,233 @@
+
+
+Verum Omnis – Copilot Instructions
+
+Product summary
+
+Build a stateless forensic assistant (web + Firebase Functions) that:
+
+1. Hashes any uploaded file locally (SHA-512) and shows the hash immediately.
+
+
+2. Performs Triple-Lock Verification on request:
+
+DocHash (hash-first integrity)
+
+Source-Context (bind type, size, case id, device/time)
+
+Action-Audit (append-only audit log per atomic claim)
+
+
+
+3. Runs a triple-AI consensus (GPT, Claude, DeepSeek or placeholders) → per-claim majority + confidence; second pass for contradictions.
+
+
+4. Seals a PDF/A-style report (logo/watermark/QR + embedded metadata) and can anchor the doc hash on chain (stub or real).
+
+
+5. Speaks like a normal, helpful AI—but always confirms what it did and offers the next legal step.
+
+
+
+Architecture (must keep)
+
+Frontend: web/assistant.html (vanilla JS + Tailwind).
+
+No server round-trip for hashing; use crypto.subtle.digest('SHA-512', …).
+
+Buttons call /api/verify, /api/seal, /api/anchor.
+
+Show a small Triple-Lock banner; render a consensus table.
+
+
+Backend: Firebase Functions (Node 20 + ESM) exporting api; Express app with:
+
+GET /health → "OK"
+
+POST /verify → triple-AI consensus + audit append
+
+POST /seal → return base64 PDF (watermark + QR + footer)
+
+POST /anchor → return receipt (stub or real)
+
+
+Hosting: firebase.json
+
+{ "hosting": { "public": "web", "rewrites": [ { "source": "/api/**", "function": "api" } ] } }
+
+Deploy: GitHub Actions using FIREBASE_TOKEN and --project verumdone.
+
+
+API contracts (strict)
+
+Request to /api/verify
+
+{
+  "sha512": "<128-hex>",           // required: computed in browser
+  "case_id": "optional",
+  "mime": "application/pdf",       // optional
+  "size": 123456                   // optional
+}
+
+Response from /api/verify
+
+{
+  "ok": true,
+  "docHash": "<sha512>",
+  "auditId": "20251026-...-uuid",
+  "locks": ["DocHash","SourceContext","ActionAudit"],
+  "findings": [
+    {
+      "id": "C-001",               // atomic claim id
+      "type": "contradiction|timeline_gap|confession_indirect|bias_risk|…",
+      "span": "human-readable pointer",
+      "models": { "gpt":"flag|ok", "claude":"flag|ok", "deepseek":"flag|ok" },
+      "consensus": "2/3-flag",     // majority across engines
+      "confidence": 0.87,
+      "token": "sha256:<claim-fingerprint>" // token-lock each claim
+    }
+  ],
+  "summary": "human short summary without paraphrasing evidence"
+}
+
+Request to /api/seal
+
+{ "sha512": "<128-hex>", "filename": "optional.ext" }
+
+Response from /api/seal
+
+{
+  "ok": true,
+  "sealed": true,
+  "sha512": "<sha512>",
+  "filename": "optional.ext",
+  "pdf": "base64:<...>"            // downloadable by the browser
+}
+
+Request to /api/anchor
+
+{ "sha512": "<128-hex>" }
+
+Response from /api/anchor (stub or real)
+
+{ "ok": true, "anchored": true, "network": "polygon-amoy", "tx": "0x...", "url": "https://..." }
+
+Backend rules (Copilot must preserve)
+
+Node 20, ESM: "type":"module", "engines":{"node":"20"} in functions/package.json.
+
+Express app mounted as export const api = functions.region('us-central1').https.onRequest(app).
+
+Audit: append-only JSON Lines (audit.jsonl) or Firestore/Storage for production. If audit write fails → Closed-Fail (HTTP 500 with trace id).
+
+Triple-AI:
+
+Run 3 engines (or stubs). Normalize outputs to the same schema.
+
+Group by atomic claim id, compute majority and avg confidence.
+
+Token-lock each claim with sha256 over {id,type,span,consensus,confidence}.
+
+Optional contradiction pass to downgrade contested claims.
+
+
+Sealing:
+
+Generate PDF (PDFKit is fine):
+
+Header: “Verum Omnis — Forensic Seal”
+
+Watermark (faint) across page
+
+Footer: “✔ Patent Pending • Hash: <first10…>”
+
+Insert QR to a verification URL (e.g., /api/verify?sha512=…)
+
+Embed relevant metadata (doc hash, auditId).
+
+
+
+Anchoring:
+
+Start as a stub returning a deterministic tx; later swap to real chain (Polygon) with env vars (RPC URL, wallet key) and return actual txHash.
+
+
+
+Frontend rules (Copilot must preserve)
+
+Do not upload raw files to Functions. Only send derived fields (hash, mime, size, case id).
+
+Hash first + show:
+
+> “I’ve hashed your file (SHA-512: …). What next?”
+
+
+
+Buttons: “Check this document”, “Seal this document”, “Anchor this document”.
+
+Render a Consensus Findings table with ID, type, span, consensus, confidence.
+
+Always confirm actions done and offer the next step, e.g.:
+
+> “No consensus flags. Do you want this sealed into a forensic PDF?”
+
+
+
+Tone: empathetic, normal AI chat; no legal conclusions—only flagged findings and procedural options.
+
+
+Security & privacy
+
+Stateless frontend: no user data persisted client-side beyond the current session.
+
+No public LLM keys in the browser; model calls (if real) are server-side only.
+
+CORS: allow only the app origin.
+
+Validation: reject non-hex or wrong-length hashes; log trace ids for failures.
+
+
+Files Copilot should maintain
+
+web/assistant.html                 # UI: hashing + calls + results table
+functions/package.json             # Node 20 + deps (express, cors, pdfkit, qrcode, dayjs, uuid)
+functions/index.js                 # api (health/verify/seal/anchor)
+firebase.json                      # hosting public: web + rewrite /api/** -> api
+.github/workflows/deploy.yml       # deploy with FIREBASE_TOKEN, --project verumdone
+.firebaserc                        # { "projects": { "default": "verumdone" } }
+
+Acceptance tests (Copilot should make these pass)
+
+GET /api/health → 200 OK with body OK.
+
+POST /api/verify with a valid 128-hex hash returns:
+
+ok: true, locks contains all 3,
+
+at least one findings[] item,
+
+deterministic token format: sha256:….
+
+
+POST /api/seal returns pdf: "base64:…", decodes to a viewable PDF with watermark & QR.
+
+POST /api/anchor returns ok:true, tx and url fields.
+
+assistant.html: uploading any file shows its SHA-512; clicking buttons produces expected JSON and downloads a PDF.
+
+
+Copilot style & prompts
+
+Prefer small, composable functions.
+
+Comment blocks that mention “Triple-Lock Verification” and why each step is done.
+
+When generating UI text, always confirm what was done and propose the next step:
+
+“I’ve hashed your file… No consensus flags. Do you want me to seal this?”
+
+“3 claims flagged by consensus. Would you like a forensic PDF?”
+
+
+Do not add analytics, trackers, or stateful storage unless explicitly requested.
+
