@@ -3,68 +3,576 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Verum Assistant</title>
+  <title>Verum Omnis — AI Assistant</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Client-side libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 </head>
-<body class="bg-slate-950 text-slate-100 max-w-3xl mx-auto p-6">
-  <h1 class="text-2xl font-semibold mb-3">Verum Assistant</h1>
-  <p class="mb-4 text-slate-300">Upload a file to generate a SHA-512 hash locally. Use this hash in notices & proofs.</p>
+<body class="bg-slate-950 text-slate-100">
+  
+  <!-- Watermark -->
+  <img src="/assets/mainlogo.png" alt="Verum Omnis" class="watermark" />
+  
+  <!-- Header -->
+  <header class="max-w-7xl mx-auto px-4 py-6">
+    <div class="flex items-center justify-between flex-wrap gap-4">
+      <div class="flex items-center gap-3">
+        <img src="/assets/mainlogo.png" alt="Verum Omnis — the whole truth" class="h-16 object-contain" />
+      </div>
+      <nav class="flex gap-3">
+        <a href="/" class="px-3 py-2 rounded border border-slate-700 hover:bg-slate-800">Home</a>
+        <a href="/institutions.html" class="px-3 py-2 rounded border border-slate-700 hover:bg-slate-800">Institutions</a>
+      </nav>
+    </div>
+  </header>
 
-  <input id="file" type="file" class="mb-4" accept=".pdf,.doc,.docx,.txt,image/*,audio/*,video/*"/>
-  <div class="space-x-2 mb-3">
-    <button id="btn-verify" class="px-3 py-2 rounded bg-indigo-600 hover:bg-indigo-500">Check this document</button>
-    <button id="btn-seal" class="px-3 py-2 rounded border border-slate-700 hover:bg-slate-800">Seal this document</button>
-    <button id="btn-anchor" class="px-3 py-2 rounded border border-slate-700 hover:bg-slate-800">Anchor this document</button>
-  </div>
-  <pre id="out" class="p-3 rounded bg-slate-900 border border-slate-800 whitespace-pre-wrap"></pre>
+  <!-- Main: 2-column layout (chat + tools) -->
+  <main class="max-w-7xl mx-auto px-4 py-6">
+    <div class="grid md:grid-cols-[1fr_350px] gap-6">
+      
+      <!-- LEFT: Chat Interface (70%) -->
+      <div class="flex flex-col h-[calc(100vh-200px)]">
+        <div class="bg-slate-900 rounded-2xl border border-slate-800 flex flex-col h-full">
+          <!-- Chat header -->
+          <div class="p-4 border-b border-slate-800">
+            <h2 class="text-xl font-semibold">Chat Assistant</h2>
+            <p class="text-sm text-slate-400">Ask me anything or use the tools →</p>
+          </div>
+          
+          <!-- Chat messages -->
+          <div id="chatMessages" class="flex-1 overflow-y-auto p-4 space-y-3">
+            <!-- Initial message -->
+            <div class="flex gap-3">
+              <div class="flex-shrink-0 w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center text-sm">
+                AI
+              </div>
+              <div class="flex-1 bg-slate-800 rounded-2xl rounded-tl-sm p-3">
+                <p class="text-slate-100">Hi — I'm your Verum Omnis assistant. We can chat normally, and I can Verify, Seal, and Anchor documents. Drop a file anytime.</p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Typing indicator (hidden by default) -->
+          <div id="typingIndicator" class="px-4 pb-2 hidden">
+            <div class="flex gap-3">
+              <div class="flex-shrink-0 w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center text-sm">
+                AI
+              </div>
+              <div class="bg-slate-800 rounded-2xl rounded-tl-sm px-4 py-2">
+                <div class="flex gap-1">
+                  <div class="w-2 h-2 bg-slate-400 rounded-full animate-bounce"></div>
+                  <div class="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
+                  <div class="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Chat input -->
+          <div class="p-4 border-t border-slate-800">
+            <form id="chatForm" class="flex gap-2">
+              <input 
+                type="text" 
+                id="chatInput" 
+                placeholder="Type a message..." 
+                class="flex-1 px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:border-indigo-500"
+                autocomplete="off"
+              />
+              <button 
+                type="submit" 
+                class="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg font-medium transition-colors"
+              >
+                Send
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+      
+      <!-- RIGHT: Tools Panel (30%) -->
+      <div class="space-y-4">
+        <!-- File Upload Card -->
+        <div class="bg-slate-900 rounded-2xl border border-slate-800 p-5">
+          <h3 class="font-semibold mb-3 flex items-center gap-2">
+            <span class="text-xl">📁</span>
+            Document Tools
+          </h3>
+          
+          <!-- File Input -->
+          <label class="block mb-4">
+            <span class="text-sm text-slate-400 mb-2 block">Select File</span>
+            <input 
+              type="file" 
+              id="fileInput" 
+              accept=".pdf,.doc,.docx,.txt,.png,.jpg,.jpeg,.mp3,.mp4"
+              class="block w-full text-sm text-slate-400
+                file:mr-4 file:py-2 file:px-4
+                file:rounded file:border-0
+                file:text-sm file:font-semibold
+                file:bg-indigo-600 file:text-white
+                hover:file:bg-indigo-500
+                file:cursor-pointer cursor-pointer"
+            />
+          </label>
+          
+          <!-- File Info -->
+          <div id="fileInfo" class="mb-4 p-3 bg-slate-800 rounded-lg text-sm hidden">
+            <div class="text-slate-400 mb-1">File loaded:</div>
+            <div id="fileName" class="font-medium text-slate-200 truncate"></div>
+            <div id="fileSize" class="text-slate-500 text-xs"></div>
+          </div>
+          
+          <!-- Hash Display -->
+          <div id="hashDisplay" class="mb-4 hidden">
+            <label class="text-sm text-slate-400 mb-2 block">SHA-512 Hash</label>
+            <div class="relative">
+              <input 
+                type="text" 
+                id="hashValue" 
+                readonly 
+                class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded text-xs font-mono text-slate-300 pr-20"
+              />
+              <button 
+                id="copyHash" 
+                class="absolute right-2 top-1/2 -translate-y-1/2 px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded text-xs transition-colors"
+              >
+                Copy
+              </button>
+            </div>
+            <div id="hashTruncated" class="text-xs text-slate-500 mt-1"></div>
+          </div>
+          
+          <!-- Action Buttons -->
+          <div class="space-y-2">
+            <button 
+              id="btnVerify" 
+              class="w-full px-4 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled
+            >
+              🔍 Check this document
+            </button>
+            
+            <button 
+              id="btnSeal" 
+              class="w-full px-4 py-2 border border-slate-700 hover:bg-slate-800 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled
+            >
+              🔒 Seal this document
+            </button>
+            
+            <button 
+              id="btnAnchor" 
+              class="w-full px-4 py-2 border border-slate-700 hover:bg-slate-800 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled
+            >
+              ⚓ Anchor this document
+            </button>
+          </div>
+        </div>
+        
+        <!-- Results Card (hidden by default) -->
+        <div id="resultsCard" class="bg-slate-900 rounded-2xl border border-slate-800 p-5 hidden">
+          <h3 class="font-semibold mb-3">Results</h3>
+          <div id="resultsContent" class="text-sm space-y-2"></div>
+        </div>
+      </div>
+      
+    </div>
+  </main>
 
-  <script>
-    let currentHash = null;
-    let currentFile = null;
+  <!-- Watermark Styles -->
+  <style>
+    .watermark {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      opacity: 0.05;
+      pointer-events: none;
+      z-index: 0;
+      max-width: 800px;
+      width: 60%;
+    }
+    
+    header, main {
+      position: relative;
+      z-index: 1;
+    }
+    
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-0.5rem); }
+    }
+    
+    .animate-bounce {
+      animation: bounce 1s infinite;
+    }
+  </style>
 
-    async function sha512(buf){
-      const d = await crypto.subtle.digest('SHA-512', buf);
-      return [...new Uint8Array(d)].map(b=>b.toString(16).padStart(2,'0')).join('');
+  <!-- Main Application Script -->
+  <script type="module">
+    import { 
+      computeSHA512, 
+      verifyTriple, 
+      sealPDF, 
+      anchor, 
+      assistantReply,
+      truncateHash,
+      getCurrentFile
+    } from '/js/assistant.js';
+
+    // ========================================================================
+    // STATE
+    // ========================================================================
+    let currentFileData = null;
+
+    // ========================================================================
+    // DOM ELEMENTS
+    // ========================================================================
+    const elements = {
+      fileInput: document.getElementById('fileInput'),
+      fileInfo: document.getElementById('fileInfo'),
+      fileName: document.getElementById('fileName'),
+      fileSize: document.getElementById('fileSize'),
+      hashDisplay: document.getElementById('hashDisplay'),
+      hashValue: document.getElementById('hashValue'),
+      hashTruncated: document.getElementById('hashTruncated'),
+      copyHash: document.getElementById('copyHash'),
+      btnVerify: document.getElementById('btnVerify'),
+      btnSeal: document.getElementById('btnSeal'),
+      btnAnchor: document.getElementById('btnAnchor'),
+      resultsCard: document.getElementById('resultsCard'),
+      resultsContent: document.getElementById('resultsContent'),
+      chatMessages: document.getElementById('chatMessages'),
+      chatForm: document.getElementById('chatForm'),
+      chatInput: document.getElementById('chatInput'),
+      typingIndicator: document.getElementById('typingIndicator')
+    };
+
+    // ========================================================================
+    // FILE HANDLING
+    // ========================================================================
+    elements.fileInput.addEventListener('change', async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+
+      try {
+        // Show loading state
+        showResults('Computing hash...', 'info');
+        enableButtons(false);
+
+        // Compute hash
+        const hashData = await computeSHA512(file);
+        currentFileData = hashData;
+
+        // Update UI
+        elements.fileName.textContent = hashData.filename;
+        elements.fileSize.textContent = `${(hashData.size / 1024).toFixed(1)} KB`;
+        elements.fileInfo.classList.remove('hidden');
+
+        elements.hashValue.value = hashData.sha512;
+        elements.hashTruncated.textContent = `Truncated: ${truncateHash(hashData.sha512)}`;
+        elements.hashDisplay.classList.remove('hidden');
+
+        // Enable buttons
+        enableButtons(true);
+
+        // Hide results
+        elements.resultsCard.classList.add('hidden');
+
+        // Add message to chat
+        addAssistantMessage(`File loaded: "${hashData.filename}" (${(hashData.size / 1024).toFixed(1)}KB). Hash computed successfully! ✓`);
+
+      } catch (error) {
+        showResults(`Error: ${error.message}`, 'error');
+        console.error(error);
+      }
+    });
+
+    // ========================================================================
+    // COPY HASH
+    // ========================================================================
+    elements.copyHash.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(elements.hashValue.value);
+        elements.copyHash.textContent = 'Copied!';
+        setTimeout(() => {
+          elements.copyHash.textContent = 'Copy';
+        }, 2000);
+      } catch (error) {
+        alert('Failed to copy hash');
+      }
+    });
+
+    // ========================================================================
+    // VERIFY BUTTON
+    // ========================================================================
+    elements.btnVerify.addEventListener('click', async () => {
+      if (!currentFileData) return;
+
+      try {
+        elements.btnVerify.disabled = true;
+        elements.btnVerify.textContent = '⏳ Verifying...';
+        showResults('Running triple-consensus verification...', 'info');
+
+        const fileData = getCurrentFile();
+        const result = await verifyTriple({
+          arrayBuffer: fileData.arrayBuffer,
+          sha512: fileData.sha512,
+          filename: fileData.filename,
+          mime: fileData.mime
+        });
+
+        // Build results HTML
+        let html = '<div class="space-y-3">';
+        
+        // Individual checker results
+        result.results.forEach(checker => {
+          const statusColor = checker.vote === 'pass' ? 'text-green-400' : 'text-yellow-400';
+          html += `
+            <div class="p-3 bg-slate-800 rounded-lg">
+              <div class="flex items-center justify-between mb-2">
+                <span class="font-medium">${checker.checker}</span>
+                <span class="${statusColor} font-bold">${checker.vote.toUpperCase()}</span>
+              </div>
+              <ul class="text-xs text-slate-400 space-y-1">
+                ${checker.notes.map(note => `<li>→ ${note}</li>`).join('')}
+              </ul>
+            </div>
+          `;
+        });
+
+        // Consensus
+        const consensusColor = result.consensus === 'pass' ? 'bg-green-600' : 'bg-yellow-600';
+        html += `
+          <div class="p-4 ${consensusColor} rounded-lg">
+            <div class="font-bold text-lg mb-1">Consensus: ${result.consensus.toUpperCase()}</div>
+            <div class="text-sm opacity-90">${result.passCount}/${result.totalCheckers} checkers voted PASS</div>
+          </div>
+        `;
+
+        html += '</div>';
+
+        showResults(html, 'success');
+        addAssistantMessage(`Verification complete! Consensus: **${result.consensus.toUpperCase()}** (${result.passCount}/${result.totalCheckers} checkers passed).`);
+
+      } catch (error) {
+        showResults(`Verification failed: ${error.message}`, 'error');
+        addAssistantMessage(`Sorry, verification encountered an error: ${error.message}`);
+      } finally {
+        elements.btnVerify.disabled = false;
+        elements.btnVerify.textContent = '🔍 Check this document';
+      }
+    });
+
+    // ========================================================================
+    // SEAL BUTTON
+    // ========================================================================
+    elements.btnSeal.addEventListener('click', async () => {
+      if (!currentFileData) return;
+
+      try {
+        elements.btnSeal.disabled = true;
+        elements.btnSeal.textContent = '⏳ Sealing...';
+        showResults('Generating sealed PDF...', 'info');
+
+        const fileData = getCurrentFile();
+        const sealed = await sealPDF({
+          arrayBuffer: fileData.arrayBuffer,
+          sha512: fileData.sha512,
+          filename: fileData.filename
+        });
+
+        // Create download link
+        const url = URL.createObjectURL(sealed.blob);
+        const html = `
+          <div class="space-y-3">
+            <div class="p-3 bg-green-900/30 border border-green-700 rounded-lg">
+              <div class="font-medium text-green-400 mb-2">✓ PDF Sealed Successfully</div>
+              <div class="text-sm text-slate-300">
+                <div>File: ${sealed.filename}</div>
+                <div>Size: ${(sealed.size / 1024).toFixed(1)} KB</div>
+              </div>
+            </div>
+            <a 
+              href="${url}" 
+              download="${sealed.filename}"
+              class="block w-full px-4 py-3 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-center font-medium transition-colors"
+            >
+              📥 Download ${sealed.filename}
+            </a>
+          </div>
+        `;
+
+        showResults(html, 'success');
+        addAssistantMessage(`Your sealed PDF is ready! Click the download button in the results panel. The PDF includes the Verum Omnis watermark, truncated hash, and QR code for verification.`);
+
+      } catch (error) {
+        showResults(`Sealing failed: ${error.message}`, 'error');
+        addAssistantMessage(`Sorry, PDF sealing encountered an error: ${error.message}`);
+      } finally {
+        elements.btnSeal.disabled = false;
+        elements.btnSeal.textContent = '🔒 Seal this document';
+      }
+    });
+
+    // ========================================================================
+    // ANCHOR BUTTON
+    // ========================================================================
+    elements.btnAnchor.addEventListener('click', async () => {
+      if (!currentFileData) return;
+
+      try {
+        elements.btnAnchor.disabled = true;
+        elements.btnAnchor.textContent = '⏳ Anchoring...';
+        showResults('Generating anchor receipt...', 'info');
+
+        const receipt = await anchor({
+          sha512: currentFileData.sha512,
+          filename: currentFileData.filename
+        });
+
+        // Create downloadable receipt
+        const receiptBlob = new Blob([JSON.stringify(receipt, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(receiptBlob);
+
+        let html = `
+          <div class="space-y-3">
+            <div class="p-3 bg-blue-900/30 border border-blue-700 rounded-lg">
+              <div class="font-medium text-blue-400 mb-2">⚓ Anchor Receipt Generated</div>
+              <div class="text-xs text-slate-300 space-y-1">
+                <div><strong>Method:</strong> ${receipt.method}</div>
+                <div><strong>Timestamp:</strong> ${receipt.timestamp}</div>
+                ${receipt.txHash ? `<div><strong>Tx Hash:</strong> ${receipt.txHash.substring(0, 20)}...</div>` : ''}
+                ${receipt.note ? `<div class="text-yellow-400">${receipt.note}</div>` : ''}
+              </div>
+            </div>
+            <a 
+              href="${url}" 
+              download="anchor-receipt.json"
+              class="block w-full px-4 py-3 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-center font-medium transition-colors"
+            >
+              �� Download anchor-receipt.json
+            </a>
+          </div>
+        `;
+
+        showResults(html, 'success');
+        addAssistantMessage(`Anchor receipt created! Download the JSON file to keep a permanent record of your document's hash and timestamp.`);
+
+      } catch (error) {
+        showResults(`Anchoring failed: ${error.message}`, 'error');
+        addAssistantMessage(`Sorry, anchoring encountered an error: ${error.message}`);
+      } finally {
+        elements.btnAnchor.disabled = false;
+        elements.btnAnchor.textContent = '⚓ Anchor this document';
+      }
+    });
+
+    // ========================================================================
+    // CHAT FUNCTIONALITY
+    // ========================================================================
+    elements.chatForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const message = elements.chatInput.value.trim();
+      if (!message) return;
+
+      // Add user message
+      addUserMessage(message);
+      elements.chatInput.value = '';
+
+      // Show typing indicator
+      elements.typingIndicator.classList.remove('hidden');
+      scrollChatToBottom();
+
+      try {
+        // Small delay for natural feel
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // Get assistant reply
+        const reply = await assistantReply(message);
+
+        // Hide typing indicator
+        elements.typingIndicator.classList.add('hidden');
+
+        // Add assistant message
+        addAssistantMessage(reply);
+
+      } catch (error) {
+        elements.typingIndicator.classList.add('hidden');
+        addAssistantMessage('I apologize, but I encountered an error processing your message.');
+        console.error(error);
+      }
+    });
+
+    function addUserMessage(text) {
+      const messageDiv = document.createElement('div');
+      messageDiv.className = 'flex gap-3 justify-end';
+      messageDiv.innerHTML = `
+        <div class="bg-indigo-600 rounded-2xl rounded-tr-sm p-3 max-w-[80%]">
+          <p class="text-slate-100">${escapeHtml(text)}</p>
+        </div>
+        <div class="flex-shrink-0 w-8 h-8 bg-slate-700 rounded-full flex items-center justify-center text-sm">
+          U
+        </div>
+      `;
+      elements.chatMessages.appendChild(messageDiv);
+      scrollChatToBottom();
     }
 
-    document.getElementById('file').addEventListener('change', async (e)=>{
-      const f = e.target.files?.[0]; if(!f) return;
-      currentFile = f;
-      const buf = await f.arrayBuffer();
-      const h = await sha512(buf);
-      currentHash = h;
-      document.getElementById('out').textContent = `I've hashed your file (SHA-512): ${h}\nWhat next?`;
-    });
-
-    async function callApi(path, body){
-      const res = await fetch('/api' + path, {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body: JSON.stringify(body)
-      });
-      const json = await res.json().catch(() => ({
-        error: 'Unable to parse server response. Please try again.'
-      }));
-      return {status: res.status, json};
+    function addAssistantMessage(text) {
+      const messageDiv = document.createElement('div');
+      messageDiv.className = 'flex gap-3';
+      messageDiv.innerHTML = `
+        <div class="flex-shrink-0 w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center text-sm">
+          AI
+        </div>
+        <div class="flex-1 bg-slate-800 rounded-2xl rounded-tl-sm p-3 max-w-[80%]">
+          <p class="text-slate-100 whitespace-pre-wrap">${escapeHtml(text)}</p>
+        </div>
+      `;
+      elements.chatMessages.appendChild(messageDiv);
+      scrollChatToBottom();
     }
 
-    document.getElementById('btn-verify').addEventListener('click', async()=>{
-      if(!currentHash) return alert('Upload a file first to compute SHA-512.');
-      const r = await callApi('/verify', { sha512: currentHash });
-      document.getElementById('out').textContent += `\n\nVerify → ${JSON.stringify(r.json, null, 2)}`;
-    });
+    function scrollChatToBottom() {
+      elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
+    }
 
-    document.getElementById('btn-seal').addEventListener('click', async()=>{
-      if(!currentHash) return alert('Upload a file first to compute SHA-512.');
-      const r = await callApi('/seal', { sha512: currentHash, filename: currentFile?.name });
-      document.getElementById('out').textContent += `\n\nSeal → ${JSON.stringify(r.json, null, 2)}`;
-    });
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
 
-    document.getElementById('btn-anchor').addEventListener('click', async()=>{
-      if(!currentHash) return alert('Upload a file first to compute SHA-512.');
-      const r = await callApi('/anchor', { sha512: currentHash });
-      document.getElementById('out').textContent += `\n\nAnchor → ${JSON.stringify(r.json, null, 2)}`;
-    });
+    // ========================================================================
+    // HELPERS
+    // ========================================================================
+    function enableButtons(enabled) {
+      elements.btnVerify.disabled = !enabled;
+      elements.btnSeal.disabled = !enabled;
+      elements.btnAnchor.disabled = !enabled;
+    }
+
+    function showResults(content, type = 'info') {
+      elements.resultsContent.innerHTML = content;
+      elements.resultsCard.classList.remove('hidden');
+    }
+
+    // ========================================================================
+    // INITIALIZE
+    // ========================================================================
+    console.log('Verum Omnis Assistant loaded - all features client-side ✓');
+    
+    // Check for optional configurations
+    if (window.VERUM_ENV?.OPENAI_API_KEY) {
+      console.log('LLM integration detected');
+    }
+    if (window.VERUM_ENV?.ANCHOR) {
+      console.log('Blockchain anchoring configured:', window.VERUM_ENV.ANCHOR);
+    }
   </script>
 </body>
 </html>
