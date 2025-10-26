@@ -1,0 +1,361 @@
+<!doctype html><!doctype html>
+
+<html lang="en"><html lang="en">
+
+<head><head>
+
+  <meta charset="utf-8"/>  <meta charset="utf-8"/>
+
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+
+  <title>Verum Omnis — The World's First Legal AI</title>  <title>Verum Omnis — the whole truth</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>  <style>
+
+    /* Watermark behind content */    .watermark {
+
+    .watermark {      position: fixed;
+
+      position: fixed;      top: 50%;
+
+      top: 50%;      left: 50%;
+
+      left: 50%;      transform: translate(-50%, -50%);
+
+      transform: translate(-50%, -50%);      opacity: 0.05;
+
+      opacity: 0.03;      pointer-events: none;
+
+      pointer-events: none;      z-index: 0;
+
+      z-index: 0;      width: 600px;
+
+      width: 800px;      height: auto;
+
+      height: auto;    }
+
+    }    main {
+
+          position: relative;
+
+    /* Hero video container */      z-index: 1;
+
+    .hero-video-container {    }
+
+      position: relative;  </style>
+
+      width: 100%;</head>
+
+      height: 70vh;<body class="bg-slate-950 text-slate-100">
+
+      min-height: 500px;  <!-- Watermark Logo -->
+
+      max-height: 800px;  <img src="/assets/mainlogo.png" alt="Verum Omnis" class="watermark" />
+
+      overflow: hidden;  
+
+      border-radius: 1.5rem;  <header class="max-w-6xl mx-auto px-4 py-6">
+
+    }    <!-- Top-center logo -->
+
+        <div class="flex justify-center mb-4">
+
+    .hero-video {      <img src="/assets/mainlogo.png" alt="Verum Omnis — the whole truth" class="h-20 object-contain" />
+
+      position: absolute;    </div>
+
+      top: 0;    <nav class="flex gap-3 justify-center">
+
+      left: 0;      <a href="/assistant.html" class="px-4 py-2 rounded bg-indigo-600 hover:bg-indigo-500">Open Chat</a>
+
+      width: 100%;      <a href="/verify.html" class="px-4 py-2 rounded bg-green-600 hover:bg-green-500">Verify Document</a>
+
+      height: 100%;      <a href="/institutions.html" class="px-4 py-2 rounded border border-slate-700 hover:bg-slate-800">Institutions</a>
+
+      object-fit: cover;    </nav>
+
+    }  </header>
+
+      
+
+    .hero-overlay {  <main class="max-w-6xl mx-auto px-4 py-12">
+
+      position: absolute;    <!-- Hero Video Section -->
+
+      bottom: 0;    <div class="mb-12 rounded-lg overflow-hidden">
+
+      left: 0;      <video autoplay muted loop playsinline class="w-full max-w-4xl mx-auto rounded-lg">
+
+      right: 0;        <source src="https://firebasestorage.googleapis.com/v0/b/verumdone.firebasestorage.app/o/assets%2Fvideo%20landing%20page.mp4?alt=media" type="video/mp4">
+
+      background: linear-gradient(to top, rgba(2, 6, 23, 0.95), transparent);        Your browser does not support the video tag.
+
+      padding: 3rem 2rem;      </video>
+
+    }    </div>
+
+    
+
+    main {    <div class="text-center mb-12">
+
+      position: relative;      <h2 class="text-4xl font-bold mb-4">Verify, Seal, Anchor</h2>
+
+      z-index: 1;      <p class="text-xl text-slate-300 mb-2">
+
+    }        Court-validated outputs with QR + SHA-512 on every document.
+
+  </style>      </p>
+
+</head>      <p class="text-lg text-indigo-400 font-semibold">
+
+<body class="bg-slate-950 text-slate-100">        ✅ Free for individuals forever
+
+        </p>
+
+  <!-- Watermark Logo -->      <p class="text-sm text-slate-400 mt-2">
+
+  <img src="/assets/mainlogo.png" alt="Verum Omnis" class="watermark" />        Institutions & companies: 20% of recovered fraud after trial
+
+        </p>
+
+  <!-- Header -->    </div>
+
+  <header class="relative z-10 max-w-7xl mx-auto px-4 py-6">
+
+    <div class="flex items-center justify-between flex-wrap gap-4">    <div class="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+
+      <!-- Logo -->      <div class="bg-slate-900 p-6 rounded-lg border border-slate-800">
+
+      <div class="flex items-center gap-3">        <h3 class="text-xl font-bold mb-3">🔍 Verify</h3>
+
+        <img src="/assets/mainlogo.png" alt="Verum Omnis — the whole truth" class="h-16 md:h-20 object-contain" />        <p class="text-slate-400">
+
+      </div>          Upload documents, images, videos, or audio for instant SHA-512 verification
+
+              </p>
+
+      <!-- Navigation -->      </div>
+
+      <nav class="flex gap-3">      <div class="bg-slate-900 p-6 rounded-lg border border-slate-800">
+
+        <a href="/assistant.html" class="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 transition font-medium">        <h3 class="text-xl font-bold mb-3">🔒 Seal</h3>
+
+          Open Chat        <p class="text-slate-400">
+
+        </a>          Generate PDF 1.7 sealed documents with logo, watermark, QR code, and certification
+
+        <a href="/institutions.html" class="px-4 py-2 rounded-lg border border-slate-700 hover:bg-slate-800 transition">        </p>
+
+          Institutions      </div>
+
+        </a>      <div class="bg-slate-900 p-6 rounded-lg border border-slate-800">
+
+      </nav>        <h3 class="text-xl font-bold mb-3">⚓ Anchor</h3>
+
+    </div>        <p class="text-slate-400">
+
+  </header>          Blockchain anchoring hook ready for immutable proof (when configured)
+
+          </p>
+
+  <!-- Main Content -->      </div>
+
+  <main class="max-w-7xl mx-auto px-4 py-8">    </div>
+
+      </main>
+
+    <!-- Hero Video Section -->
+
+    <div class="hero-video-container mb-16" id="heroContainer">  <footer class="max-w-6xl mx-auto px-4 py-8 mt-16 border-t border-slate-800 text-center text-slate-500 text-sm">
+
+      <video     <p>© 2025 Verum Omnis. Patent Pending. No telemetry. Privacy-first verification.</p>
+
+        id="heroVideo"  </footer>
+
+        class="hero-video" </body>
+
+        autoplay </html>
+
+        muted 
+        loop 
+        playsinline
+        poster="/assets/mainlogo.png"
+      >
+        <source id="heroSource" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+      
+      <!-- Overlay with headline -->
+      <div class="hero-overlay">
+        <h1 class="text-4xl md:text-6xl font-bold mb-4">
+          The World's First Legal AI
+        </h1>
+        <p class="text-lg md:text-xl text-slate-300 max-w-3xl">
+          Verify documents with forensic precision. Seal with court-ready PDFs. 
+          Anchor with blockchain proof. All powered by our Nine-Brains verification engine.
+        </p>
+      </div>
+    </div>
+    
+    <!-- Value Proposition -->
+    <div class="text-center mb-16">
+      <h2 class="text-3xl md:text-4xl font-bold mb-6">
+        Verify, Seal, Anchor — Court-Validated Outputs
+      </h2>
+      <p class="text-xl text-slate-300 mb-4">
+        SHA-512 hashing + QR verification + Nine-Brains forensic analysis
+      </p>
+      <div class="inline-block bg-green-900/30 border border-green-700 rounded-lg px-6 py-3 mb-2">
+        <p class="text-lg text-green-400 font-semibold">
+          ✅ 100% Free for Individual Citizens Forever
+        </p>
+      </div>
+      <p class="text-sm text-slate-400">
+        Institutions & Companies: 20% of recovered fraud after successful trial
+      </p>
+    </div>
+    
+    <!-- Feature Cards -->
+    <div class="grid md:grid-cols-3 gap-8 mb-16">
+      
+      <!-- Legal AI -->
+      <div class="bg-slate-900 p-8 rounded-2xl border border-slate-800 hover:border-indigo-700 transition">
+        <div class="text-4xl mb-4">⚖️</div>
+        <h3 class="text-2xl font-bold mb-3">Legal AI</h3>
+        <p class="text-slate-400 mb-4">
+          Draft notices, filings, and affidavits with jurisdiction-aware templates. 
+          In-house counsel ready.
+        </p>
+        <ul class="text-sm text-slate-500 space-y-1">
+          <li>• AI-powered document generation</li>
+          <li>• Legal precedent search</li>
+          <li>• Contract analysis</li>
+        </ul>
+      </div>
+      
+      <!-- Free for Citizens -->
+      <div class="bg-slate-900 p-8 rounded-2xl border border-green-800 hover:border-green-700 transition">
+        <div class="text-4xl mb-4">🎁</div>
+        <h3 class="text-2xl font-bold mb-3">Free for Citizens</h3>
+        <p class="text-slate-400 mb-4">
+          No hidden fees, no subscriptions, no credit card required. 
+          Verify unlimited documents forever.
+        </p>
+        <ul class="text-sm text-slate-500 space-y-1">
+          <li>• Unlimited document verification</li>
+          <li>• PDF sealing with QR codes</li>
+          <li>• Blockchain anchoring hooks</li>
+        </ul>
+      </div>
+      
+      <!-- Contradiction Engine -->
+      <div class="bg-slate-900 p-8 rounded-2xl border border-slate-800 hover:border-purple-700 transition">
+        <div class="text-4xl mb-4">🧠</div>
+        <h3 class="text-2xl font-bold mb-3">Contradiction Engine</h3>
+        <p class="text-slate-400 mb-4">
+          Nine independent verification brains analyze documents for fraud, 
+          contradictions, and anomalies.
+        </p>
+        <ul class="text-sm text-slate-500 space-y-1">
+          <li>• 9-brain forensic verification</li>
+          <li>• Timeline coherence checking</li>
+          <li>• Cross-document conflict detection</li>
+        </ul>
+      </div>
+      
+    </div>
+    
+    <!-- How It Works -->
+    <div class="bg-slate-900/50 rounded-2xl border border-slate-800 p-8 md:p-12 mb-16">
+      <h2 class="text-3xl font-bold mb-8 text-center">How It Works</h2>
+      
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="text-center">
+          <div class="w-16 h-16 bg-indigo-600 rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">
+            1
+          </div>
+          <h3 class="text-xl font-semibold mb-2">Upload</h3>
+          <p class="text-slate-400">
+            Drop your document, image, video, or audio file. 
+            Instant SHA-512 hash computed locally.
+          </p>
+        </div>
+        
+        <div class="text-center">
+          <div class="w-16 h-16 bg-indigo-600 rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">
+            2
+          </div>
+          <h3 class="text-xl font-semibold mb-2">Verify</h3>
+          <p class="text-slate-400">
+            Nine independent brains analyze for fraud, contradictions, and anomalies. 
+            5/9 consensus required.
+          </p>
+        </div>
+        
+        <div class="text-center">
+          <div class="w-16 h-16 bg-indigo-600 rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">
+            3
+          </div>
+          <h3 class="text-xl font-semibold mb-2">Seal & Anchor</h3>
+          <p class="text-slate-400">
+            Download sealed PDF with watermark, QR code, and blockchain anchor receipt. 
+            Court-ready.
+          </p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Call to Action -->
+    <div class="text-center">
+      <a 
+        href="/assistant.html" 
+        class="inline-block px-8 py-4 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-lg font-semibold transition transform hover:scale-105"
+      >
+        Start Verifying Documents Now →
+      </a>
+      <p class="text-sm text-slate-400 mt-4">
+        No signup required • Works 100% offline • Privacy-first
+      </p>
+    </div>
+    
+  </main>
+  
+  <!-- Footer -->
+  <footer class="relative z-10 max-w-7xl mx-auto px-4 py-12 mt-16 border-t border-slate-800">
+    <div class="text-center text-slate-400 space-y-2">
+      <p class="text-sm">
+        ✔ Patent Pending Verum Omnis Foundation
+      </p>
+      <p class="text-xs">
+        All document processing happens locally in your browser. 
+        Nothing leaves your device without your explicit consent.
+      </p>
+      <p class="text-xs">
+        © 2025 Verum Omnis Foundation. "The Whole Truth."
+      </p>
+    </div>
+  </footer>
+  
+  <!-- Load video from videos.json -->
+  <script>
+    fetch('/data/videos.json')
+      .then(res => res.json())
+      .then(data => {
+        const videoSource = document.getElementById('heroSource');
+        const video = document.getElementById('heroVideo');
+        videoSource.src = data.landing;
+        video.load();
+      })
+      .catch(err => {
+        console.warn('Could not load videos.json:', err);
+        // Fallback to direct URL
+        document.getElementById('heroSource').src = 
+          'https://firebasestorage.googleapis.com/v0/b/verumdone.firebasestorage.app/o/assets%2Fvideo%20landing%20page.mp4?alt=media';
+        document.getElementById('heroVideo').load();
+      });
+  </script>
+  
+</body>
+</html>
