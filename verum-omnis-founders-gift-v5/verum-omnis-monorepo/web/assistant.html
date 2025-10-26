@@ -20,15 +20,144 @@
   <!-- Watermark -->
   <img src="/assets/mainlogo.png" alt="Verum Omnis" class="watermark" />
   
+  <!-- User Type Selection Modal -->
+  <div id="userTypeModal" class="fixed inset-0 bg-slate-950/95 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-slate-900 rounded-2xl border border-slate-800 max-w-2xl w-full p-8 shadow-2xl">
+      <div class="text-center mb-8">
+        <h2 class="text-3xl font-bold mb-3">Welcome to Verum Omnis</h2>
+        <p class="text-slate-400 text-lg">Please select your account type to continue</p>
+      </div>
+      
+      <div class="grid gap-4 mb-6">
+        <!-- Private Person Option -->
+        <button 
+          onclick="selectUserType('private')"
+          class="user-type-btn group p-6 bg-gradient-to-br from-green-900/30 to-green-800/20 border-2 border-green-600/50 hover:border-green-500 rounded-xl transition-all hover:shadow-lg hover:shadow-green-500/20"
+        >
+          <div class="flex items-center gap-4">
+            <div class="text-4xl">👤</div>
+            <div class="flex-1 text-left">
+              <h3 class="text-xl font-bold text-green-400 mb-1">Private Person</h3>
+              <p class="text-slate-300 text-sm">100% Free Forever</p>
+              <p class="text-slate-400 text-xs mt-1">Full access to all features at no cost</p>
+            </div>
+            <div class="text-green-400">
+              <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+            </div>
+          </div>
+        </button>
+        
+        <!-- Institution Option -->
+        <button 
+          onclick="selectUserType('institution')"
+          class="user-type-btn group p-6 bg-gradient-to-br from-indigo-900/30 to-indigo-800/20 border-2 border-indigo-600/50 hover:border-indigo-500 rounded-xl transition-all hover:shadow-lg hover:shadow-indigo-500/20"
+        >
+          <div class="flex items-center gap-4">
+            <div class="text-4xl">🏛️</div>
+            <div class="flex-1 text-left">
+              <h3 class="text-xl font-bold text-indigo-400 mb-1">Institution</h3>
+              <p class="text-slate-300 text-sm">Banks, Law Firms, Courts</p>
+              <p class="text-slate-400 text-xs mt-1">Free trial, then 20% of recovered fraud</p>
+            </div>
+            <div class="text-indigo-400">
+              <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+            </div>
+          </div>
+        </button>
+        
+        <!-- Company Option -->
+        <button 
+          onclick="selectUserType('company')"
+          class="user-type-btn group p-6 bg-gradient-to-br from-purple-900/30 to-purple-800/20 border-2 border-purple-600/50 hover:border-purple-500 rounded-xl transition-all hover:shadow-lg hover:shadow-purple-500/20"
+        >
+          <div class="flex items-center gap-4">
+            <div class="text-4xl">🏢</div>
+            <div class="flex-1 text-left">
+              <h3 class="text-xl font-bold text-purple-400 mb-1">Company</h3>
+              <p class="text-slate-300 text-sm">Businesses & Enterprises</p>
+              <p class="text-slate-400 text-xs mt-1">Free trial, then 20% of recovered fraud or licensing</p>
+            </div>
+            <div class="text-purple-400">
+              <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+            </div>
+          </div>
+        </button>
+      </div>
+      
+      <p class="text-center text-xs text-slate-500">
+        You can change this selection anytime in settings
+      </p>
+    </div>
+  </div>
+  
+  <!-- Fee Notice Modal (for Institution/Company) -->
+  <div id="feeNoticeModal" class="fixed inset-0 bg-slate-950/95 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 rounded-2xl border border-slate-800 max-w-2xl w-full p-8 shadow-2xl">
+      <div class="text-center mb-6">
+        <div class="text-5xl mb-4">⚖️</div>
+        <h2 class="text-3xl font-bold mb-3">Important Notice</h2>
+      </div>
+      
+      <div class="bg-yellow-900/20 border-2 border-yellow-600/50 rounded-xl p-6 mb-6">
+        <h3 class="text-xl font-bold text-yellow-400 mb-4">Pricing & Terms</h3>
+        <div class="space-y-3 text-slate-300">
+          <p class="leading-relaxed">
+            <strong>Free Trial Period:</strong> You can use Verum Omnis free during your trial period with full access to all features.
+          </p>
+          <p class="leading-relaxed">
+            <strong>After Trial:</strong> A <span class="text-yellow-400 font-semibold">20% fee applies to recovered fraud</span> or a <span class="text-yellow-400 font-semibold">licensing subscription</span> for ongoing fraud prevention.
+          </p>
+          <p class="leading-relaxed text-sm">
+            This success-based pricing ensures you only pay when we help you recover funds or prevent fraud. No upfront costs, no hidden fees.
+          </p>
+        </div>
+      </div>
+      
+      <div class="mb-6">
+        <label class="flex items-start gap-3 cursor-pointer">
+          <input type="checkbox" id="agreeTerms" class="mt-1 w-5 h-5 rounded border-slate-700 bg-slate-800 text-indigo-600 focus:ring-indigo-500">
+          <span class="text-sm text-slate-300">
+            I understand and agree to the pricing terms. I acknowledge that after the free trial period, fees will apply based on recovered fraud or licensing for ongoing use.
+          </span>
+        </label>
+      </div>
+      
+      <div class="flex gap-3">
+        <button 
+          onclick="goBack()"
+          class="flex-1 px-6 py-3 border border-slate-700 hover:bg-slate-800 rounded-lg font-medium transition-colors"
+        >
+          Go Back
+        </button>
+        <button 
+          id="acceptTermsBtn"
+          onclick="acceptTerms()"
+          class="flex-1 px-6 py-3 bg-indigo-600 hover:bg-indigo-500 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled
+        >
+          Accept & Continue
+        </button>
+      </div>
+    </div>
+  </div>
+  
   <!-- Header -->
   <header class="max-w-7xl mx-auto px-4 py-6">
     <div class="flex items-center justify-between flex-wrap gap-4">
       <div class="flex items-center gap-3">
         <img src="/assets/mainlogo.png" alt="Verum Omnis — the whole truth" class="h-16 object-contain" />
       </div>
-      <nav class="flex gap-3">
-        <a href="/" class="px-3 py-2 rounded border border-slate-700 hover:bg-slate-800">Home</a>
-        <a href="/institutions.html" class="px-3 py-2 rounded border border-slate-700 hover:bg-slate-800">Institutions</a>
+      <nav class="flex gap-3 flex-wrap">
+        <a href="/" class="px-3 py-2 rounded border border-slate-700 hover:bg-slate-800 text-sm">Home</a>
+        <a href="/institutions.html" class="px-3 py-2 rounded border border-slate-700 hover:bg-slate-800 text-sm">Institutions</a>
+        <a href="/legal.html" class="px-3 py-2 rounded border border-slate-700 hover:bg-slate-800 text-sm">Legal</a>
+        <a href="/tax.html" class="px-3 py-2 rounded border border-slate-700 hover:bg-slate-800 text-sm">Tax</a>
       </nav>
     </div>
   </header>
@@ -215,6 +344,65 @@
       animation: bounce 1s infinite;
     }
   </style>
+
+  <!-- User Type Modal Script (non-module, runs first) -->
+  <script>
+    // User type selection modal functions
+    window.selectUserType = function(type) {
+      if (type === 'private') {
+        // Private person - no fee notice needed
+        localStorage.setItem('verumUserType', 'private');
+        document.getElementById('userTypeModal').classList.add('hidden');
+      } else {
+        // Institution or Company - show fee notice
+        localStorage.setItem('verumUserTypeTemp', type);
+        document.getElementById('userTypeModal').classList.add('hidden');
+        const feeNoticeModal = document.getElementById('feeNoticeModal');
+        feeNoticeModal.classList.remove('hidden');
+        feeNoticeModal.classList.add('flex');
+      }
+    };
+    
+    window.goBack = function() {
+      const feeNoticeModal = document.getElementById('feeNoticeModal');
+      feeNoticeModal.classList.add('hidden');
+      feeNoticeModal.classList.remove('flex');
+      document.getElementById('userTypeModal').classList.remove('hidden');
+      document.getElementById('agreeTerms').checked = false;
+      document.getElementById('acceptTermsBtn').disabled = true;
+    };
+    
+    window.acceptTerms = function() {
+      const userType = localStorage.getItem('verumUserTypeTemp');
+      localStorage.setItem('verumUserType', userType);
+      localStorage.removeItem('verumUserTypeTemp');
+      
+      const feeNoticeModal = document.getElementById('feeNoticeModal');
+      feeNoticeModal.classList.add('hidden');
+      feeNoticeModal.classList.remove('flex');
+    };
+    
+    // Check if user type is already selected
+    function checkUserType() {
+      const userType = localStorage.getItem('verumUserType');
+      if (userType) {
+        // User type already selected, hide modal
+        document.getElementById('userTypeModal').classList.add('hidden');
+      }
+    }
+    
+    // Enable/disable accept button based on checkbox
+    document.addEventListener('DOMContentLoaded', function() {
+      checkUserType();
+      
+      const agreeCheckbox = document.getElementById('agreeTerms');
+      if (agreeCheckbox) {
+        agreeCheckbox.addEventListener('change', function(e) {
+          document.getElementById('acceptTermsBtn').disabled = !e.target.checked;
+        });
+      }
+    });
+  </script>
 
   <!-- Main Application Script -->
   <script type="module">
