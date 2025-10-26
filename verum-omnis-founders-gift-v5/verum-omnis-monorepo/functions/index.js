@@ -1,4 +1,4 @@
-import functions from "firebase-functions";
+import { onRequest } from "firebase-functions/v2/https";
 import express from "express";
 import cors from "cors";
 
@@ -39,8 +39,8 @@ app.post("/anchor", (req, res) => {
   return res.json({ ok: true, anchored: true, sha512, tx: "0xMOCK" });
 });
 
-// Export for Firebase Functions
-export const api = functions.region("us-central1").https.onRequest(app);
+// Export for Firebase Functions v2
+export const api = onRequest(app);
 
 // Export app for testing
 export { app };
