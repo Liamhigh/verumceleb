@@ -40,7 +40,7 @@ jobs:
           cache-dependency-path: verum-omnis-founders-gift-v5/verum-omnis-monorepo/functions/package-lock.json
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci || npm install
 
       - name: Run tests
         run: npm test
@@ -62,6 +62,8 @@ jobs:
           chmod +x ./scripts/smoke.sh 2>/dev/null || true
 
       - name: Run trigger-tests.sh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           if [ -x ./trigger-tests.sh ]; then
             echo "✓ Running trigger-tests.sh..."
@@ -90,7 +92,7 @@ jobs:
       - name: Install functions dependencies
         run: |
           cd verum-omnis-founders-gift-v5/verum-omnis-monorepo/functions
-          npm ci
+          npm ci || npm install
 
       - name: Ensure latest firebase-functions locally to silence warning
         run: |
