@@ -247,6 +247,9 @@ python3 -m http.server 8000
 **CodeAgent workflow:**
 ```bash
 cd verum-omnis-founders-gift-v5/verum-omnis-monorepo/functions
+# SKIP_IMMUTABLE_VERIFY=1 skips SHA-512 verification of governance files
+# Use ONLY for local development - NEVER in production
+# This allows testing without requiring all governance files to be verified
 SKIP_IMMUTABLE_VERIFY=1 node serve.js
 # API available at http://localhost:8000/api
 ```
@@ -356,7 +359,7 @@ git push origin main
 - [ ] End-to-end user flows work
 - [ ] Document upload → hash → seal → download
 - [ ] Chat interactions feel natural
-- [ ] Institutions see 20% notice
+- [ ] Institutions see 20% notice (20% of fraud recovery proceeds after trial - see LEGAL.md)
 - [ ] Citizens get free access
 - [ ] Legal disclaimers visible
 - [ ] Mobile app works on Android

@@ -70,6 +70,8 @@ PowerShell script for automated API testing with colored output.
 1. Start the local server:
    ```bash
    cd verum-omnis-founders-gift-v5/verum-omnis-monorepo/functions
+   # SKIP_IMMUTABLE_VERIFY=1 skips SHA-512 verification of governance files during development
+   # This is useful for local testing but should NEVER be used in production
    SKIP_IMMUTABLE_VERIFY=1 node serve.js
    ```
 
