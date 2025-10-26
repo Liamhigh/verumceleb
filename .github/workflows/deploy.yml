@@ -17,7 +17,7 @@ permissions:
 
 env:
   SMOKE_HOST: gitverum.web.app
-  FIREBASE_PROJECT: verumdone
+  FIREBASE_PROJECT: gitverum
   MONO_ROOT: verum-omnis-founders-gift-v5/verum-omnis-monorepo
 
 jobs:
