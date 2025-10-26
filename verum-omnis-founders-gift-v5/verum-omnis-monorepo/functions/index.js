@@ -39,4 +39,8 @@ app.post("/anchor", (req, res) => {
   return res.json({ ok: true, anchored: true, sha512, tx: "0xMOCK" });
 });
 
+// Export for Firebase Functions
 export const api = functions.region("us-central1").https.onRequest(app);
+
+// Export app for testing
+export { app };

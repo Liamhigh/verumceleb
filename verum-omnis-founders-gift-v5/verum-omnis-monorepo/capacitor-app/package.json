@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "if not exist www mkdir www && xcopy ..\\web\\* www /E /Y"
+    "build": "if not exist www mkdir www && xcopy ..\\web\\* www /E /Y",
+    "test": "echo \"No tests in capacitor-app yet\" && exit 0"
   },
   "dependencies": {
     "@capacitor/android": "^6.1.0",
