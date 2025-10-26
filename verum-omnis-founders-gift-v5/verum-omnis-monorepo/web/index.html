@@ -7,6 +7,12 @@
   <meta name="description" content="Your law firm in your pocket. Court-validated outputs with QR + SHA-512.">
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
+    /* Prevent horizontal scroll */
+    html, body {
+      overflow-x: hidden;
+      max-width: 100vw;
+    }
+    
     /* Watermark behind content */
     .watermark {
       position: fixed;
@@ -16,7 +22,8 @@
       opacity: 0.03;
       pointer-events: none;
       z-index: 0;
-      width: 800px;
+      width: 90vw;
+      max-width: 800px;
       height: auto;
     }
     
@@ -63,7 +70,7 @@
     }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100">
+<body class="bg-slate-950 text-slate-100 overflow-x-hidden">
   
   <!-- Watermark Logo -->
   <img src="/assets/mainlogo.png" alt="Verum Omnis" class="watermark" />
