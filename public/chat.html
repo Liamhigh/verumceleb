@@ -1,0 +1,61 @@
+﻿<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Chat • Verum Omnis</title>
+<style>
+body{margin:0;background:#0b0d11;color:#e6eefc;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif}
+.wrap{max-width:900px;margin:0 auto;padding:18px}
+.card{background:#101820;border:1px solid #1a2333;border-radius:16px;padding:16px;margin:12px 0}
+input,button,textarea{width:100%;padding:12px;border-radius:12px;border:1px solid #1a2333;background:#0f1522;color:#e6eefc}
+button{cursor:pointer;font-weight:700}
+.note{color:#9fb2c8;font-size:14px}
+</style>
+<div class="wrap">
+  <div class="card"><div id="sys"></div></div>
+  <div class="card">
+    <textarea id="msg" rows="4" placeholder="Type here…"></textarea>
+    <div style="height:10px"></div>
+    <button id="send">Send</button>
+    <div class="note">No uploads happen until you explicitly choose to verify or seal.</div>
+  </div>
+  <div class="card"><pre id="out">Waiting…</pre></div>
+</div>
+<script>
+const out = document.getElementById('out');
+const sys = document.getElementById('sys');
+const u = new URL(location.href);
+const intent = u.searchParams.get('intent') || '';
+
+function say(t){ out.textContent += (out.textContent ? "\n" : "") + t; }
+function setSys(t){ sys.innerHTML = t; }
+
+if(intent === 'verifySeal'){
+  setSys(`<b>Verify & Seal</b><br>Do you want to <b>verify</b> a document (on-screen report) or <b>seal</b> it (you’ll get a download link to the sealed PDF)?`);
+} else if (intent === 'tax') {
+  setSys(`<b>Tax Returns</b><br>Tell me your country and situation to start. I’ll prepare a checklist and a sealed PDF at the end.`);
+} else if (intent === 'institution') {
+  setSys(`<b>Institution Login</b><br>Enter your company email domain to begin domain verification and firewall download.`);
+} else {
+  setSys(`<b>Chat</b><br>Ask anything legal. For document work, open <i>Verify & Seal</i> from the homepage.`);
+}
+
+document.getElementById('send').onclick = async () => {
+  const m = (document.getElementById('msg').value || '').trim();
+  if(!m){ return; }
+  say(`You: ${m}`);
+
+  // Local stub; wire real endpoints later.
+  if(intent === 'verifySeal'){
+    if(/^\s*verify\b/i.test(m)){
+      say("Okay. Send or paste the text/URL of the document. I’ll show an on-screen verification report.");
+    } else if(/^\s*seal\b/i.test(m)){
+      say("Great. Send the document. I’ll return a sealed PDF as a download link when done.");
+    } else {
+      say("Please say “verify” for an on-screen report or “seal” to receive a sealed PDF link.");
+    }
+    return;
+  }
+
+  if(intent === 'tax'){ say("Got it. I’ll build a checklist and produce a sealed PDF at the end."); return; }
+  if(intent === 'institution'){ say("Thanks. I’ll validate the domain and prepare your fraud firewall download."); return; }
+  say("Thanks. I’ll help step-by-step.");
+};
+</script>
