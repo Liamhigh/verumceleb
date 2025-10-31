@@ -1,3 +1,6 @@
 # kick tests
+<<<<<<< HEAD
 # kick
 # trigger
+=======
+>>>>>>> 7710903 (test: trigger manual tests workflow)
